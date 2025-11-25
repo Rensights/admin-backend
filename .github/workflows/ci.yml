@@ -49,7 +49,7 @@ jobs:
           sudo apt-get install -y skopeo
           echo "✅ skopeo installed"
 
-      - name: Build image to OCI format
+      - name: Build image to OCI archive format
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -58,50 +58,71 @@ jobs:
             admin-backend:sha-${{ github.sha }}
             admin-backend:latest
           platforms: linux/amd64
-          outputs: type=oci,dest=/tmp/image-oci
+          outputs: type=oci-archive,dest=/tmp/image-oci.tar
           cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
 
-      - name: Inspect and push images to Harbor
+      - name: Extract and inspect OCI archive
+        run: |
+          echo "Extracting OCI archive..."
+          mkdir -p /tmp/image-oci
+          tar -xf /tmp/image-oci.tar -C /tmp/image-oci
+          echo "✅ OCI archive extracted"
+          
+          # List available references
+          if [ -f /tmp/image-oci/index.json ]; then
+            echo "Available references:"
+            cat /tmp/image-oci/index.json | python3 -m json.tool 2>/dev/null | grep -A 5 "manifests" || cat /tmp/image-oci/index.json
+          fi
+
+      - name: Push images to Harbor using skopeo (HTTP)
         run: |
           REGISTRY="${{ secrets.HARBOR_REGISTRY }}"
           USERNAME="${{ secrets.HARBOR_USERNAME }}"
           PASSWORD="${{ secrets.HARBOR_PASSWORD }}"
-          
-          echo "Inspecting OCI image layout..."
-          # Check what's in the OCI directory
-          ls -la /tmp/image-oci/ || echo "Checking structure..."
-          
-          # List available tags/references
-          if [ -f /tmp/image-oci/index.json ]; then
-            echo "Available references:"
-            cat /tmp/image-oci/index.json | grep -o '"name":"[^"]*"' || echo "No named references found"
-          fi
+          IMAGE_SHA="${{ github.sha }}"
           
           echo "Pushing images to Harbor using skopeo (HTTP)..."
           
-          # Try to push using the OCI layout - skopeo will use the first available reference
-          # If tags don't match, we'll push the image and then tag it in Harbor
-          IMAGE_SHA="${{ github.sha }}"
+          # Try to find the reference name from index.json
+          REF=""
+          if [ -f /tmp/image-oci/index.json ]; then
+            # Try to get reference name from annotations
+            REF=$(python3 <<EOF
+import json
+try:
+    with open('/tmp/image-oci/index.json', 'r') as f:
+        data = json.load(f)
+        if 'manifests' in data and len(data['manifests']) > 0:
+            manifest = data['manifests'][0]
+            if 'annotations' in manifest:
+                ref = manifest['annotations'].get('org.opencontainers.image.ref.name', '')
+                if ref:
+                    print(ref)
+except:
+    pass
+EOF
+)
+          fi
           
-          # Push the image (skopeo will use the first reference if tags don't match)
-          skopeo copy \
-            --dest-creds="$USERNAME:$PASSWORD" \
-            --dest-tls-verify=false \
-            oci:/tmp/image-oci \
-            docker://$REGISTRY/project/admin-backend:sha-$IMAGE_SHA || {
-            echo "Trying alternative method..."
-            # If that fails, try to find the actual reference
-            REF=$(cat /tmp/image-oci/index.json | jq -r '.manifests[0].annotations."org.opencontainers.image.ref.name"' 2>/dev/null || echo "")
-            if [ -n "$REF" ]; then
-              skopeo copy \
-                --dest-creds="$USERNAME:$PASSWORD" \
-                --dest-tls-verify=false \
-                oci:/tmp/image-oci:$REF \
-                docker://$REGISTRY/project/admin-backend:sha-$IMAGE_SHA
-            fi
-          }
+          # Push the image - use reference if found, otherwise let skopeo use default
+          if [ -n "$REF" ]; then
+            echo "Using reference: $REF"
+            skopeo copy \
+              --dest-creds="$USERNAME:$PASSWORD" \
+              --dest-tls-verify=false \
+              oci:/tmp/image-oci:$REF \
+              docker://$REGISTRY/project/admin-backend:sha-$IMAGE_SHA
+          else
+            echo "No reference found, using OCI layout directly"
+            skopeo copy \
+              --dest-creds="$USERNAME:$PASSWORD" \
+              --dest-tls-verify=false \
+              oci:/tmp/image-oci \
+              docker://$REGISTRY/project/admin-backend:sha-$IMAGE_SHA
+          fi
           
           # Tag as latest in Harbor (copy from SHA tag)
+          echo "Tagging as latest..."
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
