@@ -64,12 +64,15 @@ jobs:
           }
 
       - name: Build and push Docker image
-        run: |
-          # Build image
-          docker build -t ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }} \
-                       -t ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest .
-          
-          # Push images
-          docker push ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }}
-          docker push ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }}
+            ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
+          platforms: linux/amd64
+          cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
+          cache-to: type=inline
+          # Note: This will still try HTTPS. For HTTP registry, we need to configure Harbor with HTTPS
 

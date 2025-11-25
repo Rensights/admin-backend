@@ -1,0 +1,52 @@
+name: Build on Server (HTTP Registry Workaround)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+
+env:
+  SERVER_HOST: 72.62.40.154
+  SERVER_USER: root
+  HARBOR_REGISTRY: 72.62.40.154:30500
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy files to server
+        run: |
+          scp -o StrictHostKeyChecking=no -r . ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/tmp/admin-backend-build
+
+      - name: Build and push on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} << 'EOF'
+            cd /tmp/admin-backend-build
+            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+            
+            # Login to Harbor (HTTP works on server)
+            echo "${{ secrets.HARBOR_PASSWORD }}" | docker login http://${{ env.HARBOR_REGISTRY }} \
+              -u "${{ secrets.HARBOR_USERNAME }}" \
+              --password-stdin
+            
+            # Build image
+            docker build -t ${{ env.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }} \
+                         -t ${{ env.HARBOR_REGISTRY }}/project/admin-backend:latest .
+            
+            # Push images
+            docker push ${{ env.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }}
+            docker push ${{ env.HARBOR_REGISTRY }}/project/admin-backend:latest
+            
+            echo "✅ Images pushed successfully"
+          EOF
+
