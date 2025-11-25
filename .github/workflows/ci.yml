@@ -45,36 +45,23 @@ jobs:
         with:
           driver-opts: network=host
 
-      - name: Configure Docker for insecure registry
+      - name: Log in to Harbor (HTTP)
         run: |
-          # Create Docker config directory
-          mkdir -p ~/.docker
+          # Docker in GitHub Actions doesn't easily support HTTP registries
+          # We'll use a workaround by setting DOCKER_CONFIG and using the registry URL
+          export DOCKER_CONFIG=~/.docker
+          mkdir -p $DOCKER_CONFIG
           
-          # Configure Docker to use HTTP for Harbor registry
-          cat > ~/.docker/config.json <<EOF
-          {
-            "auths": {
-              "http://${{ secrets.HARBOR_REGISTRY }}": {}
-            },
-            "HttpHeaders": {
-              "User-Agent": "Docker-Client"
-            }
-          }
-          EOF
-          
-          # Login to Harbor using HTTP (with --insecure-registry workaround)
-          echo "Logging into Harbor registry: http://${{ secrets.HARBOR_REGISTRY }}"
-          echo "${{ secrets.HARBOR_PASSWORD }}" | docker login http://${{ secrets.HARBOR_REGISTRY }} \
+          # Try to login - Docker may still try HTTPS, but we'll handle the error
+          echo "Attempting to login to Harbor: ${{ secrets.HARBOR_REGISTRY }}"
+          echo "${{ secrets.HARBOR_PASSWORD }}" | docker login ${{ secrets.HARBOR_REGISTRY }} \
             -u "${{ secrets.HARBOR_USERNAME }}" \
-            --password-stdin || {
-            echo "⚠️  Standard login failed, trying alternative method..."
-            # Alternative: use registry URL without protocol
-            docker login ${{ secrets.HARBOR_REGISTRY }} \
-              -u "${{ secrets.HARBOR_USERNAME }}" \
-              -p "${{ secrets.HARBOR_PASSWORD }}" || true
+            --password-stdin 2>&1 | tee /tmp/docker-login.log || {
+            echo "⚠️  Login failed, checking error..."
+            cat /tmp/docker-login.log
+            echo ""
+            echo "This is expected if Harbor uses HTTP. We'll proceed with build."
           }
-          
-          echo "✅ Docker login completed"
 
       - name: Build and push Docker image
         run: |
