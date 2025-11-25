@@ -57,9 +57,14 @@ jobs:
             --password-stdin
 
       - name: Build and push Docker image
-        run: |
-          docker build -t ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }} \
-                       -t ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest .
-          docker push ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }}
-          docker push ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }}
+            ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
+          platforms: linux/amd64
+          cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
+          cache-to: type=inline
 
