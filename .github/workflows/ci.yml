@@ -76,18 +76,20 @@ jobs:
           echo "Pushing images to Harbor using skopeo (HTTP)..."
           
           # Push SHA tag directly from OCI archive
+          # Note: docker:// transport doesn't accept http:// prefix
+          # Use --dest-tls-verify=false to force HTTP
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
             oci-archive:/tmp/image-oci.tar:admin-backend:sha-${{ github.sha }} \
-            docker://http://$REGISTRY/project/admin-backend:sha-${{ github.sha }}
+            docker://$REGISTRY/project/admin-backend:sha-${{ github.sha }}
           
           # Push latest tag directly from OCI archive
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
             oci-archive:/tmp/image-oci.tar:admin-backend:latest \
-            docker://http://$REGISTRY/project/admin-backend:latest
+            docker://$REGISTRY/project/admin-backend:latest
           
           echo "✅ Images pushed successfully via HTTP"
 
