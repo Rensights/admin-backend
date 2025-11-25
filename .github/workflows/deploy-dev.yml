@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: ${{ secrets.HARBOR_REGISTRY }}
-  IMAGE_PREFIX: project
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}
   NAMESPACE: dev
 
 jobs:
@@ -38,6 +38,17 @@ jobs:
           export KUBECONFIG=/tmp/kubeconfig
           kubectl cluster-info
 
+      - name: Configure image pull secrets for GHCR
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          # Create secret for pulling from GHCR
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.GITHUB_TOKEN }} \
+            --namespace ${NAMESPACE} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy admin-backend
         run: |
           export KUBECONFIG=/tmp/kubeconfig
@@ -49,6 +60,7 @@ jobs:
             -f env-values/dev/admin-backend.yaml \
             --set image.tag=sha-${SHA} \
             --set image.repository=${REGISTRY}/${IMAGE_PREFIX}/admin-backend \
+            --set imagePullSecrets[0].name=ghcr-secret \
             --wait --timeout=5m
 
       - name: Verify deployment
