@@ -33,6 +33,8 @@ jobs:
       - name: Configure kubectl
         run: |
           echo "${{ secrets.DEV_KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
+          # Update server URL if it's pointing to localhost
+          sed -i 's|server: https://127.0.0.1:6443|server: https://72.62.40.154:6443|g' /tmp/kubeconfig
           export KUBECONFIG=/tmp/kubeconfig
           kubectl cluster-info
 
