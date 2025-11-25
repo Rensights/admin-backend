@@ -124,6 +124,8 @@ EOF
           # Tag as latest in Harbor (copy from SHA tag)
           echo "Tagging as latest..."
           skopeo copy \
+            --src-creds="$USERNAME:$PASSWORD" \
+            --src-tls-verify=false \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
             docker://$REGISTRY/project/admin-backend:sha-$IMAGE_SHA \
