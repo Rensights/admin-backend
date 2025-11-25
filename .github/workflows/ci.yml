@@ -74,5 +74,4 @@ jobs:
           platforms: linux/amd64
           cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
           cache-to: type=inline
-          # Note: This will still try HTTPS. For HTTP registry, we need to configure Harbor with HTTPS
 
