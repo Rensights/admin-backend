@@ -58,27 +58,14 @@ jobs:
             admin-backend:sha-${{ github.sha }}
             admin-backend:latest
           platforms: linux/amd64
-          outputs: type=oci,dest=/tmp/image.tar
+          outputs: type=oci,dest=/tmp/image-oci.tar
           cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
 
-      - name: Load and tag image
+      - name: Install skopeo (for HTTP registry support)
         run: |
-          # Load OCI image
-          docker load -i /tmp/image.tar
-          
-          # Tag for Harbor registry
-          REGISTRY="${{ secrets.HARBOR_REGISTRY }}"
-          docker tag admin-backend:sha-${{ github.sha }} $REGISTRY/project/admin-backend:sha-${{ github.sha }}
-          docker tag admin-backend:latest $REGISTRY/project/admin-backend:latest
-          echo "✅ Images tagged"
-
-      - name: Save image for skopeo
-        run: |
-          REGISTRY="${{ secrets.HARBOR_REGISTRY }}"
-          # Save tagged images
-          docker save $REGISTRY/project/admin-backend:sha-${{ github.sha }} -o /tmp/image-sha.tar
-          docker save $REGISTRY/project/admin-backend:latest -o /tmp/image-latest.tar
-          echo "✅ Images saved"
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+          echo "✅ skopeo installed"
 
       - name: Push images to Harbor using skopeo (HTTP)
         run: |
@@ -88,18 +75,18 @@ jobs:
           
           echo "Pushing images to Harbor using skopeo (HTTP)..."
           
-          # Push SHA tag
+          # Push SHA tag directly from OCI archive
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
-            docker-archive:/tmp/image-sha.tar \
+            oci-archive:/tmp/image-oci.tar:admin-backend:sha-${{ github.sha }} \
             docker://http://$REGISTRY/project/admin-backend:sha-${{ github.sha }}
           
-          # Push latest tag
+          # Push latest tag directly from OCI archive
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
-            docker-archive:/tmp/image-latest.tar \
+            oci-archive:/tmp/image-oci.tar:admin-backend:latest \
             docker://http://$REGISTRY/project/admin-backend:latest
           
           echo "✅ Images pushed successfully via HTTP"
