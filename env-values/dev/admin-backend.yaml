@@ -1,0 +1,44 @@
+# Dev environment overrides for admin-backend
+replicaCount: 1
+
+image:
+  repository: 72.62.40.154:30500/project/admin-backend
+  tag: "canary"
+  pullPolicy: Always
+
+database:
+  host: postgres-admin.dev.svc.cluster.local
+  port: 5432
+  name: admin_db_dev
+  usernameSecret: admin-db-user
+  passwordSecret: admin-db-password
+
+global:
+  generalDb:
+    usernameSecret: general-dev-user
+    passwordSecret: general-dev-password
+    schema: dev_general
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: dev-admin-api.72.62.40.154.nip.io
+      paths: ["/"]
+  annotations:
+    konghq.com/strip-path: "true"
+    konghq.com/protocols: "http"
+
+extraEnv:
+  SPRING_PROFILES_ACTIVE: "dev"
+  SERVER_PORT: "8081"
+  CORS_ORIGINS: "http://dev-admin.72.62.40.154.nip.io:31416"
+  OTEL_SERVICE_NAME: "admin-backend-dev"
+

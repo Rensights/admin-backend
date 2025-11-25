@@ -20,17 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Checkout service code
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          path: service
-
-      - name: Checkout config repo
-        uses: actions/checkout@v4
-        with:
-          repository: Rensights/rensights
-          path: config
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
@@ -62,11 +53,11 @@ jobs:
       - name: Deploy admin-backend
         run: |
           export KUBECONFIG=/tmp/kubeconfig
-          helm upgrade --install admin-backend config/charts/admin-backend \
+          helm upgrade --install admin-backend charts/admin-backend \
             --namespace ${NAMESPACE} \
             --create-namespace \
-            -f config/env-values/prod/global.yaml \
-            -f config/env-values/prod/admin-backend.yaml \
+            -f env-values/prod/global.yaml \
+            -f env-values/prod/admin-backend.yaml \
             --set image.tag=${{ steps.image-tag.outputs.IMAGE_TAG }} \
             --set image.repository=${REGISTRY}/${IMAGE_PREFIX}/admin-backend \
             --wait --timeout=5m
@@ -76,4 +67,3 @@ jobs:
           export KUBECONFIG=/tmp/kubeconfig
           kubectl get pods -n ${NAMESPACE} -l app=admin-backend
           kubectl get svc -n ${NAMESPACE} -l app=admin-backend
-

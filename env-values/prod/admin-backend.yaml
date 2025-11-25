@@ -1,0 +1,55 @@
+# Production environment overrides for admin-backend
+replicaCount: 2
+
+image:
+  repository: 72.62.40.154:30500/project/admin-backend
+  tag: "release-v1.0.0"
+  pullPolicy: Always
+
+database:
+  host: postgres-admin.prod.svc.cluster.local
+  port: 5432
+  name: admin_db_prod
+  usernameSecret: admin-db-user
+  passwordSecret: admin-db-password
+
+global:
+  generalDb:
+    usernameSecret: general-prod-user
+    passwordSecret: general-prod-password
+    schema: prod_general
+
+resources:
+  requests:
+    cpu: "300m"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+
+ingress:
+  enabled: true
+  hosts:
+    - host: admin-api.72.62.40.154.nip.io
+      paths: ["/"]
+  annotations:
+    konghq.com/strip-path: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    konghq.com/plugins: "admin-ip-whitelist,jwt-auth"
+  tls:
+    - secretName: admin-api-72-62-40-154-nip-io-tls
+      hosts:
+        - admin-api.72.62.40.154.nip.io
+
+extraEnv:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SERVER_PORT: "8081"
+  CORS_ORIGINS: "https://admin.72.62.40.154.nip.io,http://admin.72.62.40.154.nip.io:31416"
+  OTEL_SERVICE_NAME: "admin-backend-prod"
+

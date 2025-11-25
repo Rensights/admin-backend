@@ -1,0 +1,33 @@
+# Global configuration for production environment
+global:
+  registry: 72.62.40.154:30500  # Harbor registry (Docker push/pull)
+  domain: 72.62.40.154.nip.io  # Your production domain (update when you have a real domain)
+  env: prod
+  certIssuer: letsencrypt-prod
+  
+  # General DB configuration (shared between dev and prod)
+  generalDb:
+    host: postgres-general.platform.svc.cluster.local
+    port: 5432
+    db: postgres
+    sslmode: require
+    usernameSecret: general-prod-user
+    passwordSecret: general-prod-password
+    schema: prod_general
+  
+  # Public database (prod-specific)
+  publicDb:
+    host: postgres-public.prod.svc.cluster.local
+    port: 5432
+    name: public_db_prod
+    usernameSecret: public-db-user
+    passwordSecret: public-db-password
+  
+  # Admin database (prod-specific)
+  adminDb:
+    host: postgres-admin.prod.svc.cluster.local
+    port: 5432
+    name: admin_db_prod
+    usernameSecret: admin-db-user
+    passwordSecret: admin-db-password
+

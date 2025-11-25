@@ -1,0 +1,47 @@
+# Dev environment overrides for public-backend
+replicaCount: 1
+
+image:
+  repository: 72.62.40.154:30500/project/public-backend
+  tag: "canary"  # Will be overridden by CI with sha-<commit>
+  pullPolicy: Always
+
+database:
+  host: postgres-public.dev.svc.cluster.local
+  port: 5432
+  name: public_db_dev
+  usernameSecret: public-db-user
+  passwordSecret: public-db-password
+
+global:
+  generalDb:
+    usernameSecret: general-dev-user
+    passwordSecret: general-dev-password
+    schema: dev_general
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: dev-api.72.62.40.154.nip.io
+      paths: ["/"]
+  annotations:
+    konghq.com/strip-path: "true"
+    konghq.com/protocols: "http"
+
+extraEnv:
+  SPRING_PROFILES_ACTIVE: "dev"
+  SERVER_PORT: "8080"
+  CORS_ORIGINS: "http://dev.72.62.40.154.nip.io:31416,http://dev.72.62.40.154.nip.io"
+  OTEL_SERVICE_NAME: "public-backend-dev"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://signoz-otel-collector.platform.svc.cluster.local:4318"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+  OTEL_EXPORTER_OTLP_INSECURE: "true"
+
