@@ -61,47 +61,52 @@ jobs:
           outputs: type=oci,dest=/tmp/image-oci
           cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
 
-      - name: Inspect OCI archive and push to Harbor
+      - name: Inspect and push images to Harbor
         run: |
           REGISTRY="${{ secrets.HARBOR_REGISTRY }}"
           USERNAME="${{ secrets.HARBOR_USERNAME }}"
           PASSWORD="${{ secrets.HARBOR_PASSWORD }}"
           
-          echo "Inspecting OCI archive..."
-          # List tags in the OCI archive
-          skopeo list-tags oci:/tmp/image-oci || echo "Checking archive format..."
+          echo "Inspecting OCI image layout..."
+          # Check what's in the OCI directory
+          ls -la /tmp/image-oci/ || echo "Checking structure..."
+          
+          # List available tags/references
+          if [ -f /tmp/image-oci/index.json ]; then
+            echo "Available references:"
+            cat /tmp/image-oci/index.json | grep -o '"name":"[^"]*"' || echo "No named references found"
+          fi
           
           echo "Pushing images to Harbor using skopeo (HTTP)..."
           
-          # Push using the first available tag, then tag in Harbor
-          # OCI archives use the directory format, not tar
-          # Try to copy from OCI directory format
+          # Try to push using the OCI layout - skopeo will use the first available reference
+          # If tags don't match, we'll push the image and then tag it in Harbor
+          IMAGE_SHA="${{ github.sha }}"
+          
+          # Push the image (skopeo will use the first reference if tags don't match)
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
-            oci:/tmp/image-oci:admin-backend:sha-${{ github.sha }} \
-            docker://$REGISTRY/project/admin-backend:sha-${{ github.sha }} || {
-            echo "Trying with latest tag..."
-            skopeo copy \
-              --dest-creds="$USERNAME:$PASSWORD" \
-              --dest-tls-verify=false \
-              oci:/tmp/image-oci:admin-backend:latest \
-              docker://$REGISTRY/project/admin-backend:sha-${{ github.sha }}
+            oci:/tmp/image-oci \
+            docker://$REGISTRY/project/admin-backend:sha-$IMAGE_SHA || {
+            echo "Trying alternative method..."
+            # If that fails, try to find the actual reference
+            REF=$(cat /tmp/image-oci/index.json | jq -r '.manifests[0].annotations."org.opencontainers.image.ref.name"' 2>/dev/null || echo "")
+            if [ -n "$REF" ]; then
+              skopeo copy \
+                --dest-creds="$USERNAME:$PASSWORD" \
+                --dest-tls-verify=false \
+                oci:/tmp/image-oci:$REF \
+                docker://$REGISTRY/project/admin-backend:sha-$IMAGE_SHA
+            fi
           }
           
-          # Push latest tag
+          # Tag as latest in Harbor (copy from SHA tag)
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
-            oci:/tmp/image-oci:admin-backend:latest \
-            docker://$REGISTRY/project/admin-backend:latest || {
-            echo "Copying SHA tag as latest..."
-            skopeo copy \
-              --dest-creds="$USERNAME:$PASSWORD" \
-              --dest-tls-verify=false \
-              docker://$REGISTRY/project/admin-backend:sha-${{ github.sha }} \
-              docker://$REGISTRY/project/admin-backend:latest
-          }
+            docker://$REGISTRY/project/admin-backend:sha-$IMAGE_SHA \
+            docker://$REGISTRY/project/admin-backend:latest
           
           echo "✅ Images pushed successfully via HTTP"
 
