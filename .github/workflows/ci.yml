@@ -58,32 +58,50 @@ jobs:
             admin-backend:sha-${{ github.sha }}
             admin-backend:latest
           platforms: linux/amd64
-          outputs: type=oci,dest=/tmp/image-oci.tar
+          outputs: type=oci,dest=/tmp/image-oci
           cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
 
-      - name: Push images to Harbor using skopeo (HTTP)
+      - name: Inspect OCI archive and push to Harbor
         run: |
           REGISTRY="${{ secrets.HARBOR_REGISTRY }}"
           USERNAME="${{ secrets.HARBOR_USERNAME }}"
           PASSWORD="${{ secrets.HARBOR_PASSWORD }}"
           
+          echo "Inspecting OCI archive..."
+          # List tags in the OCI archive
+          skopeo list-tags oci:/tmp/image-oci || echo "Checking archive format..."
+          
           echo "Pushing images to Harbor using skopeo (HTTP)..."
           
-          # Push SHA tag directly from OCI archive
-          # Note: docker:// transport doesn't accept http:// prefix
-          # Use --dest-tls-verify=false to force HTTP
+          # Push using the first available tag, then tag in Harbor
+          # OCI archives use the directory format, not tar
+          # Try to copy from OCI directory format
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
-            oci-archive:/tmp/image-oci.tar:admin-backend:sha-${{ github.sha }} \
-            docker://$REGISTRY/project/admin-backend:sha-${{ github.sha }}
+            oci:/tmp/image-oci:admin-backend:sha-${{ github.sha }} \
+            docker://$REGISTRY/project/admin-backend:sha-${{ github.sha }} || {
+            echo "Trying with latest tag..."
+            skopeo copy \
+              --dest-creds="$USERNAME:$PASSWORD" \
+              --dest-tls-verify=false \
+              oci:/tmp/image-oci:admin-backend:latest \
+              docker://$REGISTRY/project/admin-backend:sha-${{ github.sha }}
+          }
           
-          # Push latest tag directly from OCI archive
+          # Push latest tag
           skopeo copy \
             --dest-creds="$USERNAME:$PASSWORD" \
             --dest-tls-verify=false \
-            oci-archive:/tmp/image-oci.tar:admin-backend:latest \
-            docker://$REGISTRY/project/admin-backend:latest
+            oci:/tmp/image-oci:admin-backend:latest \
+            docker://$REGISTRY/project/admin-backend:latest || {
+            echo "Copying SHA tag as latest..."
+            skopeo copy \
+              --dest-creds="$USERNAME:$PASSWORD" \
+              --dest-tls-verify=false \
+              docker://$REGISTRY/project/admin-backend:sha-${{ github.sha }} \
+              docker://$REGISTRY/project/admin-backend:latest
+          }
           
           echo "✅ Images pushed successfully via HTTP"
 
