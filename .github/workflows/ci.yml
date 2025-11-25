@@ -45,18 +45,21 @@ jobs:
 
       - name: Log in to Harbor (HTTP)
         run: |
+          # Configure Docker to allow insecure HTTP registry
+          mkdir -p /etc/docker
+          echo '{"insecure-registries": ["${{ secrets.HARBOR_REGISTRY }}"]}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker || true
+          sleep 2
+          
+          # Login to Harbor
           echo "${{ secrets.HARBOR_PASSWORD }}" | docker login ${{ secrets.HARBOR_REGISTRY }} \
             -u "${{ secrets.HARBOR_USERNAME }}" \
             --password-stdin
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }}
-            ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
-          cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
-          cache-to: type=inline
+        run: |
+          docker build -t ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }} \
+                       -t ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest .
+          docker push ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }}
+          docker push ${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
 
