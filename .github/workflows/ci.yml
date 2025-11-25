@@ -61,12 +61,6 @@ jobs:
           outputs: type=oci,dest=/tmp/image-oci.tar
           cache-from: type=registry,ref=${{ secrets.HARBOR_REGISTRY }}/project/admin-backend:latest
 
-      - name: Install skopeo (for HTTP registry support)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y skopeo
-          echo "✅ skopeo installed"
-
       - name: Push images to Harbor using skopeo (HTTP)
         run: |
           REGISTRY="${{ secrets.HARBOR_REGISTRY }}"
