@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: rensights-admin-backend
+  
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/rensights}
+    username: ${DATABASE_USER:rensights}
+    password: ${DATABASE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+server:
+  port: ${SERVER_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+jwt:
+  secret: ${JWT_SECRET:admin-secret-key-change-in-production-minimum-32-characters-long}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+cors:
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3001,http://localhost:3002}
+
+app:
+  main-backend-url: ${APP_MAIN_BACKEND_URL:http://localhost:8080}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:}
+  publishable-key: ${STRIPE_PUBLISHABLE_KEY:}
+
+logging:
+  level:
+    root: INFO
+    com.rensights.admin: DEBUG
+    org.springframework.security: WARN
+
