@@ -1,11 +1,15 @@
 name: Build on Server (HTTP Registry Workaround)
 
+# Note: This workflow is optional. The main CI workflow (ci.yml) uses skopeo
+# and works without SSH. Use this only if you need to build directly on the server.
+
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - develop
+  # Disabled automatic triggers - use workflow_dispatch only
+  # push:
+  #   branches:
+  #     - main
+  #     - develop
 
 env:
   SERVER_HOST: 72.62.40.154
@@ -30,12 +34,16 @@ jobs:
             exit 1
           fi
           echo "✅ SSH key is configured"
+          
+          # Validate key format
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | head -1 | grep -q "BEGIN.*PRIVATE KEY" && echo "✅ Key format looks valid" || echo "⚠️  Key format might be invalid"
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           log-public-key: true
+        continue-on-error: false
 
       - name: Copy files to server
         run: |
