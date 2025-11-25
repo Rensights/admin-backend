@@ -86,8 +86,8 @@ jobs:
           # Try to find the reference name from index.json
           REF=""
           if [ -f /tmp/image-oci/index.json ]; then
-            # Try to get reference name from annotations
-            REF=$(python3 <<EOF
+            # Try to get reference name from annotations using python3
+            REF=$(python3 -c "
 import json
 try:
     with open('/tmp/image-oci/index.json', 'r') as f:
@@ -100,8 +100,7 @@ try:
                     print(ref)
 except:
     pass
-EOF
-)
+")
           fi
           
           # Push the image - use reference if found, otherwise let skopeo use default
