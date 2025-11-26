@@ -1,4 +1,4 @@
-name: CI - Build and Test
+name: 1️⃣ Test and Build
 
 on:
   pull_request:
@@ -12,6 +12,7 @@ on:
 
 jobs:
   test:
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -33,12 +34,13 @@ jobs:
         run: mvn test || echo "Tests failed but continuing..."
 
   build-and-push:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push'
     permissions:
       contents: read
-      packages: write # Required to push images to GHCR
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -70,3 +72,9 @@ jobs:
           platforms: linux/amd64
           cache-from: type=registry,ref=ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest
           cache-to: type=inline
+
+      - name: Output image info
+        run: |
+          echo "✅ Image built and pushed:"
+          echo "   ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:sha-${{ github.sha }}"
+          echo "   ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest"

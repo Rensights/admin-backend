@@ -1,26 +1,45 @@
-name: Deploy to Production
+name: 3️⃣ Deploy to Prod (Manual)
 
 on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'Image tag to deploy (e.g., sha-abc123 or release-v1.2.3)'
+        description: 'Image tag (e.g., sha-abc123 or latest)'
         required: true
         type: string
-  release:
-    types: [published]
+        default: 'latest'
+      confirm:
+        description: 'Type "DEPLOY" to confirm production deployment'
+        required: true
+        type: string
 
 env:
   REGISTRY: ghcr.io
   NAMESPACE: prod
 
 jobs:
-  deploy:
+  validate:
+    name: Validate Deployment
     runs-on: ubuntu-latest
-    environment: production
+    steps:
+      - name: Check confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "DEPLOY" ]; then
+            echo "❌ Confirmation failed. You must type 'DEPLOY' to proceed."
+            exit 1
+          fi
+          echo "✅ Deployment confirmed"
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: 
+      name: production
+      # Add required reviewers in GitHub repository settings
     permissions:
       contents: read
-      packages: read # Required to pull images from GHCR
+      packages: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,7 +63,6 @@ jobs:
       - name: Configure kubectl
         run: |
           echo "${{ secrets.PROD_KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
-          # Update server URL if it's pointing to localhost
           sed -i 's|server: https://127.0.0.1:6443|server: https://72.62.40.154:6443|g' /tmp/kubeconfig
           export KUBECONFIG=/tmp/kubeconfig
           kubectl cluster-info
@@ -52,7 +70,6 @@ jobs:
       - name: Configure image pull secrets for GHCR
         run: |
           export KUBECONFIG=/tmp/kubeconfig
-          # Create secret for pulling from GHCR
           kubectl create secret docker-registry ghcr-secret \
             --docker-server=ghcr.io \
             --docker-username=${{ github.actor }} \
@@ -60,26 +77,16 @@ jobs:
             --namespace ${NAMESPACE} \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Determine image tag
-        id: image-tag
-        run: |
-          if [ "${{ github.event_name }}" == "release" ]; then
-            TAG="release-${{ github.event.release.tag_name }}"
-          else
-            TAG="${{ github.event.inputs.image_tag }}"
-          fi
-          echo "IMAGE_TAG=${TAG}" >> $GITHUB_OUTPUT
-          echo "Deploying with tag: ${TAG}"
-
       - name: Deploy admin-backend
         run: |
           export KUBECONFIG=/tmp/kubeconfig
+          echo "🚀 Deploying to PRODUCTION with tag: ${{ github.event.inputs.image_tag }}"
           helm upgrade --install admin-backend charts/admin-backend \
             --namespace ${NAMESPACE} \
             --create-namespace \
             -f env-values/prod/global.yaml \
             -f env-values/prod/admin-backend.yaml \
-            --set image.tag=${{ steps.image-tag.outputs.IMAGE_TAG }} \
+            --set image.tag=${{ github.event.inputs.image_tag }} \
             --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
             --set imagePullSecrets[0].name=ghcr-secret \
             --wait --timeout=5m
@@ -87,5 +94,6 @@ jobs:
       - name: Verify deployment
         run: |
           export KUBECONFIG=/tmp/kubeconfig
+          echo "✅ Production Deployment Status:"
           kubectl get pods -n ${NAMESPACE} -l app=admin-backend
           kubectl get svc -n ${NAMESPACE} -l app=admin-backend

@@ -1,11 +1,14 @@
-name: Deploy to Dev Environment
+name: 2️⃣ Deploy to Dev (Auto)
 
 on:
-  push:
+  workflow_run:
+    workflows: ["1️⃣ Test and Build"]
+    types:
+      - completed
     branches:
       - main
       - develop
-  workflow_dispatch:
+  workflow_dispatch: # Allow manual trigger
 
 env:
   REGISTRY: ghcr.io
@@ -13,11 +16,13 @@ env:
 
 jobs:
   deploy:
+    name: Deploy to Dev Environment
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     environment: dev
     permissions:
       contents: read
-      packages: read # Required to pull images from GHCR
+      packages: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,10 +43,22 @@ jobs:
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
 
+      - name: Get commit SHA from triggering workflow
+        id: get-sha
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_run" ]; then
+            SHA="${{ github.event.workflow_run.head_sha }}"
+          else
+            SHA="${{ github.sha }}"
+          fi
+          SHORT_SHA=$(echo ${SHA} | cut -c1-7)
+          echo "sha=${SHA}" >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "Using SHA: ${SHORT_SHA}"
+
       - name: Configure kubectl
         run: |
           echo "${{ secrets.DEV_KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
-          # Update server URL if it's pointing to localhost
           sed -i 's|server: https://127.0.0.1:6443|server: https://72.62.40.154:6443|g' /tmp/kubeconfig
           export KUBECONFIG=/tmp/kubeconfig
           kubectl cluster-info
@@ -49,7 +66,6 @@ jobs:
       - name: Configure image pull secrets for GHCR
         run: |
           export KUBECONFIG=/tmp/kubeconfig
-          # Create secret for pulling from GHCR
           kubectl create secret docker-registry ghcr-secret \
             --docker-server=ghcr.io \
             --docker-username=${{ github.actor }} \
@@ -60,13 +76,12 @@ jobs:
       - name: Deploy admin-backend
         run: |
           export KUBECONFIG=/tmp/kubeconfig
-          SHA=$(git rev-parse --short HEAD)
           helm upgrade --install admin-backend charts/admin-backend \
             --namespace ${NAMESPACE} \
             --create-namespace \
             -f env-values/dev/global.yaml \
             -f env-values/dev/admin-backend.yaml \
-            --set image.tag=sha-${SHA} \
+            --set image.tag=sha-${{ steps.get-sha.outputs.short_sha }} \
             --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
             --set imagePullSecrets[0].name=ghcr-secret \
             --wait --timeout=5m
@@ -74,5 +89,6 @@ jobs:
       - name: Verify deployment
         run: |
           export KUBECONFIG=/tmp/kubeconfig
+          echo "✅ Deployment Status:"
           kubectl get pods -n ${NAMESPACE} -l app=admin-backend
           kubectl get svc -n ${NAMESPACE} -l app=admin-backend
