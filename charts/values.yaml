@@ -70,3 +70,8 @@ secrets:
   jwtSecret: jwt-secret
   stripeSecrets: stripe-secrets
 
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
