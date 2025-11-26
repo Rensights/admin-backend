@@ -33,9 +33,12 @@ resources:
 
 ingress:
   enabled: true
+  className: "kong"
   hosts:
     - host: dev-admin-api.72.62.40.154.nip.io
-      paths: ["/"]
+      paths:
+        - path: /
+          pathType: Prefix
   annotations:
     konghq.com/strip-path: "true"
     konghq.com/protocols: "http"

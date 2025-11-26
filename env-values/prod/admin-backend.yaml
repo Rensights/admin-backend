@@ -39,9 +39,12 @@ autoscaling:
 
 ingress:
   enabled: true
+  className: "kong"
   hosts:
     - host: admin-api.72.62.40.154.nip.io
-      paths: ["/"]
+      paths:
+        - path: /
+          pathType: Prefix
   annotations:
     konghq.com/strip-path: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
