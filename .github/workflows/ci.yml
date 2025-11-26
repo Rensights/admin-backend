@@ -53,14 +53,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CONTAINER_TOKEN }}
 
+      - name: Set image repository (lowercase)
+        id: image-repo
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image to GHCR
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner | lower }}/admin-backend:sha-${{ github.sha }}
-            ghcr.io/${{ github.repository_owner | lower }}/admin-backend:latest
+            ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:sha-${{ github.sha }}
+            ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest
           platforms: linux/amd64
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner | lower }}/admin-backend:latest
+          cache-from: type=registry,ref=ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest
           cache-to: type=inline

@@ -12,7 +12,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner | lower }}
   NAMESPACE: prod
 
 jobs:
@@ -35,6 +34,12 @@ jobs:
         uses: azure/setup-helm@v3
         with:
           version: 'latest'
+
+      - name: Set image repository (lowercase)
+        id: image-repo
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
 
       - name: Configure kubectl
         run: |
@@ -75,7 +80,7 @@ jobs:
             -f env-values/prod/global.yaml \
             -f env-values/prod/admin-backend.yaml \
             --set image.tag=${{ steps.image-tag.outputs.IMAGE_TAG }} \
-            --set image.repository=${REGISTRY}/${IMAGE_PREFIX}/admin-backend \
+            --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
             --set imagePullSecrets[0].name=ghcr-secret \
             --wait --timeout=5m
 
