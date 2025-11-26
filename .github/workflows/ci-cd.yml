@@ -140,7 +140,7 @@ jobs:
           export KUBECONFIG=/tmp/kubeconfig
           SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "🚀 Deploying to DEV with tag: sha-${SHA}"
-          helm upgrade --install admin-backend charts/admin-backend \
+          helm upgrade --install admin-backend ./charts \
             --namespace ${DEV_NAMESPACE} \
             --create-namespace \
             -f env-values/dev/global.yaml \
@@ -217,7 +217,7 @@ jobs:
             IMAGE_TAG="sha-${SHA}"
           fi
           echo "🚀 Deploying to PRODUCTION with tag: ${IMAGE_TAG}"
-          helm upgrade --install admin-backend charts/admin-backend \
+          helm upgrade --install admin-backend ./charts \
             --namespace ${PROD_NAMESPACE} \
             --create-namespace \
             -f env-values/prod/global.yaml \
