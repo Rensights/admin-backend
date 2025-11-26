@@ -1,8 +1,9 @@
 FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
+# Copy root pom.xml
 COPY pom.xml .
-COPY src/pom.xml ./src/
-COPY src/src ./src/src
+# Copy src directory (contains pom.xml and source code)
+COPY src ./src
 WORKDIR /app/src
 RUN mvn clean package -DskipTests
 
