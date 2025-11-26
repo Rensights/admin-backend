@@ -125,15 +125,12 @@ jobs:
           export KUBECONFIG=/tmp/kubeconfig
           kubectl cluster-info
 
-      - name: Configure image pull secrets for GHCR
-        run: |
-          export KUBECONFIG=/tmp/kubeconfig
-          kubectl create secret docker-registry ghcr-secret \
-            --docker-server=ghcr.io \
-            --docker-username=${{ github.actor }} \
-            --docker-password=${{ secrets.CONTAINER_TOKEN }} \
-            --namespace ${DEV_NAMESPACE} \
-            --dry-run=client -o yaml | kubectl apply -f -
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CONTAINER_TOKEN }}
 
       - name: Verify image exists
         run: |
@@ -147,6 +144,16 @@ jobs:
             exit 1
           }
           echo "✅ Image verified: ${IMAGE}"
+
+      - name: Configure image pull secrets for GHCR
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.CONTAINER_TOKEN }} \
+            --namespace ${DEV_NAMESPACE} \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy admin-backend to dev
         run: |
@@ -208,6 +215,31 @@ jobs:
           sed -i 's|server: https://127.0.0.1:6443|server: https://72.62.40.154:6443|g' /tmp/kubeconfig
           export KUBECONFIG=/tmp/kubeconfig
           kubectl cluster-info
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CONTAINER_TOKEN }}
+
+      - name: Verify image exists
+        run: |
+          IMAGE_TAG="${IMAGE_TAG:-latest}"
+          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+          else
+            SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+            IMAGE_TAG="sha-${SHA}"
+          fi
+          IMAGE="${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${IMAGE_TAG}"
+          echo "🔍 Verifying image exists: ${IMAGE}"
+          docker pull ${IMAGE} || {
+            echo "❌ Error: Image ${IMAGE} not found!"
+            echo "   Make sure the build job completed successfully."
+            exit 1
+          }
+          echo "✅ Image verified: ${IMAGE}"
 
       - name: Configure image pull secrets for GHCR
         run: |
