@@ -16,6 +16,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: dev
+    permissions:
+      contents: read
+      packages: read # Required to pull images from GHCR
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,7 +48,7 @@ jobs:
           kubectl create secret docker-registry ghcr-secret \
             --docker-server=ghcr.io \
             --docker-username=${{ github.actor }} \
-            --docker-password=${{ secrets.GITHUB_TOKEN }} \
+            --docker-password=${{ secrets.CONTAINER_TOKEN }} \
             --namespace ${NAMESPACE} \
             --dry-run=client -o yaml | kubectl apply -f -
 

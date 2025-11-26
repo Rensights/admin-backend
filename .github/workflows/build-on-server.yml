@@ -71,3 +71,75 @@ jobs:
             echo "✅ Images pushed successfully"
           EOF
 
+
+
+# Note: This workflow is optional. The main CI workflow (ci.yml) uses skopeo
+# and works without SSH. Use this only if you need to build directly on the server.
+
+on:
+  workflow_dispatch:
+  # Disabled automatic triggers - use workflow_dispatch only
+  # push:
+  #   branches:
+  #     - main
+  #     - develop
+
+env:
+  SERVER_HOST: 72.62.40.154
+  SERVER_USER: root
+  HARBOR_REGISTRY: 72.62.40.154:30500
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check SSH key is configured
+        run: |
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "⚠️  SSH_PRIVATE_KEY secret is not set!"
+            echo "This workflow requires SSH access to the server."
+            echo "Either:"
+            echo "1. Set SSH_PRIVATE_KEY secret in GitHub (Settings > Secrets > Actions)"
+            echo "2. Or use the main CI workflow (ci.yml) which uses skopeo instead"
+            exit 1
+          fi
+          echo "✅ SSH key is configured"
+          
+          # Validate key format
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | head -1 | grep -q "BEGIN.*PRIVATE KEY" && echo "✅ Key format looks valid" || echo "⚠️  Key format might be invalid"
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          log-public-key: true
+        continue-on-error: false
+
+      - name: Copy files to server
+        run: |
+          scp -o StrictHostKeyChecking=no -r . ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/tmp/admin-backend-build
+
+      - name: Build and push on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} << 'EOF'
+            cd /tmp/admin-backend-build
+            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+            
+            # Login to Harbor (HTTP works on server)
+            echo "${{ secrets.HARBOR_PASSWORD }}" | docker login http://${{ env.HARBOR_REGISTRY }} \
+              -u "${{ secrets.HARBOR_USERNAME }}" \
+              --password-stdin
+            
+            # Build image
+            docker build -t ${{ env.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }} \
+                         -t ${{ env.HARBOR_REGISTRY }}/project/admin-backend:latest .
+            
+            # Push images
+            docker push ${{ env.HARBOR_REGISTRY }}/project/admin-backend:sha-${{ github.sha }}
+            docker push ${{ env.HARBOR_REGISTRY }}/project/admin-backend:latest
+            
+            echo "✅ Images pushed successfully"
+          EOF
