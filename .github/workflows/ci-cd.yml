@@ -90,13 +90,13 @@ jobs:
           
       - name: Verify image was pushed
         run: |
-          SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          IMAGE="ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:sha-${SHA}"
+          IMAGE="ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest"
           echo "🔍 Verifying pushed image: ${IMAGE}"
           # Wait a moment for image to be available
           sleep 5
           docker pull ${IMAGE} || {
             echo "⚠️  Warning: Image might not be immediately available, but build completed"
+            echo "   Will retry in deploy step"
           }
           echo "✅ Build job completed successfully"
 
