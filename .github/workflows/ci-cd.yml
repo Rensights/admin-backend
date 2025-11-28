@@ -144,9 +144,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CONTAINER_TOKEN }}
 
-      - name: Verify image exists (using latest tag)
+      - name: Set image tag from commit SHA
+        id: image-tag
         run: |
-          IMAGE="${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest"
+          SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE_TAG="sha-${SHA}"
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "Using image tag: ${IMAGE_TAG}"
+
+      - name: Verify image exists
+        run: |
+          IMAGE="${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ steps.image-tag.outputs.image_tag }}"
           echo "🔍 Verifying image exists: ${IMAGE}"
           # Try to pull image metadata (this will fail if image doesn't exist)
           docker pull ${IMAGE} || {
@@ -179,13 +187,14 @@ jobs:
       - name: Deploy admin-backend to dev
         run: |
           export KUBECONFIG=/tmp/kubeconfig
-          echo "🚀 Deploying to DEV with tag: latest"
+          IMAGE_TAG="${{ steps.image-tag.outputs.image_tag }}"
+          echo "🚀 Deploying to DEV with tag: ${IMAGE_TAG}"
           helm upgrade --install admin-backend ./charts \
             --namespace ${DEV_NAMESPACE} \
             --create-namespace \
             -f env-values/dev/global.yaml \
             -f env-values/dev/admin-backend.yaml \
-            --set image.tag=latest \
+            --set image.tag=${IMAGE_TAG} \
             --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
             --set imagePullSecrets[0].name=ghcr-secret \
             --timeout=5m || {
