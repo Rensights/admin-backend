@@ -2,16 +2,42 @@ spring:
   application:
     name: rensights-admin-backend
   
+  # Admin Database (Primary - for AdminUser entities)
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/rensights}
-    username: ${DATABASE_USER:rensights}
-    password: ${DATABASE_PASSWORD:password}
+    url: ${ADMIN_DATABASE_URL:jdbc:postgresql://localhost:5432/admin_db_dev}
+    username: ${ADMIN_DATABASE_USER:admin}
+    password: ${ADMIN_DATABASE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
       connection-timeout: 30000
   
+  # Public Database Configuration (for custom datasource)
+  datasource:
+    public:
+      url: ${PUBLIC_DATABASE_URL:jdbc:postgresql://localhost:5432/public_db_dev}
+      username: ${PUBLIC_DATABASE_USER:public_user}
+      password: ${PUBLIC_DATABASE_PASSWORD:password}
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+  
+  # Backend Database Configuration (for custom datasource)
+  datasource:
+    backend:
+      url: ${BACKEND_DATABASE_URL:jdbc:postgresql://localhost:5432/backend_db_dev}
+      username: ${BACKEND_DATABASE_USER:backend_user}
+      password: ${BACKEND_DATABASE_PASSWORD:password}
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+  
+  # JPA Configuration for Admin Database (Primary)
   jpa:
     hibernate:
       ddl-auto: update

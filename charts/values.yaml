@@ -67,8 +67,26 @@ extraEnv: {}
 
 secrets:
   dbCredentials: admin-db-credentials
+  publicDbCredentials: public-db-credentials
+  backendDbCredentials: backend-db-credentials
   jwtSecret: jwt-secret
   stripeSecrets: stripe-secrets
+
+# Database configuration
+database:
+  host: postgres-admin.dev.svc.cluster.local
+  port: 5432
+  name: admin_db_dev
+
+databases:
+  public:
+    host: postgres-public.dev.svc.cluster.local
+    port: 5432
+    name: public_db_dev
+  backend:
+    host: postgres-backend.dev.svc.cluster.local
+    port: 5432
+    name: backend_db_dev
 
 serviceAccount:
   create: true

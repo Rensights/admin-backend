@@ -6,25 +6,28 @@ image:
   tag: "latest"
   pullPolicy: Always
 
-# Database configuration (using admin-db-credentials secret)
-# The secret contains: postgres-host, postgres-port, postgres-database, postgres-username, postgres-password
+# Database configuration for all three databases
 
 service:
   type: ClusterIP
   port: 8081
 
+# Admin Database (Primary)
 database:
   host: postgres-admin.dev.svc.cluster.local
   port: 5432
   name: admin_db_dev
-  usernameSecret: admin-db-user
-  passwordSecret: admin-db-password
 
-global:
-  generalDb:
-    usernameSecret: general-dev-user
-    passwordSecret: general-dev-password
-    schema: dev_general
+# Public and Backend Databases
+databases:
+  public:
+    host: postgres-public.dev.svc.cluster.local
+    port: 5432
+    name: public_db_dev
+  backend:
+    host: postgres-backend.dev.svc.cluster.local
+    port: 5432
+    name: backend_db_dev
 
 resources:
   requests:
@@ -46,9 +49,17 @@ ingress:
     konghq.com/strip-path: "true"
     konghq.com/protocols: "http"
 
+secrets:
+  dbCredentials: admin-db-credentials
+  publicDbCredentials: public-db-credentials
+  backendDbCredentials: backend-db-credentials
+  jwtSecret: jwt-secret
+  stripeSecrets: stripe-secrets
+
 extraEnv:
   SPRING_PROFILES_ACTIVE: "dev"
   SERVER_PORT: "8081"
   CORS_ORIGINS: "http://dev-admin.72.62.40.154.nip.io:31416"
   OTEL_SERVICE_NAME: "admin-backend-dev"
+  APP_MAIN_BACKEND_URL: "http://dev-api.72.62.40.154.nip.io:31416"
 
