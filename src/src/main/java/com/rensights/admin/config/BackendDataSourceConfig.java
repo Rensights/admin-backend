@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -21,12 +20,10 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-    basePackages = "com.rensights.admin.repository",
-    includeFilters = {
-        @ComponentScan.Filter(type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DeviceRepository.class}),
-        @ComponentScan.Filter(type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class})
+    basePackageClasses = {
+        com.rensights.admin.repository.DeviceRepository.class,
+        com.rensights.admin.repository.SubscriptionRepository.class
     },
-    useDefaultFilters = false,
     entityManagerFactoryRef = "backendEntityManagerFactory",
     transactionManagerRef = "backendTransactionManager"
 )
