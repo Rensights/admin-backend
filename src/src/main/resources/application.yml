@@ -35,15 +35,13 @@ spring:
       minimum-idle: 5
       connection-timeout: 30000
   
-  # JPA Configuration for Admin Database (Primary)
+  # JPA Configuration - disabled auto-configuration since we use custom datasources
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+      ddl-auto: none
+    show-sql: false
+    open-in-view: false
 
 server:
   port: ${SERVER_PORT:8081}
