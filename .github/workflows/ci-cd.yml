@@ -76,7 +76,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:sha-${{ github.sha }}
+            ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ github.run_number }}
             ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest
           platforms: linux/amd64
           cache-from: type=registry,ref=ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest
@@ -85,12 +85,12 @@ jobs:
       - name: Output image info
         run: |
           echo "✅ Image pushed:"
-          echo "   ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:sha-${{ github.sha }}"
+          echo "   ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ github.run_number }}"
           echo "   ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest"
           
       - name: Verify image was pushed
         run: |
-          IMAGE="ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest"
+          IMAGE="ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ github.run_number }}"
           echo "🔍 Verifying pushed image: ${IMAGE}"
           # Wait a moment for image to be available
           sleep 5
@@ -144,13 +144,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CONTAINER_TOKEN }}
 
-      - name: Set image tag from commit SHA
+      - name: Set image tag from pipeline number
         id: image-tag
         run: |
-          SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          IMAGE_TAG="sha-${SHA}"
+          IMAGE_TAG="${{ github.run_number }}"
           echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
-          echo "Using image tag: ${IMAGE_TAG}"
+          echo "Using pipeline number as image tag: ${IMAGE_TAG}"
 
       - name: Verify image exists
         run: |
@@ -293,16 +292,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CONTAINER_TOKEN }}
 
-      - name: Verify image exists
+      - name: Set image tag from pipeline number
+        id: image-tag-prod
         run: |
-          IMAGE_TAG="${IMAGE_TAG:-latest}"
           if [ -n "${{ github.event.inputs.image_tag }}" ]; then
             IMAGE_TAG="${{ github.event.inputs.image_tag }}"
           else
-            SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-            IMAGE_TAG="sha-${SHA}"
+            IMAGE_TAG="${{ github.run_number }}"
           fi
-          IMAGE="${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${IMAGE_TAG}"
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "Using image tag: ${IMAGE_TAG}"
+
+      - name: Verify image exists
+        run: |
+          IMAGE="${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ steps.image-tag-prod.outputs.image_tag }}"
           echo "🔍 Verifying image exists: ${IMAGE}"
           docker pull ${IMAGE} || {
             echo "❌ Error: Image ${IMAGE} not found!"
@@ -324,13 +327,7 @@ jobs:
       - name: Deploy admin-backend to prod
         run: |
           export KUBECONFIG=/tmp/kubeconfig
-          IMAGE_TAG="${IMAGE_TAG:-latest}"
-          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
-            IMAGE_TAG="${{ github.event.inputs.image_tag }}"
-          else
-            SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-            IMAGE_TAG="sha-${SHA}"
-          fi
+          IMAGE_TAG="${{ steps.image-tag-prod.outputs.image_tag }}"
           echo "🚀 Deploying to PRODUCTION with tag: ${IMAGE_TAG}"
           helm upgrade --install admin-backend ./charts \
             --namespace ${PROD_NAMESPACE} \
