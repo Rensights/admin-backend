@@ -15,6 +15,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.rensights.admin.model.User;
+
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,13 +55,12 @@ public class PublicDataSourceConfig {
             @Qualifier("publicDataSource") DataSource dataSource) {
         Map<String, String> properties = new HashMap<>();
         properties.put("hibernate.hbm2ddl.auto", "none");
-        properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         properties.put("hibernate.format_sql", "true");
         properties.put("hibernate.show_sql", "true");
         
         return builder
             .dataSource(dataSource)
-            .packages("com.rensights.admin.model.User")
+            .packages(User.class)
             .persistenceUnit("public")
             .properties(properties)
             .build();
