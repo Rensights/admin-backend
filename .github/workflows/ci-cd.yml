@@ -166,6 +166,16 @@ jobs:
             --namespace ${DEV_NAMESPACE} \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: Check for stuck Helm releases
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          echo "🔍 Checking for stuck Helm releases..."
+          if helm list -n ${DEV_NAMESPACE} | grep -q "admin-backend.*failed"; then
+            echo "⚠️  Found failed release, cleaning up..."
+            helm uninstall admin-backend -n ${DEV_NAMESPACE} || true
+            sleep 5
+          fi
+
       - name: Deploy admin-backend to dev
         run: |
           export KUBECONFIG=/tmp/kubeconfig
@@ -178,7 +188,45 @@ jobs:
             --set image.tag=latest \
             --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
             --set imagePullSecrets[0].name=ghcr-secret \
-            --wait --timeout=5m
+            --timeout=5m || {
+            echo "⚠️  Helm deployment failed or timed out, checking status..."
+            helm status admin-backend -n ${DEV_NAMESPACE} || true
+            kubectl get pods -n ${DEV_NAMESPACE} -l app=admin-backend || true
+            exit 1
+          }
+
+      - name: Wait for pods to be ready
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          echo "⏳ Waiting for pods to be ready..."
+          TIMEOUT=300  # 5 minutes
+          ELAPSED=0
+          INTERVAL=10
+          
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            READY=$(kubectl get deployment admin-backend -n ${DEV_NAMESPACE} -o jsonpath='{.status.readyReplicas}' 2>/dev/null || echo "0")
+            DESIRED=$(kubectl get deployment admin-backend -n ${DEV_NAMESPACE} -o jsonpath='{.spec.replicas}' 2>/dev/null || echo "1")
+            
+            if [ "$READY" = "$DESIRED" ] && [ "$READY" != "0" ]; then
+              echo "✅ All pods are ready! ($READY/$DESIRED)"
+              exit 0
+            fi
+            
+            echo "⏳ Pods not ready yet ($READY/$DESIRED), waiting ${INTERVAL}s... (${ELAPSED}s/${TIMEOUT}s)"
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          echo "❌ Timeout waiting for pods to be ready"
+          echo "=== Pod Status ==="
+          kubectl get pods -n ${DEV_NAMESPACE} -l app=admin-backend
+          echo ""
+          echo "=== Pod Logs (last 50 lines) ==="
+          kubectl logs -n ${DEV_NAMESPACE} -l app=admin-backend --tail=50 || true
+          echo ""
+          echo "=== Deployment Events ==="
+          kubectl describe deployment admin-backend -n ${DEV_NAMESPACE} | tail -30 || true
+          exit 1
 
       - name: Verify deployment
         run: |
@@ -186,6 +234,9 @@ jobs:
           echo "✅ Dev Deployment Status:"
           kubectl get pods -n ${DEV_NAMESPACE} -l app=admin-backend
           kubectl get svc -n ${DEV_NAMESPACE} -l app=admin-backend
+          echo ""
+          echo "=== Helm Release Status ==="
+          helm status admin-backend -n ${DEV_NAMESPACE} || true
 
   # Step 4: Deploy to Prod (requires approval)
   deploy-prod:
