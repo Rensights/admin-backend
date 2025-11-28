@@ -2,10 +2,11 @@ package com.rensights.admin.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -20,16 +21,23 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-    basePackageClasses = {com.rensights.admin.repository.UserRepository.class},
+    basePackages = "com.rensights.admin.repository",
+    includeFilters = @ComponentScan.Filter(type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.UserRepository.class}),
+    useDefaultFilters = false,
     entityManagerFactoryRef = "publicEntityManagerFactory",
     transactionManagerRef = "publicTransactionManager"
 )
 public class PublicDataSourceConfig {
 
+    @Bean(name = "publicDataSourceProperties")
+    @ConfigurationProperties("spring.public-datasource")
+    public DataSourceProperties publicDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
     @Bean(name = "publicDataSource")
-    @ConfigurationProperties("spring.datasource.public")
-    public DataSource publicDataSource() {
-        return DataSourceBuilder.create()
+    public DataSource publicDataSource(@Qualifier("publicDataSourceProperties") DataSourceProperties properties) {
+        return properties.initializeDataSourceBuilder()
             .type(HikariDataSource.class)
             .build();
     }

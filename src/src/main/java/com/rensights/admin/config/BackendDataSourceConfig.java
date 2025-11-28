@@ -2,10 +2,11 @@ package com.rensights.admin.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -20,19 +21,26 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-    basePackageClasses = {
-        com.rensights.admin.repository.DeviceRepository.class,
-        com.rensights.admin.repository.SubscriptionRepository.class
+    basePackages = "com.rensights.admin.repository",
+    includeFilters = {
+        @ComponentScan.Filter(type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DeviceRepository.class}),
+        @ComponentScan.Filter(type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class})
     },
+    useDefaultFilters = false,
     entityManagerFactoryRef = "backendEntityManagerFactory",
     transactionManagerRef = "backendTransactionManager"
 )
 public class BackendDataSourceConfig {
 
+    @Bean(name = "backendDataSourceProperties")
+    @ConfigurationProperties("spring.backend-datasource")
+    public DataSourceProperties backendDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
     @Bean(name = "backendDataSource")
-    @ConfigurationProperties("spring.datasource.backend")
-    public DataSource backendDataSource() {
-        return DataSourceBuilder.create()
+    public DataSource backendDataSource(@Qualifier("backendDataSourceProperties") DataSourceProperties properties) {
+        return properties.initializeDataSourceBuilder()
             .type(HikariDataSource.class)
             .build();
     }
