@@ -25,9 +25,10 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableJpaRepositories(
     basePackages = "com.rensights.admin.repository",
-    includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.UserRepository.class}),
+    includeFilters = {},
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AdminUserRepository.class}),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.UserRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DeviceRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class})
     },
@@ -60,7 +61,7 @@ public class PublicDataSourceConfig {
         
         return builder
             .dataSource(dataSource)
-            .packages(User.class)
+            .packages()  // Public datasource no longer has entities - reserved for future use
             .persistenceUnit("public")
             .properties(properties)
             .build();
