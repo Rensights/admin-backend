@@ -40,7 +40,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: false
+    show-sql: true
     open-in-view: false
 
 server:
@@ -73,5 +73,8 @@ logging:
   level:
     root: INFO
     com.rensights.admin: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.jdbc.core: DEBUG
     org.springframework.security: WARN
 
