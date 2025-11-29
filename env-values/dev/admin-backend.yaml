@@ -48,6 +48,10 @@ ingress:
   annotations:
     konghq.com/strip-path: "true"
     konghq.com/protocols: "http"
+    konghq.com/preserve-host: "false"
+    konghq.com/connect-timeout: "60000"
+    konghq.com/read-timeout: "60000"
+    konghq.com/write-timeout: "60000"
 
 secrets:
   dbCredentials: admin-db-credentials
