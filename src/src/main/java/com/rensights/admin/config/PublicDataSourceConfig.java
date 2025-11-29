@@ -15,7 +15,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.rensights.admin.model.User;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -59,9 +58,10 @@ public class PublicDataSourceConfig {
         properties.put("hibernate.format_sql", "true");
         properties.put("hibernate.show_sql", "true");
         
+        // Public datasource configuration - no entities currently, reserved for future use
+        // Note: An empty EntityManagerFactory will be created, but it won't be used
         return builder
             .dataSource(dataSource)
-            .packages()  // Public datasource no longer has entities - reserved for future use
             .persistenceUnit("public")
             .properties(properties)
             .build();
