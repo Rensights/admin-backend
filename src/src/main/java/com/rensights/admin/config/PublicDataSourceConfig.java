@@ -22,18 +22,8 @@ import java.util.Map;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(
-    basePackages = "com.rensights.admin.repository",
-    includeFilters = {},
-    excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AdminUserRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.UserRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DeviceRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class})
-    },
-    entityManagerFactoryRef = "publicEntityManagerFactory",
-    transactionManagerRef = "publicTransactionManager"
-)
+// No JPA repositories configured for public datasource - reserved for future use
+// Removed @EnableJpaRepositories since there are no repositories using this datasource
 public class PublicDataSourceConfig {
 
     @Bean(name = "publicDataSourceProperties")
@@ -59,9 +49,10 @@ public class PublicDataSourceConfig {
         properties.put("hibernate.show_sql", "true");
         
         // Public datasource configuration - no entities currently, reserved for future use
-        // Note: An empty EntityManagerFactory will be created, but it won't be used
+        // Provide a placeholder package (the config package itself) to create EntityManagerFactory
         return builder
             .dataSource(dataSource)
+            .packages(PublicDataSourceConfig.class.getPackage().getName())  // Placeholder package - no entities in this package
             .persistenceUnit("public")
             .properties(properties)
             .build();
