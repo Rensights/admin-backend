@@ -85,3 +85,6 @@ echo "2. If services don't exist, deploy PostgreSQL databases first"
 echo "3. If services exist in different namespace, update the host names"
 echo "4. Check if databases are in a shared namespace (like 'default' or 'platform')"
 
+
+
+

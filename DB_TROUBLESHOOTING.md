@@ -198,3 +198,6 @@ BACKEND DATABASE:
 4. ✅ Verify pods are running: `kubectl get pods -n dev | grep postgres`
 5. ✅ Update application with external URLs if needed
 
+
+
+

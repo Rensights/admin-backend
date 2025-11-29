@@ -93,3 +93,7 @@ serviceAccount:
   annotations: {}
   name: ""
 
+# Network Policy configuration
+networkPolicy:
+  enabled: true
+

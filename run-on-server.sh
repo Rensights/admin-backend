@@ -79,3 +79,6 @@ echo ""
 echo "If services don't exist, you need to deploy PostgreSQL databases first!"
 echo ""
 
+
+
+

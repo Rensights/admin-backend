@@ -107,3 +107,6 @@ echo "- Check if PostgreSQL services exist in the dev namespace"
 echo "- If they don't exist, you need to deploy them first"
 echo "- Verify the service names match what admin-backend expects"
 
+
+
+

@@ -134,3 +134,6 @@ echo "- If services don't exist, you need to deploy PostgreSQL databases"
 echo "- To expose databases externally, change service type to NodePort"
 echo "- External connection: 72.62.40.154:<NODEPORT>"
 
+
+
+

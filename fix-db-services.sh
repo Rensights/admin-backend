@@ -79,3 +79,6 @@ echo "- Backend DB: 72.62.40.154:30435 (if NodePort works)"
 echo ""
 echo "Or use port-forwarding as shown above"
 
+
+
+
