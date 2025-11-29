@@ -11,7 +11,17 @@ spec:
     matchLabels:
       {{- include "admin-backend.selectorLabels" . | nindent 6 }}
   policyTypes:
+    - Ingress
     - Egress
+  ingress:
+    # Allow Kong ingress controller to access the service
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: kong
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
   egress:
     # Allow connection to Admin PostgreSQL database
     - to:
@@ -53,3 +63,4 @@ spec:
         - protocol: TCP
           port: 443
 {{- end }}
+
