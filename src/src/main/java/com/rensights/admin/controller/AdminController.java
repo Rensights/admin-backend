@@ -2,6 +2,7 @@ package com.rensights.admin.controller;
 
 import com.rensights.admin.dto.*;
 import com.rensights.admin.service.AdminService;
+import org.springframework.data.domain.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,6 +120,51 @@ public class AdminController {
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             logger.error("Error fetching stats: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/analysis-requests")
+    public ResponseEntity<?> getAllAnalysisRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            Authentication authentication) {
+        try {
+            Page<AnalysisRequestDTO> requests = adminService.getAllAnalysisRequests(page, size, sortBy, sortDir);
+            return ResponseEntity.ok(requests);
+        } catch (Exception e) {
+            logger.error("Error fetching analysis requests: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/analysis-requests/{requestId}")
+    public ResponseEntity<?> getAnalysisRequestById(@PathVariable UUID requestId, Authentication authentication) {
+        try {
+            AnalysisRequestDTO request = adminService.getAnalysisRequestById(requestId);
+            return ResponseEntity.ok(request);
+        } catch (Exception e) {
+            logger.error("Error fetching analysis request: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @PutMapping("/analysis-requests/{requestId}/status")
+    public ResponseEntity<?> updateAnalysisRequestStatus(
+            @PathVariable UUID requestId,
+            @RequestBody Map<String, String> request,
+            Authentication authentication) {
+        try {
+            String status = request.get("status");
+            if (status == null || status.isEmpty()) {
+                return ResponseEntity.status(400).body(Map.of("error", "Status is required"));
+            }
+            AnalysisRequestDTO updatedRequest = adminService.updateAnalysisRequestStatus(requestId, status);
+            return ResponseEntity.ok(updatedRequest);
+        } catch (Exception e) {
+            logger.error("Error updating analysis request status: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }

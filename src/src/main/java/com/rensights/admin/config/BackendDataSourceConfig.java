@@ -15,6 +15,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.rensights.admin.model.AnalysisRequest;
 import com.rensights.admin.model.Device;
 import com.rensights.admin.model.Subscription;
 import com.rensights.admin.model.User;
@@ -28,6 +29,7 @@ import java.util.Map;
 @EnableJpaRepositories(
     basePackages = "com.rensights.admin.repository",
     includeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AnalysisRequestRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DeviceRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.UserRepository.class})
@@ -64,7 +66,7 @@ public class BackendDataSourceConfig {
         
         return builder
             .dataSource(dataSource)
-            .packages(Device.class, Subscription.class, User.class)
+            .packages(AnalysisRequest.class, Device.class, Subscription.class, User.class)
             .persistenceUnit("backend")
             .properties(properties)
             .build();
