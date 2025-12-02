@@ -18,16 +18,16 @@ database:
   port: 5432
   name: admin_db_dev
 
-# Public and Backend Databases
+# Public and Backend Databases (both now use public-db)
 databases:
   public:
     host: postgres-public.dev.svc.cluster.local
     port: 5432
     name: public_db_dev
   backend:
-    host: postgres-backend.dev.svc.cluster.local
+    host: postgres-public.dev.svc.cluster.local
     port: 5432
-    name: backend_db_dev
+    name: public_db_dev
 
 resources:
   requests:

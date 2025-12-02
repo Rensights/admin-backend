@@ -24,11 +24,11 @@ spring:
       minimum-idle: 5
       connection-timeout: 30000
   
-  # Backend Database Configuration
+  # Backend Database Configuration (now using public-db)
   backend-datasource:
-    url: ${BACKEND_DATABASE_URL:jdbc:postgresql://localhost:5432/backend_db_dev}
-    username: ${BACKEND_DATABASE_USER:backend_user}
-    password: ${BACKEND_DATABASE_PASSWORD:password}
+    url: ${PUBLIC_DATABASE_URL:jdbc:postgresql://localhost:5432/public_db_dev}
+    username: ${PUBLIC_DATABASE_USER:public_user}
+    password: ${PUBLIC_DATABASE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10

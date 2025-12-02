@@ -45,7 +45,7 @@ import java.util.Map;
 public class BackendDataSourceConfig {
 
     @Bean(name = "backendDataSourceProperties")
-    @ConfigurationProperties("spring.backend-datasource")
+    @ConfigurationProperties("spring.public-datasource")
     public DataSourceProperties backendDataSourceProperties() {
         return new DataSourceProperties();
     }
