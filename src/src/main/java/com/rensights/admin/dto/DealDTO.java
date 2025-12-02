@@ -32,6 +32,7 @@ public class DealDTO {
     private String rentalYield;
     private Deal.BuildingStatus buildingStatus;
     private Deal.DealStatus status;
+    private Boolean active;
     private LocalDateTime batchDate;
     private LocalDateTime approvedAt;
     private UUID approvedBy;

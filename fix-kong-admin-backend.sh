@@ -139,3 +139,5 @@ echo "If issues persist, try:"
 echo "  1. kubectl delete ingress -n $NAMESPACE $INGRESS_NAME"
 echo "  2. Redeploy using: helm upgrade admin-backend ./charts -f env-values/dev/admin-backend.yaml -n $NAMESPACE"
 
+
+

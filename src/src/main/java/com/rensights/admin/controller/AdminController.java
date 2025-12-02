@@ -281,5 +281,59 @@ public class AdminController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+    
+    @GetMapping("/deals/approved")
+    public ResponseEntity<?> getApprovedDeals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Boolean active) {
+        try {
+            Page<DealDTO> deals = dealService.getApprovedDeals(page, size, city, active);
+            return ResponseEntity.ok(deals);
+        } catch (Exception e) {
+            logger.error("Error fetching approved deals: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @DeleteMapping("/deals/{dealId}")
+    public ResponseEntity<?> deleteDeal(
+            @PathVariable UUID dealId,
+            Authentication authentication) {
+        try {
+            dealService.deleteDeal(dealId);
+            return ResponseEntity.ok(Map.of("message", "Deal deleted successfully"));
+        } catch (Exception e) {
+            logger.error("Error deleting deal: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @PostMapping("/deals/{dealId}/deactivate")
+    public ResponseEntity<?> deactivateDeal(
+            @PathVariable UUID dealId,
+            Authentication authentication) {
+        try {
+            DealDTO deal = dealService.deactivateDeal(dealId);
+            return ResponseEntity.ok(deal);
+        } catch (Exception e) {
+            logger.error("Error deactivating deal: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @PostMapping("/deals/{dealId}/activate")
+    public ResponseEntity<?> activateDeal(
+            @PathVariable UUID dealId,
+            Authentication authentication) {
+        try {
+            DealDTO deal = dealService.activateDeal(dealId);
+            return ResponseEntity.ok(deal);
+        } catch (Exception e) {
+            logger.error("Error activating deal: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
 }
 

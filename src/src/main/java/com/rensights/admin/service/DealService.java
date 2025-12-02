@@ -186,6 +186,69 @@ public class DealService {
     }
     
     /**
+     * Get approved deals with pagination and filters
+     */
+    public Page<DealDTO> getApprovedDeals(int page, int size, String city, Boolean active) {
+        Sort sort = Sort.by("approvedAt").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Deal> deals;
+        if (city != null && !city.isEmpty()) {
+            if (active != null) {
+                deals = dealRepository.findByStatusAndActiveAndCity(Deal.DealStatus.APPROVED, active, city, pageable);
+            } else {
+                deals = dealRepository.findByStatusAndCity(Deal.DealStatus.APPROVED, city, pageable);
+            }
+        } else {
+            if (active != null) {
+                deals = dealRepository.findByStatusAndActive(Deal.DealStatus.APPROVED, active, pageable);
+            } else {
+                deals = dealRepository.findByStatus(Deal.DealStatus.APPROVED, pageable);
+            }
+        }
+        
+        return deals.map(this::toDTO);
+    }
+    
+    /**
+     * Delete a deal permanently
+     */
+    @Transactional
+    public void deleteDeal(UUID dealId) {
+        if (!dealRepository.existsById(dealId)) {
+            throw new RuntimeException("Deal not found");
+        }
+        dealRepository.deleteById(dealId);
+        logger.info("Deal deleted: {}", dealId);
+    }
+    
+    /**
+     * Deactivate a deal (make it invisible to users)
+     */
+    @Transactional
+    public DealDTO deactivateDeal(UUID dealId) {
+        Deal deal = dealRepository.findById(dealId)
+                .orElseThrow(() -> new RuntimeException("Deal not found"));
+        deal.setActive(false);
+        deal = dealRepository.save(deal);
+        logger.info("Deal deactivated: {}", dealId);
+        return toDTO(deal);
+    }
+    
+    /**
+     * Activate a deal (make it visible to users)
+     */
+    @Transactional
+    public DealDTO activateDeal(UUID dealId) {
+        Deal deal = dealRepository.findById(dealId)
+                .orElseThrow(() -> new RuntimeException("Deal not found"));
+        deal.setActive(true);
+        deal = dealRepository.save(deal);
+        logger.info("Deal activated: {}", dealId);
+        return toDTO(deal);
+    }
+    
+    /**
      * Convert Deal entity to DTO
      */
     private DealDTO toDTO(Deal deal) {
@@ -207,6 +270,7 @@ public class DealService {
                 .rentalYield(deal.getRentalYield())
                 .buildingStatus(deal.getBuildingStatus())
                 .status(deal.getStatus())
+                .active(deal.getActive())
                 .batchDate(deal.getBatchDate())
                 .approvedAt(deal.getApprovedAt())
                 .approvedBy(deal.getApprovedBy())

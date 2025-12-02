@@ -28,5 +28,9 @@ public interface DealRepository extends JpaRepository<Deal, UUID> {
     
     @Query("SELECT COUNT(d) FROM Deal d WHERE d.status = 'PENDING' AND DATE(d.batchDate) = DATE(:today)")
     long countPendingDealsForToday(@Param("today") LocalDateTime today);
+    
+    Page<Deal> findByStatusAndActive(Deal.DealStatus status, Boolean active, Pageable pageable);
+    
+    Page<Deal> findByStatusAndActiveAndCity(Deal.DealStatus status, Boolean active, String city, Pageable pageable);
 }
 
