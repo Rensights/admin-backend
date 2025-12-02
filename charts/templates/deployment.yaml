@@ -81,18 +81,18 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secrets.publicDbCredentials }}
                   key: postgres-password
-            # Backend Database
+            # Backend Database (now using public-db)
             - name: BACKEND_DATABASE_URL
               value: "jdbc:postgresql://{{ .Values.databases.backend.host }}:{{ .Values.databases.backend.port }}/{{ .Values.databases.backend.name }}"
             - name: BACKEND_DATABASE_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.backendDbCredentials }}
+                  name: {{ .Values.secrets.publicDbCredentials }}
                   key: postgres-username
             - name: BACKEND_DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.backendDbCredentials }}
+                  name: {{ .Values.secrets.publicDbCredentials }}
                   key: postgres-password
             - name: JWT_SECRET
               valueFrom:
