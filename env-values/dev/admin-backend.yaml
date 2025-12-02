@@ -56,7 +56,7 @@ ingress:
 secrets:
   dbCredentials: admin-db-credentials
   publicDbCredentials: public-db-credentials
-  backendDbCredentials: backend-db-credentials
+  backendDbCredentials: public-db-credentials  # Now using public-db for deals
   jwtSecret: jwt-secret
   stripeSecrets: stripe-secrets
 
