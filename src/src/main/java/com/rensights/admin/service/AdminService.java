@@ -2,6 +2,7 @@ package com.rensights.admin.service;
 
 import com.rensights.admin.dto.*;
 import com.rensights.admin.repository.*;
+import com.rensights.admin.model.AnalysisRequest;
 import com.rensights.admin.model.User;
 import com.rensights.admin.model.Subscription;
 import org.slf4j.Logger;
@@ -34,6 +35,9 @@ public class AdminService {
     
     @Autowired
     private DeviceRepository deviceRepository;
+    
+    @Autowired
+    private AnalysisRequestRepository analysisRequestRepository;
     
     /**
      * Get all users with pagination
@@ -156,6 +160,8 @@ public class AdminService {
         // Calculate revenue (simplified - you'd get this from Stripe or payment records)
         long totalRevenue = activeSubscriptions * 50; // Placeholder calculation
         
+        long pendingRequests = analysisRequestRepository.countByStatus(AnalysisRequest.AnalysisRequestStatus.PENDING);
+        
         return DashboardStatsDTO.builder()
                 .totalUsers(totalUsers)
                 .activeSubscriptions(activeSubscriptions)
@@ -165,6 +171,83 @@ public class AdminService {
                 .enterpriseUsers(enterpriseUsers)
                 .activeUsers(activeUsers)
                 .verifiedUsers(verifiedUsers)
+                .pendingAnalysisRequests(pendingRequests)
+                .build();
+    }
+    
+    /**
+     * Get all analysis requests with pagination
+     */
+    public Page<AnalysisRequestDTO> getAllAnalysisRequests(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") 
+            ? Sort.by(sortBy).descending() 
+            : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        return analysisRequestRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(this::toAnalysisRequestDTO);
+    }
+    
+    /**
+     * Get analysis request by ID
+     */
+    public AnalysisRequestDTO getAnalysisRequestById(UUID requestId) {
+        return analysisRequestRepository.findById(requestId)
+                .map(this::toAnalysisRequestDTO)
+                .orElseThrow(() -> new RuntimeException("Analysis request not found"));
+    }
+    
+    /**
+     * Update analysis request status
+     */
+    @Transactional
+    public AnalysisRequestDTO updateAnalysisRequestStatus(UUID requestId, String status) {
+        AnalysisRequest request = analysisRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Analysis request not found"));
+        
+        try {
+            AnalysisRequest.AnalysisRequestStatus newStatus = AnalysisRequest.AnalysisRequestStatus.valueOf(status.toUpperCase());
+            request.setStatus(newStatus);
+            request = analysisRequestRepository.save(request);
+            logger.info("Admin updated analysis request status: {} -> {}", requestId, status);
+            return toAnalysisRequestDTO(request);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid status: " + status);
+        }
+    }
+    
+    private AnalysisRequestDTO toAnalysisRequestDTO(AnalysisRequest request) {
+        return AnalysisRequestDTO.builder()
+                .id(request.getId().toString())
+                .userId(request.getUser() != null ? request.getUser().getId().toString() : null)
+                .email(request.getEmail())
+                .city(request.getCity())
+                .area(request.getArea())
+                .buildingName(request.getBuildingName())
+                .listingUrl(request.getListingUrl())
+                .propertyType(request.getPropertyType())
+                .bedrooms(request.getBedrooms())
+                .size(request.getSize())
+                .plotSize(request.getPlotSize())
+                .floor(request.getFloor())
+                .totalFloors(request.getTotalFloors())
+                .buildingStatus(request.getBuildingStatus())
+                .condition(request.getCondition())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
+                .askingPrice(request.getAskingPrice())
+                .serviceCharge(request.getServiceCharge())
+                .handoverDate(request.getHandoverDate())
+                .developer(request.getDeveloper())
+                .paymentPlan(request.getPaymentPlan())
+                .features(request.getFeatures())
+                .view(request.getView())
+                .furnishing(request.getFurnishing())
+                .additionalNotes(request.getAdditionalNotes())
+                .filePaths(request.getFilePaths())
+                .status(request.getStatus() != null ? request.getStatus().name() : "PENDING")
+                .createdAt(request.getCreatedAt() != null ? request.getCreatedAt().toString() : "")
+                .updatedAt(request.getUpdatedAt() != null ? request.getUpdatedAt().toString() : "")
                 .build();
     }
     

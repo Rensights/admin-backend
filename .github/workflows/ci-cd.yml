@@ -1,0 +1,348 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch: # For manual prod deployment
+
+env:
+  REGISTRY: ghcr.io
+  DEV_NAMESPACE: dev
+  PROD_NAMESPACE: prod
+
+jobs:
+  # Step 1: Test
+  test:
+    name: 1️⃣ Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build admin backend
+        working-directory: src
+        run: mvn clean package -DskipTests
+
+      - name: Run tests
+        working-directory: src
+        run: mvn test
+
+  # Step 2: Build Docker Image
+  build:
+    name: 2️⃣ Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && needs.test.result == 'success'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CONTAINER_TOKEN }}
+
+      - name: Set image repository (lowercase)
+        id: image-repo
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
+          echo "Image will be: ghcr.io/${REPO_OWNER}/admin-backend"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ github.run_number }}
+            ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest
+          platforms: linux/amd64
+          cache-from: type=registry,ref=ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest
+          cache-to: type=inline
+
+      - name: Output image info
+        run: |
+          echo "✅ Image pushed:"
+          echo "   ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ github.run_number }}"
+          echo "   ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:latest"
+          
+      - name: Verify image was pushed
+        run: |
+          IMAGE="ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ github.run_number }}"
+          echo "🔍 Verifying pushed image: ${IMAGE}"
+          # Wait a moment for image to be available
+          sleep 5
+          docker pull ${IMAGE} || {
+            echo "⚠️  Warning: Image might not be immediately available, but build completed"
+            echo "   Will retry in deploy step"
+          }
+          echo "✅ Build job completed successfully"
+
+  # Step 3: Deploy to Dev
+  deploy-dev:
+    name: 3️⃣ Deploy to Dev
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && needs.build.result == 'success'
+    environment: dev
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Set image repository (lowercase)
+        id: image-repo
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.DEV_KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
+          sed -i 's|server: https://127.0.0.1:6443|server: https://72.62.40.154:6443|g' /tmp/kubeconfig
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl cluster-info
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CONTAINER_TOKEN }}
+
+      - name: Set image tag from pipeline number
+        id: image-tag
+        run: |
+          IMAGE_TAG="${{ github.run_number }}"
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "Using pipeline number as image tag: ${IMAGE_TAG}"
+
+      - name: Verify image exists
+        run: |
+          IMAGE="${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ steps.image-tag.outputs.image_tag }}"
+          echo "🔍 Verifying image exists: ${IMAGE}"
+          # Try to pull image metadata (this will fail if image doesn't exist)
+          docker pull ${IMAGE} || {
+            echo "❌ Error: Image ${IMAGE} not found!"
+            echo "   Make sure the build job completed successfully."
+            exit 1
+          }
+          echo "✅ Image verified: ${IMAGE}"
+
+      - name: Configure image pull secrets for GHCR
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.CONTAINER_TOKEN }} \
+            --namespace ${DEV_NAMESPACE} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Check for stuck Helm releases
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          echo "🔍 Checking for stuck Helm releases..."
+          if helm list -n ${DEV_NAMESPACE} | grep -q "admin-backend.*failed"; then
+            echo "⚠️  Found failed release, cleaning up..."
+            helm uninstall admin-backend -n ${DEV_NAMESPACE} || true
+            sleep 5
+          fi
+
+      - name: Deploy admin-backend to dev
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          IMAGE_TAG="${{ steps.image-tag.outputs.image_tag }}"
+          echo "🚀 Deploying to DEV with tag: ${IMAGE_TAG}"
+          helm upgrade --install admin-backend ./charts \
+            --namespace ${DEV_NAMESPACE} \
+            --create-namespace \
+            -f env-values/dev/global.yaml \
+            -f env-values/dev/admin-backend.yaml \
+            --set image.tag=${IMAGE_TAG} \
+            --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
+            --set imagePullSecrets[0].name=ghcr-secret \
+            --timeout=5m || {
+            echo "⚠️  Helm deployment failed or timed out, checking status..."
+            helm status admin-backend -n ${DEV_NAMESPACE} || true
+            kubectl get pods -n ${DEV_NAMESPACE} -l app=admin-backend || true
+            exit 1
+          }
+
+      - name: Wait for pods to be ready
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          echo "⏳ Waiting for pods to be ready..."
+          TIMEOUT=300  # 5 minutes
+          ELAPSED=0
+          INTERVAL=10
+          
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            READY=$(kubectl get deployment admin-backend -n ${DEV_NAMESPACE} -o jsonpath='{.status.readyReplicas}' 2>/dev/null || echo "0")
+            DESIRED=$(kubectl get deployment admin-backend -n ${DEV_NAMESPACE} -o jsonpath='{.spec.replicas}' 2>/dev/null || echo "1")
+            
+            if [ "$READY" = "$DESIRED" ] && [ "$READY" != "0" ]; then
+              echo "✅ All pods are ready! ($READY/$DESIRED)"
+              exit 0
+            fi
+            
+            echo "⏳ Pods not ready yet ($READY/$DESIRED), waiting ${INTERVAL}s... (${ELAPSED}s/${TIMEOUT}s)"
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          echo "❌ Timeout waiting for pods to be ready"
+          echo "=== Pod Status ==="
+          kubectl get pods -n ${DEV_NAMESPACE} -l app=admin-backend
+          echo ""
+          echo "=== Pod Logs (last 50 lines) ==="
+          kubectl logs -n ${DEV_NAMESPACE} -l app=admin-backend --tail=50 || true
+          echo ""
+          echo "=== Deployment Events ==="
+          kubectl describe deployment admin-backend -n ${DEV_NAMESPACE} | tail -30 || true
+          exit 1
+
+      - name: Verify deployment
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          echo "✅ Dev Deployment Status:"
+          kubectl get pods -n ${DEV_NAMESPACE} -l app=admin-backend
+          kubectl get svc -n ${DEV_NAMESPACE} -l app=admin-backend
+          echo ""
+          echo "=== Helm Release Status ==="
+          helm status admin-backend -n ${DEV_NAMESPACE} || true
+
+  # Step 4: Deploy to Prod (requires approval)
+  deploy-prod:
+    name: 4️⃣ Deploy to Prod (Requires Approval)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'workflow_dispatch'
+    environment: 
+      name: production
+      # Add required reviewers in GitHub repository settings → Environments → production
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Set image repository (lowercase)
+        id: image-repo
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.PROD_KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
+          sed -i 's|server: https://127.0.0.1:6443|server: https://72.62.40.154:6443|g' /tmp/kubeconfig
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl cluster-info
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CONTAINER_TOKEN }}
+
+      - name: Set image tag from pipeline number
+        id: image-tag-prod
+        run: |
+          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+          else
+            IMAGE_TAG="${{ github.run_number }}"
+          fi
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "Using image tag: ${IMAGE_TAG}"
+
+      - name: Verify image exists
+        run: |
+          IMAGE="${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:${{ steps.image-tag-prod.outputs.image_tag }}"
+          echo "🔍 Verifying image exists: ${IMAGE}"
+          docker pull ${IMAGE} || {
+            echo "❌ Error: Image ${IMAGE} not found!"
+            echo "   Make sure the build job completed successfully."
+            exit 1
+          }
+          echo "✅ Image verified: ${IMAGE}"
+
+      - name: Configure image pull secrets for GHCR
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.CONTAINER_TOKEN }} \
+            --namespace ${PROD_NAMESPACE} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy admin-backend to prod
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          IMAGE_TAG="${{ steps.image-tag-prod.outputs.image_tag }}"
+          echo "🚀 Deploying to PRODUCTION with tag: ${IMAGE_TAG}"
+          helm upgrade --install admin-backend ./charts \
+            --namespace ${PROD_NAMESPACE} \
+            --create-namespace \
+            -f env-values/prod/global.yaml \
+            -f env-values/prod/admin-backend.yaml \
+            --set image.tag=${IMAGE_TAG} \
+            --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
+            --set imagePullSecrets[0].name=ghcr-secret \
+            --wait --timeout=5m
+
+      - name: Verify deployment
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          echo "✅ Production Deployment Status:"
+          kubectl get pods -n ${PROD_NAMESPACE} -l app=admin-backend
+          kubectl get svc -n ${PROD_NAMESPACE} -l app=admin-backend
+

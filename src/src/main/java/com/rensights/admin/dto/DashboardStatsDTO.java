@@ -18,5 +18,6 @@ public class DashboardStatsDTO {
     private long enterpriseUsers;
     private long activeUsers;
     private long verifiedUsers;
+    private long pendingAnalysisRequests;
 }
 

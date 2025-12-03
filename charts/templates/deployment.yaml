@@ -32,12 +32,16 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "admin-backend.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           ports:
@@ -51,42 +55,44 @@ spec:
               value: {{ .Values.extraEnv.SERVER_PORT | quote }}
             - name: CORS_ORIGINS
               value: {{ .Values.extraEnv.CORS_ORIGINS | quote }}
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
-                  key: postgres-host
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
-                  key: postgres-port
-            - name: POSTGRES_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
-                  key: postgres-database
-            - name: POSTGRES_USERNAME
+            # Admin Database (Primary)
+            - name: ADMIN_DATABASE_URL
+              value: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}"
+            - name: ADMIN_DATABASE_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secrets.dbCredentials }}
                   key: postgres-username
-            - name: POSTGRES_PASSWORD
+            - name: ADMIN_DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secrets.dbCredentials }}
                   key: postgres-password
-            - name: DATABASE_URL
-              value: "jdbc:postgresql://$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DATABASE)"
-            - name: DATABASE_USER
+            # Public Database
+            - name: PUBLIC_DATABASE_URL
+              value: "jdbc:postgresql://{{ .Values.databases.public.host }}:{{ .Values.databases.public.port }}/{{ .Values.databases.public.name }}"
+            - name: PUBLIC_DATABASE_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
+                  name: {{ .Values.secrets.publicDbCredentials }}
                   key: postgres-username
-            - name: DATABASE_PASSWORD
+            - name: PUBLIC_DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
+                  name: {{ .Values.secrets.publicDbCredentials }}
+                  key: postgres-password
+            # Backend Database (now using public-db)
+            - name: BACKEND_DATABASE_URL
+              value: "jdbc:postgresql://{{ .Values.databases.backend.host }}:{{ .Values.databases.backend.port }}/{{ .Values.databases.backend.name }}"
+            - name: BACKEND_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.publicDbCredentials }}
+                  key: postgres-username
+            - name: BACKEND_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.publicDbCredentials }}
                   key: postgres-password
             - name: JWT_SECRET
               valueFrom:
