@@ -67,7 +67,7 @@ public class DealService {
     /**
      * Update deal
      */
-    @Transactional
+    @Transactional(transactionManager = "publicTransactionManager")
     public DealDTO updateDeal(UUID dealId, DealDTO updateRequest) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
@@ -126,7 +126,7 @@ public class DealService {
     /**
      * Approve a single deal
      */
-    @Transactional
+    @Transactional(transactionManager = "publicTransactionManager")
     public DealDTO approveDeal(UUID dealId, UUID approvedBy) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
@@ -143,7 +143,7 @@ public class DealService {
     /**
      * Approve multiple deals (batch approval)
      */
-    @Transactional
+    @Transactional(transactionManager = "publicTransactionManager")
     public List<DealDTO> approveDeals(List<UUID> dealIds, UUID approvedBy) {
         List<Deal> deals = dealRepository.findByIdIn(dealIds);
         
@@ -167,7 +167,7 @@ public class DealService {
     /**
      * Reject a deal
      */
-    @Transactional
+    @Transactional(transactionManager = "publicTransactionManager")
     public DealDTO rejectDeal(UUID dealId) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
@@ -213,7 +213,7 @@ public class DealService {
     /**
      * Delete a deal permanently
      */
-    @Transactional
+    @Transactional(transactionManager = "publicTransactionManager")
     public void deleteDeal(UUID dealId) {
         if (!dealRepository.existsById(dealId)) {
             throw new RuntimeException("Deal not found");
@@ -225,7 +225,7 @@ public class DealService {
     /**
      * Deactivate a deal (make it invisible to users)
      */
-    @Transactional
+    @Transactional(transactionManager = "publicTransactionManager")
     public DealDTO deactivateDeal(UUID dealId) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
@@ -238,7 +238,7 @@ public class DealService {
     /**
      * Activate a deal (make it visible to users)
      */
-    @Transactional
+    @Transactional(transactionManager = "publicTransactionManager")
     public DealDTO activateDeal(UUID dealId) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));

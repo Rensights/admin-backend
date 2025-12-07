@@ -17,6 +17,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.rensights.admin.model.AdminUser;
+import com.rensights.admin.model.AnalysisRequest;
+import com.rensights.admin.model.Device;
+import com.rensights.admin.model.Subscription;
+import com.rensights.admin.model.User;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -26,11 +30,15 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableJpaRepositories(
     basePackages = "com.rensights.admin.repository",
-    includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AdminUserRepository.class}),
-    excludeFilters = {
+    includeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AdminUserRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.UserRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DeviceRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class})
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class}),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AnalysisRequestRepository.class})
+    },
+    excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealRepository.class})
     },
     entityManagerFactoryRef = "adminEntityManagerFactory",
     transactionManagerRef = "adminTransactionManager"
@@ -64,7 +72,7 @@ public class AdminDataSourceConfig {
         
         return builder
             .dataSource(dataSource)
-            .packages(AdminUser.class)
+            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class)
             .persistenceUnit("admin")
             .properties(properties)
             .build();

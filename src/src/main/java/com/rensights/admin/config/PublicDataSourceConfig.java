@@ -15,6 +15,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.rensights.admin.model.Deal;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -22,8 +23,14 @@ import java.util.Map;
 
 @Configuration
 @EnableTransactionManagement
-// No JPA repositories configured for public datasource - reserved for future use
-// Removed @EnableJpaRepositories since there are no repositories using this datasource
+@EnableJpaRepositories(
+    basePackages = "com.rensights.admin.repository",
+    includeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealRepository.class})
+    },
+    entityManagerFactoryRef = "publicEntityManagerFactory",
+    transactionManagerRef = "publicTransactionManager"
+)
 public class PublicDataSourceConfig {
 
     @Bean(name = "publicDataSourceProperties")
@@ -48,11 +55,10 @@ public class PublicDataSourceConfig {
         properties.put("hibernate.format_sql", "true");
         properties.put("hibernate.show_sql", "true");
         
-        // Public datasource configuration - no entities currently, reserved for future use
-        // Provide a placeholder package (the config package itself) to create EntityManagerFactory
+        // Public datasource configuration - for Deal entities from public database
         return builder
             .dataSource(dataSource)
-            .packages(PublicDataSourceConfig.class.getPackage().getName())  // Placeholder package - no entities in this package
+            .packages(Deal.class)
             .persistenceUnit("public")
             .properties(properties)
             .build();
