@@ -297,6 +297,21 @@ public class AdminController {
         }
     }
     
+    @GetMapping("/deals/rejected")
+    public ResponseEntity<?> getRejectedDeals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String city,
+            Authentication authentication) {
+        try {
+            Page<DealDTO> deals = dealService.getRejectedDeals(page, size, city);
+            return ResponseEntity.ok(deals);
+        } catch (Exception e) {
+            logger.error("Error fetching rejected deals: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
     @DeleteMapping("/deals/{dealId}")
     public ResponseEntity<?> deleteDeal(
             @PathVariable UUID dealId,

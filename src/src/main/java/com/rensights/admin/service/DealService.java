@@ -211,6 +211,23 @@ public class DealService {
     }
     
     /**
+     * Get rejected deals (archived) with pagination and filters
+     */
+    public Page<DealDTO> getRejectedDeals(int page, int size, String city) {
+        Sort sort = Sort.by("updatedAt").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Deal> deals;
+        if (city != null && !city.isEmpty()) {
+            deals = dealRepository.findByStatusAndCity(Deal.DealStatus.REJECTED, city, pageable);
+        } else {
+            deals = dealRepository.findByStatus(Deal.DealStatus.REJECTED, pageable);
+        }
+        
+        return deals.map(this::toDTO);
+    }
+    
+    /**
      * Delete a deal permanently
      */
     @Transactional(transactionManager = "publicTransactionManager")
