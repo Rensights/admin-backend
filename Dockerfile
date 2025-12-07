@@ -1,15 +1,30 @@
+# Stage 1: Build the application
 FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
-# Copy root pom.xml
-COPY pom.xml .
-# Copy src directory (contains pom.xml and source code)
-COPY src ./src
-WORKDIR /app/src
-RUN mvn clean package -DskipTests
 
+# Copy Maven configuration files first (better layer caching)
+# Only copy pom.xml files first to leverage Maven dependency cache
+COPY pom.xml .
+COPY src/pom.xml ./src/
+
+# Download dependencies (this layer will be cached unless pom.xml changes)
+WORKDIR /app/src
+RUN mvn dependency:go-offline -B || true
+
+# Now copy source code (this layer only invalidates when code changes)
+WORKDIR /app
+COPY src ./src
+
+# Build the application
+WORKDIR /app/src
+RUN mvn clean package -DskipTests -B
+
+# Stage 2: Runtime image
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
+
+# Copy built JAR from builder
 COPY --from=builder /app/src/target/*.jar app.jar
+
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
