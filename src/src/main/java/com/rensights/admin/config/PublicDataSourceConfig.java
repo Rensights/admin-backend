@@ -14,6 +14,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.rensights.admin.model.Deal;
 
@@ -32,6 +33,9 @@ import java.util.Map;
     transactionManagerRef = "publicTransactionManager"
 )
 public class PublicDataSourceConfig {
+
+    @Value("${spring.profiles.active:}")
+    private String activeProfile;
 
     @Bean(name = "publicDataSourceProperties")
     @ConfigurationProperties("spring.public-datasource")
@@ -52,8 +56,11 @@ public class PublicDataSourceConfig {
             @Qualifier("publicDataSource") DataSource dataSource) {
         Map<String, String> properties = new HashMap<>();
         properties.put("hibernate.hbm2ddl.auto", "none");
-        properties.put("hibernate.format_sql", "true");
-        properties.put("hibernate.show_sql", "true");
+        
+        // SECURITY FIX: Only enable SQL logging in dev profile to prevent sensitive data exposure in production
+        boolean isDev = activeProfile != null && activeProfile.contains("dev");
+        properties.put("hibernate.format_sql", isDev ? "true" : "false");
+        properties.put("hibernate.show_sql", isDev ? "true" : "false");
         
         // Public datasource configuration - for Deal entities from public database
         return builder

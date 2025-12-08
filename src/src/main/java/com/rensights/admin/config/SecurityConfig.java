@@ -29,12 +29,17 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     
+    @Autowired
+    private RateLimitFilter rateLimitFilter;
+    
     @Value("${cors.allowed-origins:http://localhost:3001,http://localhost:3002}")
     private String allowedOrigins;
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // SECURITY NOTE: CSRF is disabled because we use stateless JWT authentication
+            // Stateless REST APIs with JWT tokens are not vulnerable to traditional CSRF attacks
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -54,6 +59,8 @@ public class SecurityConfig {
                     .policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
                 )
             )
+            // SECURITY: Add rate limiting filter before authentication
+            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/auth/**").permitAll()
