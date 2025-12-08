@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
  * Implements sliding window rate limiting per IP address
  */
 @Component
+@Order(0)
 public class RateLimitFilter extends OncePerRequestFilter {
     
     private static final Logger logger = LoggerFactory.getLogger(RateLimitFilter.class);
