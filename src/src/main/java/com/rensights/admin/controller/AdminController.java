@@ -365,5 +365,16 @@ public class AdminController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+    
+    @DeleteMapping("/test/delete-all-deals")
+    public ResponseEntity<?> deleteAllDeals(Authentication authentication) {
+        try {
+            dealService.deleteAllDeals();
+            return ResponseEntity.ok(Map.of("message", "All deals deleted successfully"));
+        } catch (Exception e) {
+            logger.error("Error deleting all deals: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
 }
 

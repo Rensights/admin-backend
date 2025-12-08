@@ -240,6 +240,16 @@ public class DealService {
     }
     
     /**
+     * Delete all deals permanently (for testing purposes)
+     */
+    @Transactional(transactionManager = "publicTransactionManager")
+    public void deleteAllDeals() {
+        long count = dealRepository.count();
+        dealRepository.deleteAll();
+        logger.warn("All {} deals deleted from database", count);
+    }
+    
+    /**
      * Deactivate a deal (make it invisible to users)
      */
     @Transactional(transactionManager = "publicTransactionManager")
