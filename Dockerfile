@@ -23,8 +23,17 @@ RUN mvn clean package -DskipTests -B
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
+# SECURITY FIX: Create non-root user for running the application
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 # Copy built JAR from builder
 COPY --from=builder /app/src/target/*.jar app.jar
+
+# SECURITY: Change ownership to non-root user
+RUN chown -R appuser:appgroup /app
+
+# SECURITY: Switch to non-root user
+USER appuser
 
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

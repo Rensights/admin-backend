@@ -15,11 +15,28 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 public class JwtService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JwtService.class);
+
     @Value("${jwt.secret:admin-secret-key-change-in-production-minimum-32-characters-long}")
     private String secret;
 
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
+    
+    @javax.annotation.PostConstruct
+    public void validateSecret() {
+        // SECURITY: Validate JWT secret is strong enough (minimum 32 bytes for HS256)
+        if (secret == null || secret.length() < 32) {
+            logger.error("SECURITY ALERT: JWT secret is too short ({} chars). Minimum 32 characters required for HS256!", 
+                secret != null ? secret.length() : 0);
+            throw new IllegalStateException(
+                "JWT secret must be at least 32 characters long. Current length: " + 
+                (secret != null ? secret.length() : 0) + 
+                ". Please set JWT_SECRET environment variable with a strong secret (minimum 32 characters)."
+            );
+        }
+        logger.info("JWT secret validated: length {} characters", secret.length());
+    }
 
     private final AtomicReference<SecretKey> signingKey = new AtomicReference<>();
 
