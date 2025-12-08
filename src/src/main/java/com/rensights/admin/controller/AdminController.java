@@ -3,6 +3,7 @@ package com.rensights.admin.controller;
 import com.rensights.admin.dto.*;
 import com.rensights.admin.service.AdminService;
 import com.rensights.admin.service.DealService;
+import com.rensights.admin.service.TestDataService;
 import org.springframework.data.domain.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,9 @@ public class AdminController {
     
     @Autowired
     private DealService dealService;
+    
+    @Autowired
+    private TestDataService testDataService;
     
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers(
@@ -347,6 +351,17 @@ public class AdminController {
             return ResponseEntity.ok(deal);
         } catch (Exception e) {
             logger.error("Error activating deal: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @PostMapping("/test/seed-deals")
+    public ResponseEntity<?> seedTestDeals(Authentication authentication) {
+        try {
+            testDataService.seedTestDeals();
+            return ResponseEntity.ok(Map.of("message", "Test deals seeded successfully"));
+        } catch (Exception e) {
+            logger.error("Error seeding test deals: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }

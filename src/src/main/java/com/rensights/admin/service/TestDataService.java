@@ -31,10 +31,11 @@ public class TestDataService implements CommandLineRunner {
             seedTestDeals();
             logger.info("Test deals seeded successfully!");
         } else {
-            logger.info("Database already contains deals, skipping seed.");
+            logger.info("Database already contains {} deals, skipping auto-seed.", dealRepository.count());
         }
     }
     
+    @Transactional
     public void seedTestDeals() {
         List<Deal> testDeals = Arrays.asList(
             // Dubai - Marina Area - PENDING deals
