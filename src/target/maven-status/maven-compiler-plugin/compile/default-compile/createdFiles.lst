@@ -8,6 +8,7 @@ com/rensights/admin/repository/DeviceRepository.class
 com/rensights/admin/repository/SubscriptionRepository.class
 com/rensights/admin/model/User$UserTier.class
 com/rensights/admin/controller/AdminAuthController$ErrorResponse.class
+com/rensights/admin/config/RateLimitFilter.class
 com/rensights/admin/model/User$UserBuilder.class
 com/rensights/admin/controller/AdminAuthController$LoginRequest.class
 com/rensights/admin/config/AdminDataSourceConfig.class

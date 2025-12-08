@@ -59,9 +59,11 @@ public class SecurityConfig {
                     .policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
                 )
             )
-            // SECURITY: Add rate limiting filter before authentication
-            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
+            // SECURITY: Add filters in correct order
+            // First add JWT filter before Spring Security's authentication filter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            // Then add rate limit filter before JWT filter (rate limiting happens first)
+            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/auth/**").permitAll()
                 .requestMatchers("/api/admin/**").authenticated()

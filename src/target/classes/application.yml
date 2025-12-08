@@ -32,9 +32,17 @@ spring:
     # SECURITY FIX: Disable SQL logging in production (prevents sensitive data exposure)
     show-sql: false
     open-in-view: false
+  
+  # SECURITY: Request size limits to prevent DoS attacks
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 server:
   port: ${SERVER_PORT:8081}
+  # SECURITY: Request size limits to prevent DoS attacks
+  max-http-header-size: 8KB
 
 management:
   endpoints:
