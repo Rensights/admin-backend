@@ -2,24 +2,36 @@ spring:
   application:
     name: rensights-admin-backend
   
+  # Admin Database (Primary - for AdminUser entities)
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/rensights}
-    username: ${DATABASE_USER:rensights}
-    password: ${DATABASE_PASSWORD:password}
+    url: ${ADMIN_DATABASE_URL:jdbc:postgresql://localhost:5432/admin_db_dev}
+    username: ${ADMIN_DATABASE_USER:admin}
+    password: ${ADMIN_DATABASE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
       connection-timeout: 30000
   
+  # Public Database Configuration (for Deal entities only)
+  public-datasource:
+    url: ${PUBLIC_DATABASE_URL:jdbc:postgresql://localhost:5432/public_db_dev}
+    username: ${PUBLIC_DATABASE_USER:public_user}
+    password: ${PUBLIC_DATABASE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  
+  # JPA Configuration - disabled auto-configuration since we use custom datasources
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+      ddl-auto: none
+    # SECURITY FIX: Disable SQL logging in production (prevents sensitive data exposure)
+    show-sql: false
+    open-in-view: false
 
 server:
   port: ${SERVER_PORT:8081}
@@ -51,5 +63,9 @@ logging:
   level:
     root: INFO
     com.rensights.admin: DEBUG
+    # SECURITY FIX: Disable SQL logging to prevent sensitive data exposure
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.springframework.jdbc.core: OFF
     org.springframework.security: WARN
 
