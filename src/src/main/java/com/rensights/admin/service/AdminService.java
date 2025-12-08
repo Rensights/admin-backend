@@ -105,12 +105,14 @@ public class AdminService {
     /**
      * Get all subscriptions with pagination
      */
+    @Transactional(readOnly = true)
     public Page<SubscriptionDTO> getAllSubscriptions(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("desc") 
             ? Sort.by(sortBy).descending() 
             : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
         
+        // The @EntityGraph in repository will eagerly load the user
         return subscriptionRepository.findAll(pageable)
                 .map(this::toSubscriptionDTO);
     }
@@ -118,7 +120,9 @@ public class AdminService {
     /**
      * Get subscription by ID
      */
+    @Transactional(readOnly = true)
     public SubscriptionDTO getSubscriptionById(UUID subscriptionId) {
+        // The @EntityGraph in repository will eagerly load the user
         return subscriptionRepository.findById(subscriptionId)
                 .map(this::toSubscriptionDTO)
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
