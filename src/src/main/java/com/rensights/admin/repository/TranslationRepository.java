@@ -2,6 +2,8 @@ package com.rensights.admin.repository;
 
 import com.rensights.admin.model.Translation;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,9 +21,11 @@ public interface TranslationRepository extends JpaRepository<Translation, UUID> 
         String languageCode, String namespace, String translationKey
     );
     
+    @Query("SELECT DISTINCT t.languageCode FROM Translation t")
     List<String> findDistinctLanguageCode();
     
-    List<String> findDistinctNamespaceByLanguageCode(String languageCode);
+    @Query("SELECT DISTINCT t.namespace FROM Translation t WHERE t.languageCode = :languageCode")
+    List<String> findDistinctNamespaceByLanguageCode(@Param("languageCode") String languageCode);
     
     boolean existsByLanguageCodeAndNamespaceAndTranslationKey(
         String languageCode, String namespace, String translationKey
