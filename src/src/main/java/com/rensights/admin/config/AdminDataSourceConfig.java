@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Value;
 import com.rensights.admin.model.AdminUser;
 import com.rensights.admin.model.AnalysisRequest;
 import com.rensights.admin.model.Device;
+import com.rensights.admin.model.Language;
 import com.rensights.admin.model.Subscription;
+import com.rensights.admin.model.Translation;
 import com.rensights.admin.model.User;
 
 import javax.sql.DataSource;
@@ -36,7 +38,9 @@ import java.util.Map;
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.UserRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DeviceRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AnalysisRequestRepository.class})
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AnalysisRequestRepository.class}),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.LanguageRepository.class}),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.TranslationRepository.class})
     },
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealRepository.class})
@@ -79,7 +83,7 @@ public class AdminDataSourceConfig {
         
         return builder
             .dataSource(dataSource)
-            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class)
+            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class, Language.class, Translation.class)
             .persistenceUnit("admin")
             .properties(properties)
             .build();
