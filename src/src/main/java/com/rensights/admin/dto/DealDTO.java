@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -49,5 +50,9 @@ public class DealDTO {
     private UUID approvedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    // Related deals - listed deals and recent sales
+    private List<DealDTO> listedDeals;
+    private List<DealDTO> recentSales;
 }
 

@@ -64,12 +64,13 @@ public class DealService {
     }
     
     /**
-     * Get deal by ID
+     * Get deal by ID with listed deals and recent sales
      */
     public DealDTO getDealById(UUID dealId) {
-        Deal deal = dealRepository.findById(dealId)
+        // Fetch deal with relationships eagerly to avoid N+1 queries
+        Deal deal = dealRepository.findByIdWithRelationships(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
-        return toDTO(deal);
+        return toDTOWithRelationships(deal);
     }
     
     /**
@@ -278,9 +279,71 @@ public class DealService {
     }
     
     /**
-     * Convert Deal entity to DTO
+     * Convert Deal entity to DTO with relationships
+     */
+    private DealDTO toDTOWithRelationships(Deal deal) {
+        DealDTO.DealDTOBuilder builder = DealDTO.builder()
+                .id(deal.getId())
+                .name(deal.getName())
+                .location(deal.getLocation())
+                .city(deal.getCity())
+                .area(deal.getArea())
+                .bedrooms(deal.getBedrooms())
+                .bedroomCount(deal.getBedroomCount())
+                .size(deal.getSize())
+                .listedPrice(deal.getListedPrice())
+                .priceValue(deal.getPriceValue())
+                .estimateMin(deal.getEstimateMin())
+                .estimateMax(deal.getEstimateMax())
+                .estimateRange(deal.getEstimateRange())
+                .discount(deal.getDiscount())
+                .rentalYield(deal.getRentalYield())
+                .grossRentalYield(deal.getGrossRentalYield())
+                .buildingStatus(deal.getBuildingStatus())
+                .propertyType(deal.getPropertyType())
+                .priceVsEstimations(deal.getPriceVsEstimations())
+                .pricePerSqft(deal.getPricePerSqft())
+                .pricePerSqftVsMarket(deal.getPricePerSqftVsMarket())
+                .propertyDescription(deal.getPropertyDescription())
+                .buildingFeatures(deal.getBuildingFeatures())
+                .serviceCharge(deal.getServiceCharge())
+                .developer(deal.getDeveloper())
+                .propertyLink(deal.getPropertyLink())
+                .propertyId(deal.getPropertyId())
+                .status(deal.getStatus())
+                .active(deal.getActive())
+                .batchDate(deal.getBatchDate())
+                .approvedAt(deal.getApprovedAt())
+                .approvedBy(deal.getApprovedBy())
+                .createdAt(deal.getCreatedAt())
+                .updatedAt(deal.getUpdatedAt());
+        
+        // Map listed deals and recent sales (without deep recursion to avoid circular references)
+        if (deal.getListedDeals() != null) {
+            builder.listedDeals(deal.getListedDeals().stream()
+                    .map(this::toDTOBasic)
+                    .collect(Collectors.toList()));
+        }
+        if (deal.getRecentSales() != null) {
+            builder.recentSales(deal.getRecentSales().stream()
+                    .map(this::toDTOBasic)
+                    .collect(Collectors.toList()));
+        }
+        
+        return builder.build();
+    }
+    
+    /**
+     * Convert Deal entity to DTO (basic, without relationships - used in lists)
      */
     private DealDTO toDTO(Deal deal) {
+        return toDTOBasic(deal);
+    }
+    
+    /**
+     * Convert Deal entity to basic DTO (no relationships)
+     */
+    private DealDTO toDTOBasic(Deal deal) {
         return DealDTO.builder()
                 .id(deal.getId())
                 .name(deal.getName())

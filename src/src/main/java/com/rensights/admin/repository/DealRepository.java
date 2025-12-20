@@ -43,5 +43,12 @@ public interface DealRepository extends JpaRepository<Deal, UUID> {
     Page<Deal> findByStatusAndActive(Deal.DealStatus status, Boolean active, Pageable pageable);
     
     Page<Deal> findByStatusAndActiveAndCity(Deal.DealStatus status, Boolean active, String city, Pageable pageable);
+    
+    // Fetch deal with listed deals and recent sales relationships
+    @Query("SELECT DISTINCT d FROM Deal d " +
+           "LEFT JOIN FETCH d.listedDeals " +
+           "LEFT JOIN FETCH d.recentSales " +
+           "WHERE d.id = :id")
+    java.util.Optional<Deal> findByIdWithRelationships(@Param("id") UUID id);
 }
 
