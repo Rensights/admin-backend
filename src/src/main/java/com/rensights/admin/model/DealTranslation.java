@@ -10,37 +10,29 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "languages", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"code"})
+@Table(name = "deal_translations", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"deal_id", "language_code", "field_name"})
 })
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Language {
+public class DealTranslation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     
-    @Column(name = "code", nullable = false, unique = true, length = 10)
-    private String code;
+    @Column(name = "deal_id", nullable = false)
+    private UUID dealId; // Reference to Deal entity
     
-    @Column(name = "name", nullable = false, length = 100)
-    private String name;
+    @Column(name = "language_code", nullable = false, length = 10)
+    private String languageCode; // e.g., "en", "ar", "fr"
     
-    @Column(name = "native_name", length = 100)
-    private String nativeName;
+    @Column(name = "field_name", nullable = false, length = 50)
+    private String fieldName; // e.g., "name", "location", "city", "area"
     
-    @Column(name = "flag", length = 10)
-    private String flag;
-    
-    @Column(name = "enabled", nullable = false)
-    @Builder.Default
-    private Boolean enabled = true;
-    
-    @Column(name = "is_default", nullable = false)
-    @Builder.Default
-    private Boolean isDefault = false;
+    @Column(name = "translated_value", nullable = false, columnDefinition = "TEXT")
+    private String translatedValue; // The translated content
     
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

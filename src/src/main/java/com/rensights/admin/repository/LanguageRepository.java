@@ -22,3 +22,4 @@ public interface LanguageRepository extends JpaRepository<Language, UUID> {
     Optional<Language> findByIsDefaultTrue();
 }
 
+

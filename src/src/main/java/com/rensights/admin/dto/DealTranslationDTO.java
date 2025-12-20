@@ -12,14 +12,12 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LanguageDTO {
+public class DealTranslationDTO {
     private UUID id;
-    private String code;
-    private String name;
-    private String nativeName;
-    private String flag;
-    private Boolean enabled;
-    private Boolean isDefault;
+    private UUID dealId;
+    private String languageCode;
+    private String fieldName;
+    private String translatedValue;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

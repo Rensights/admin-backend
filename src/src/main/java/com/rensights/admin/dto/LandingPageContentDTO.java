@@ -12,14 +12,15 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LanguageDTO {
+public class LandingPageContentDTO {
     private UUID id;
-    private String code;
-    private String name;
-    private String nativeName;
-    private String flag;
-    private Boolean enabled;
-    private Boolean isDefault;
+    private String section;
+    private String languageCode;
+    private String fieldKey;
+    private String contentType;
+    private String contentValue;
+    private Integer displayOrder;
+    private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
