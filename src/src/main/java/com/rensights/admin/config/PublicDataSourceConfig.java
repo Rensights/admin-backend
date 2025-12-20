@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.rensights.admin.model.Deal;
+import com.rensights.admin.model.ListedDeal;
+import com.rensights.admin.model.RecentSale;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -27,7 +29,9 @@ import java.util.Map;
 @EnableJpaRepositories(
     basePackages = "com.rensights.admin.repository",
     includeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealRepository.class})
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealRepository.class}),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.ListedDealRepository.class}),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.RecentSaleRepository.class})
     },
     entityManagerFactoryRef = "publicEntityManagerFactory",
     transactionManagerRef = "publicTransactionManager"
@@ -65,7 +69,7 @@ public class PublicDataSourceConfig {
         // Public datasource configuration - for Deal entities from public database
         return builder
             .dataSource(dataSource)
-            .packages(Deal.class)
+            .packages(Deal.class, ListedDeal.class, RecentSale.class)
             .persistenceUnit("public")
             .properties(properties)
             .build();
