@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 @Component
@@ -340,57 +341,73 @@ public class TestDataService implements CommandLineRunner {
         if (savedDeals.size() >= 5) {
             logger.info("Establishing deal relationships...");
             
-            // Get the first approved deal (index 5 - JLT Lake View Apartment)
-            Deal mainDeal = savedDeals.get(5); // JLT Lake View Apartment
+            // Get approved deals for relationships
+            List<Deal> approvedDeals = savedDeals.stream()
+                    .filter(d -> d.getStatus() == Deal.DealStatus.APPROVED && d.getActive())
+                    .collect(java.util.stream.Collectors.toList());
             
-            // Add listed deals to the main deal
-            // Link deals at index 6, 7 as listed deals
-            if (savedDeals.size() > 6) {
-                Deal listedDeal1 = savedDeals.get(6); // JLT Business Bay View
-                Deal listedDeal2 = savedDeals.get(7); // Business Bay Off-Plan Tower
-                mainDeal.getListedDeals().add(listedDeal1);
-                mainDeal.getListedDeals().add(listedDeal2);
-                logger.info("Added {} listed deals to deal: {}", mainDeal.getListedDeals().size(), mainDeal.getName());
-            }
+            int relationshipsCreated = 0;
             
-            // Add recent sales to the main deal
-            // Link deals at index 8, 11 as recent sales
-            if (savedDeals.size() > 11) {
-                Deal recentSale1 = savedDeals.get(8); // Business Bay Studio Off-Plan
-                Deal recentSale2 = savedDeals.get(11); // Corniche Beachfront
-                mainDeal.getRecentSales().add(recentSale1);
-                mainDeal.getRecentSales().add(recentSale2);
-                logger.info("Added {} recent sales to deal: {}", mainDeal.getRecentSales().size(), mainDeal.getName());
-            }
+            // Create relationships for multiple approved deals (up to 5)
+            int dealsToProcess = Math.min(approvedDeals.size(), 5);
             
-            // Save the main deal with relationships
-            dealRepository.save(mainDeal);
-            
-            // Create another deal with relationships (index 7 - Business Bay Off-Plan Tower)
-            if (savedDeals.size() > 7) {
-                Deal secondMainDeal = savedDeals.get(7);
+            for (int i = 0; i < dealsToProcess; i++) {
+                Deal mainDeal = approvedDeals.get(i);
+                
+                // Get other approved deals for listed deals
+                List<Deal> otherApproved = approvedDeals.stream()
+                        .filter(d -> !d.getId().equals(mainDeal.getId()))
+                        .limit(3)
+                        .collect(java.util.stream.Collectors.toList());
                 
                 // Add listed deals
-                if (savedDeals.size() > 0) {
-                    secondMainDeal.getListedDeals().add(savedDeals.get(0)); // Marina Apartment
+                for (Deal listedDeal : otherApproved) {
+                    if (!mainDeal.getListedDeals().contains(listedDeal)) {
+                        mainDeal.getListedDeals().add(listedDeal);
+                    }
                 }
-                if (savedDeals.size() > 3) {
-                    secondMainDeal.getListedDeals().add(savedDeals.get(3)); // Burj Views Apartment
-                }
+                
+                // Get pending deals for recent sales
+                List<Deal> pendingDeals = savedDeals.stream()
+                        .filter(d -> d.getStatus() == Deal.DealStatus.PENDING && 
+                                    d.getActive() && 
+                                    !d.getId().equals(mainDeal.getId()))
+                        .limit(3)
+                        .collect(java.util.stream.Collectors.toList());
                 
                 // Add recent sales
-                if (savedDeals.size() > 5) {
-                    secondMainDeal.getRecentSales().add(savedDeals.get(5)); // JLT Lake View
-                }
-                if (savedDeals.size() > 6) {
-                    secondMainDeal.getRecentSales().add(savedDeals.get(6)); // JLT Business Bay View
+                for (Deal recentSale : pendingDeals) {
+                    if (!mainDeal.getRecentSales().contains(recentSale) &&
+                        !mainDeal.getListedDeals().contains(recentSale)) {
+                        mainDeal.getRecentSales().add(recentSale);
+                    }
                 }
                 
-                dealRepository.save(secondMainDeal);
-                logger.info("Added relationships to deal: {}", secondMainDeal.getName());
+                // If not enough pending deals, use other approved deals
+                if (mainDeal.getRecentSales().size() < 2 && approvedDeals.size() > otherApproved.size() + 1) {
+                    List<Deal> additionalRecentSales = approvedDeals.stream()
+                            .filter(d -> !d.getId().equals(mainDeal.getId()) &&
+                                        !otherApproved.stream().anyMatch(od -> od.getId().equals(d.getId())))
+                            .limit(2)
+                            .collect(java.util.stream.Collectors.toList());
+                    
+                    for (Deal recentSale : additionalRecentSales) {
+                        if (!mainDeal.getRecentSales().contains(recentSale) &&
+                            !mainDeal.getListedDeals().contains(recentSale)) {
+                            mainDeal.getRecentSales().add(recentSale);
+                        }
+                    }
+                }
+                
+                dealRepository.save(mainDeal);
+                relationshipsCreated++;
+                logger.info("✅ Added relationships to deal: {} ({} listed deals, {} recent sales)", 
+                        mainDeal.getName(), 
+                        mainDeal.getListedDeals().size(), 
+                        mainDeal.getRecentSales().size());
             }
             
-            logger.info("✅ Deal relationships established successfully!");
+            logger.info("✅ Deal relationships established successfully for {} deals!", relationshipsCreated);
         }
     }
     
@@ -406,50 +423,97 @@ public class TestDataService implements CommandLineRunner {
             return;
         }
         
-        // Find approved deals
-        List<Deal> approvedDeals = allDeals.stream()
-                .filter(d -> d.getStatus() == Deal.DealStatus.APPROVED)
+        // Find approved and active deals (better candidates for relationships)
+        List<Deal> candidateDeals = allDeals.stream()
+                .filter(d -> d.getStatus() == Deal.DealStatus.APPROVED && d.getActive())
                 .collect(java.util.stream.Collectors.toList());
         
-        if (approvedDeals.size() < 3) {
-            logger.warn("Not enough approved deals to create relationships.");
+        if (candidateDeals.size() < 3) {
+            logger.warn("Not enough approved active deals to create relationships. Found: {}", candidateDeals.size());
+            // Fall back to all approved deals
+            candidateDeals = allDeals.stream()
+                    .filter(d -> d.getStatus() == Deal.DealStatus.APPROVED)
+                    .collect(java.util.stream.Collectors.toList());
+        }
+        
+        if (candidateDeals.size() < 2) {
+            logger.warn("Not enough deals to create relationships.");
             return;
         }
         
-        // Get first approved deal as main deal
-        Deal mainDeal = approvedDeals.get(0);
+        int relationshipsCreated = 0;
         
-        // Clear existing relationships
-        mainDeal.getListedDeals().clear();
-        mainDeal.getRecentSales().clear();
+        // Create relationships for multiple deals (up to 5 deals)
+        int dealsToProcess = Math.min(candidateDeals.size(), 5);
         
-        // Add listed deals (use other approved deals)
-        if (approvedDeals.size() > 1) {
-            mainDeal.getListedDeals().add(approvedDeals.get(1));
+        for (int i = 0; i < dealsToProcess; i++) {
+            Deal mainDeal = candidateDeals.get(i);
+            
+            // Skip if deal already has relationships
+            if ((mainDeal.getListedDeals() != null && !mainDeal.getListedDeals().isEmpty()) ||
+                (mainDeal.getRecentSales() != null && !mainDeal.getRecentSales().isEmpty())) {
+                logger.debug("Deal {} already has relationships, skipping.", mainDeal.getName());
+                continue;
+            }
+            
+            // Clear existing relationships (if any)
+            if (mainDeal.getListedDeals() == null) {
+                mainDeal.setListedDeals(new HashSet<>());
+            } else {
+                mainDeal.getListedDeals().clear();
+            }
+            
+            if (mainDeal.getRecentSales() == null) {
+                mainDeal.setRecentSales(new HashSet<>());
+            } else {
+                mainDeal.getRecentSales().clear();
+            }
+            
+            // Find other deals to link (excluding current deal)
+            List<Deal> otherDeals = candidateDeals.stream()
+                    .filter(d -> !d.getId().equals(mainDeal.getId()))
+                    .collect(java.util.stream.Collectors.toList());
+            
+            // Add 2-3 listed deals
+            int listedCount = Math.min(3, otherDeals.size());
+            for (int j = 0; j < listedCount && j < otherDeals.size(); j++) {
+                Deal listedDeal = otherDeals.get(j);
+                if (!mainDeal.getListedDeals().contains(listedDeal)) {
+                    mainDeal.getListedDeals().add(listedDeal);
+                }
+            }
+            
+            // Add 2-3 recent sales (use different deals if possible)
+            List<Deal> pendingDeals = allDeals.stream()
+                    .filter(d -> d.getStatus() == Deal.DealStatus.PENDING && 
+                                d.getActive() && 
+                                !d.getId().equals(mainDeal.getId()) &&
+                                !otherDeals.stream().anyMatch(od -> od.getId().equals(d.getId())))
+                    .limit(3)
+                    .collect(java.util.stream.Collectors.toList());
+            
+            // Use pending deals first, then fall back to other approved deals
+            List<Deal> recentSaleCandidates = pendingDeals.isEmpty() ? 
+                    otherDeals.stream().skip(listedCount).limit(3).collect(java.util.stream.Collectors.toList()) :
+                    pendingDeals;
+            
+            for (int j = 0; j < Math.min(3, recentSaleCandidates.size()); j++) {
+                Deal recentSale = recentSaleCandidates.get(j);
+                if (!mainDeal.getRecentSales().contains(recentSale) && 
+                    !mainDeal.getListedDeals().contains(recentSale)) {
+                    mainDeal.getRecentSales().add(recentSale);
+                }
+            }
+            
+            dealRepository.save(mainDeal);
+            relationshipsCreated++;
+            logger.info("✅ Added relationships to deal: {} ({} listed deals, {} recent sales)", 
+                    mainDeal.getName(), 
+                    mainDeal.getListedDeals().size(), 
+                    mainDeal.getRecentSales().size());
         }
-        if (approvedDeals.size() > 2) {
-            mainDeal.getListedDeals().add(approvedDeals.get(2));
-        }
         
-        // Add recent sales (use pending deals if available, otherwise approved)
-        List<Deal> otherDeals = allDeals.stream()
-                .filter(d -> !d.getId().equals(mainDeal.getId()) && 
-                            !approvedDeals.stream().anyMatch(ad -> ad.getId().equals(d.getId())))
-                .limit(2)
-                .collect(java.util.stream.Collectors.toList());
-        
-        if (otherDeals.size() >= 2) {
-            mainDeal.getRecentSales().add(otherDeals.get(0));
-            mainDeal.getRecentSales().add(otherDeals.get(1));
-        } else if (otherDeals.size() == 1) {
-            mainDeal.getRecentSales().add(otherDeals.get(0));
-        }
-        
-        dealRepository.save(mainDeal);
-        logger.info("✅ Added relationships to deal: {} ({} listed deals, {} recent sales)", 
-                mainDeal.getName(), 
-                mainDeal.getListedDeals().size(), 
-                mainDeal.getRecentSales().size());
+        logger.info("✅ Successfully created relationships for {} deals", relationshipsCreated);
     }
 }
 
