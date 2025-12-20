@@ -30,7 +30,18 @@ public class DealDTO {
     private String estimateRange;
     private String discount;
     private String rentalYield;
+    private String grossRentalYield;
     private Deal.BuildingStatus buildingStatus;
+    private String propertyType;
+    private String priceVsEstimations;
+    private BigDecimal pricePerSqft;
+    private BigDecimal pricePerSqftVsMarket;
+    private String propertyDescription;
+    private String buildingFeatures;
+    private String serviceCharge;
+    private String developer;
+    private String propertyLink;
+    private String propertyId;
     private Deal.DealStatus status;
     private Boolean active;
     private LocalDateTime batchDate;

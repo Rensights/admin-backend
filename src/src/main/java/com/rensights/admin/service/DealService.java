@@ -114,8 +114,41 @@ public class DealService {
         if (updateRequest.getRentalYield() != null) {
             deal.setRentalYield(updateRequest.getRentalYield());
         }
+        if (updateRequest.getGrossRentalYield() != null) {
+            deal.setGrossRentalYield(updateRequest.getGrossRentalYield());
+        }
         if (updateRequest.getBuildingStatus() != null) {
             deal.setBuildingStatus(updateRequest.getBuildingStatus());
+        }
+        if (updateRequest.getPropertyType() != null) {
+            deal.setPropertyType(updateRequest.getPropertyType());
+        }
+        if (updateRequest.getPriceVsEstimations() != null) {
+            deal.setPriceVsEstimations(updateRequest.getPriceVsEstimations());
+        }
+        if (updateRequest.getPricePerSqft() != null) {
+            deal.setPricePerSqft(updateRequest.getPricePerSqft());
+        }
+        if (updateRequest.getPricePerSqftVsMarket() != null) {
+            deal.setPricePerSqftVsMarket(updateRequest.getPricePerSqftVsMarket());
+        }
+        if (updateRequest.getPropertyDescription() != null) {
+            deal.setPropertyDescription(updateRequest.getPropertyDescription());
+        }
+        if (updateRequest.getBuildingFeatures() != null) {
+            deal.setBuildingFeatures(updateRequest.getBuildingFeatures());
+        }
+        if (updateRequest.getServiceCharge() != null) {
+            deal.setServiceCharge(updateRequest.getServiceCharge());
+        }
+        if (updateRequest.getDeveloper() != null) {
+            deal.setDeveloper(updateRequest.getDeveloper());
+        }
+        if (updateRequest.getPropertyLink() != null) {
+            deal.setPropertyLink(updateRequest.getPropertyLink());
+        }
+        if (updateRequest.getPropertyId() != null) {
+            deal.setPropertyId(updateRequest.getPropertyId());
         }
         
         deal = dealRepository.save(deal);
@@ -295,7 +328,18 @@ public class DealService {
                 .estimateRange(deal.getEstimateRange())
                 .discount(deal.getDiscount())
                 .rentalYield(deal.getRentalYield())
+                .grossRentalYield(deal.getGrossRentalYield())
                 .buildingStatus(deal.getBuildingStatus())
+                .propertyType(deal.getPropertyType())
+                .priceVsEstimations(deal.getPriceVsEstimations())
+                .pricePerSqft(deal.getPricePerSqft())
+                .pricePerSqftVsMarket(deal.getPricePerSqftVsMarket())
+                .propertyDescription(deal.getPropertyDescription())
+                .buildingFeatures(deal.getBuildingFeatures())
+                .serviceCharge(deal.getServiceCharge())
+                .developer(deal.getDeveloper())
+                .propertyLink(deal.getPropertyLink())
+                .propertyId(deal.getPropertyId())
                 .status(deal.getStatus())
                 .active(deal.getActive())
                 .batchDate(deal.getBatchDate())
