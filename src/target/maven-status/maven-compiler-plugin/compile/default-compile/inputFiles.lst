@@ -1,6 +1,5 @@
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/service/DealService.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/dto/ListedDealDTO.java
-/Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/repository/RecentSaleRepository.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/repository/LanguageRepository.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/service/AdminAuthService.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/repository/AdminUserRepository.java
@@ -37,16 +36,12 @@
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/dto/LanguageDTO.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/model/AnalysisRequest.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/model/LandingPageContent.java
-/Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/repository/ListedDealRepository.java
-/Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/model/RecentSale.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/model/Language.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/config/RateLimitFilter.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/dto/DealTranslationDTO.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/config/JwtAuthenticationFilter.java
-/Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/model/ListedDeal.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/service/JwtService.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/model/Subscription.java
-/Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/config/PublicDataSourceConfig.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/dto/LandingPageSectionDTO.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/config/DataInitializer.java
 /Users/ihakhverdiyev/Desktop/rensights/rensights-new/admin-backend/src/src/main/java/com/rensights/admin/repository/UserRepository.java
