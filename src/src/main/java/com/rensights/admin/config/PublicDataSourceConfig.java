@@ -73,29 +73,23 @@ public class PublicDataSourceConfig {
         properties.put("hibernate.show_sql", isDev ? "true" : "false");
         
         // Public datasource configuration - for Deal entities from public database
-        // CRITICAL: Use PersistenceUnitPostProcessor to filter out non-deal entities
-        LocalContainerEntityManagerFactoryBean factory = builder
-            .dataSource(dataSource)
-            .packages(Deal.class, DealTranslation.class, ListedDeal.class, RecentSale.class)
-            .persistenceUnit("public")
-            .properties(properties)
-            .build();
+        // CRITICAL: Explicitly set only deal-related entities to prevent scanning entire package
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setDataSource(dataSource);
+        factory.setPersistenceUnitName("public");
+        factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        factory.setJpaPropertyMap(properties);
         
-        // Filter to only include deal-related entities
+        // Manually register only deal-related entities (prevents scanning entire com.rensights.admin.model package)
         factory.setPersistenceUnitPostProcessors((PersistenceUnitPostProcessor) persistenceUnitInfo -> {
             MutablePersistenceUnitInfo unit = (MutablePersistenceUnitInfo) persistenceUnitInfo;
-            // Only keep deal-related entities
-            unit.getManagedClassNames().removeIf(className -> {
-                String dealName = Deal.class.getName();
-                String dealTranslationName = DealTranslation.class.getName();
-                String listedDealName = ListedDeal.class.getName();
-                String recentSaleName = RecentSale.class.getName();
-                
-                return !className.equals(dealName) &&
-                       !className.equals(dealTranslationName) &&
-                       !className.equals(listedDealName) &&
-                       !className.equals(recentSaleName);
-            });
+            // Clear all managed classes first (in case any were auto-detected)
+            unit.getManagedClassNames().clear();
+            // Add only deal-related entities explicitly
+            unit.addManagedClassName(Deal.class.getName());
+            unit.addManagedClassName(DealTranslation.class.getName());
+            unit.addManagedClassName(ListedDeal.class.getName());
+            unit.addManagedClassName(RecentSale.class.getName());
         });
         
         return factory;
