@@ -76,23 +76,29 @@ public class PublicDataSourceConfig {
         properties.put("hibernate.show_sql", isDev ? "true" : "false");
         
         // Public datasource configuration - for Deal entities from public database
-        // CRITICAL: Explicitly register only deal-related entities to prevent non-deal tables in public_db_dev
-        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-        factory.setDataSource(dataSource);
-        factory.setPersistenceUnitName("public");
-        factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-        factory.setJpaPropertyMap(properties);
+        // CRITICAL: Use builder with packages() but filter to only include deal-related entities
+        LocalContainerEntityManagerFactoryBean factory = builder
+            .dataSource(dataSource)
+            .packages(Deal.class.getPackage().getName())  // Scan the package to load classes
+            .persistenceUnit("public")
+            .properties(properties)
+            .build();
         
-        // CRITICAL: Do NOT use packages() - it scans entire package. Instead, explicitly register only deal entities
+        // CRITICAL: Filter to only include deal-related entities (removes all non-deal entities)
         factory.setPersistenceUnitPostProcessors((PersistenceUnitPostProcessor) persistenceUnitInfo -> {
             MutablePersistenceUnitInfo unit = (MutablePersistenceUnitInfo) persistenceUnitInfo;
-            // Clear any auto-detected classes
-            unit.getManagedClassNames().clear();
-            // Explicitly add ONLY deal-related entities
-            unit.addManagedClassName(Deal.class.getName());
-            unit.addManagedClassName(DealTranslation.class.getName());
-            unit.addManagedClassName(ListedDeal.class.getName());
-            unit.addManagedClassName(RecentSale.class.getName());
+            String dealName = Deal.class.getName();
+            String dealTranslationName = DealTranslation.class.getName();
+            String listedDealName = ListedDeal.class.getName();
+            String recentSaleName = RecentSale.class.getName();
+            
+            // Remove all entities except deal-related ones
+            unit.getManagedClassNames().removeIf(className -> {
+                return !className.equals(dealName) &&
+                       !className.equals(dealTranslationName) &&
+                       !className.equals(listedDealName) &&
+                       !className.equals(recentSaleName);
+            });
         });
         
         return factory;
