@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.rensights.admin.model.Deal;
+import com.rensights.admin.model.DealTranslation;
 import com.rensights.admin.model.ListedDeal;
 import com.rensights.admin.model.RecentSale;
 
@@ -30,6 +31,7 @@ import java.util.Map;
     basePackages = "com.rensights.admin.repository",
     includeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealRepository.class}),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealTranslationRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.ListedDealRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.RecentSaleRepository.class})
     },
@@ -68,9 +70,10 @@ public class PublicDataSourceConfig {
         properties.put("hibernate.show_sql", isDev ? "true" : "false");
         
         // Public datasource configuration - for Deal entities from public database
+        // Only deal-related entities: Deal, DealTranslation, ListedDeal, RecentSale
         return builder
             .dataSource(dataSource)
-            .packages(Deal.class, ListedDeal.class, RecentSale.class)
+            .packages(Deal.class, DealTranslation.class, ListedDeal.class, RecentSale.class)
             .persistenceUnit("public")
             .properties(properties)
             .build();

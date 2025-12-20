@@ -23,7 +23,6 @@ import com.rensights.admin.model.Device;
 import com.rensights.admin.model.Language;
 import com.rensights.admin.model.Subscription;
 import com.rensights.admin.model.Translation;
-import com.rensights.admin.model.DealTranslation;
 import com.rensights.admin.model.LandingPageContent;
 import com.rensights.admin.model.User;
 
@@ -43,7 +42,6 @@ import java.util.Map;
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AnalysisRequestRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.LanguageRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.TranslationRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealTranslationRepository.class}),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.LandingPageContentRepository.class})
     },
     excludeFilters = {
@@ -87,7 +85,7 @@ public class AdminDataSourceConfig {
         
         return builder
             .dataSource(dataSource)
-            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class, Language.class, Translation.class, DealTranslation.class, LandingPageContent.class)
+            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class, Language.class, Translation.class, LandingPageContent.class)
             .persistenceUnit("admin")
             .properties(properties)
             .build();
