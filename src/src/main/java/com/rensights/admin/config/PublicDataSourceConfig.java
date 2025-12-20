@@ -61,14 +61,15 @@ public class PublicDataSourceConfig {
 
     @Bean(name = "publicEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean publicEntityManagerFactory(
-            EntityManagerFactoryBuilder builder,
             @Qualifier("publicDataSource") DataSource dataSource) {
-        Map<String, String> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
         // Enable table creation/update for public database (public_db_dev) where Deal, ListedDeal, and RecentSale are stored
         properties.put("hibernate.hbm2ddl.auto", "update");
         
-        // CRITICAL: Only scan for specific entities to prevent creating non-deal tables in public_db_dev
-        properties.put("hibernate.archive.autodetection", "class, hbm");
+        // CRITICAL: Disable autodetection completely - we'll explicitly add entities only
+        properties.put("hibernate.archive.autodetection", "none");
+        properties.put("hibernate.archive.autodetection.class", "false");
+        properties.put("hibernate.archive.autodetection.hbm", "false");
         
         // SECURITY FIX: Only enable SQL logging in dev profile to prevent sensitive data exposure in production
         boolean isDev = activeProfile != null && activeProfile.contains("dev");
@@ -76,29 +77,27 @@ public class PublicDataSourceConfig {
         properties.put("hibernate.show_sql", isDev ? "true" : "false");
         
         // Public datasource configuration - for Deal entities from public database
-        // CRITICAL: Use builder with packages() but filter to only include deal-related entities
-        LocalContainerEntityManagerFactoryBean factory = builder
-            .dataSource(dataSource)
-            .packages(Deal.class.getPackage().getName())  // Scan the package to load classes
-            .persistenceUnit("public")
-            .properties(properties)
-            .build();
+        // CRITICAL: Create factory without any package scanning - use post-processor to add entities explicitly
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setDataSource(dataSource);
+        factory.setPersistenceUnitName("public");
+        factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        factory.setJpaPropertyMap(properties);
         
-        // CRITICAL: Filter to only include deal-related entities (removes all non-deal entities)
+        // CRITICAL: Do NOT call setPackagesToScan() at all - this prevents any package scanning
+        // We'll add entities explicitly via post-processor only
+        
+        // Use post-processor to explicitly add ONLY deal-related entities
+        // This is the ONLY way entities will be added to this persistence unit
         factory.setPersistenceUnitPostProcessors((PersistenceUnitPostProcessor) persistenceUnitInfo -> {
             MutablePersistenceUnitInfo unit = (MutablePersistenceUnitInfo) persistenceUnitInfo;
-            String dealName = Deal.class.getName();
-            String dealTranslationName = DealTranslation.class.getName();
-            String listedDealName = ListedDeal.class.getName();
-            String recentSaleName = RecentSale.class.getName();
-            
-            // Remove all entities except deal-related ones
-            unit.getManagedClassNames().removeIf(className -> {
-                return !className.equals(dealName) &&
-                       !className.equals(dealTranslationName) &&
-                       !className.equals(listedDealName) &&
-                       !className.equals(recentSaleName);
-            });
+            // Clear ALL managed classes first (this is critical - remove any auto-detected entities)
+            unit.getManagedClassNames().clear();
+            // Explicitly add ONLY these 4 deal-related entities - nothing else
+            unit.addManagedClassName(Deal.class.getName());
+            unit.addManagedClassName(DealTranslation.class.getName());
+            unit.addManagedClassName(ListedDeal.class.getName());
+            unit.addManagedClassName(RecentSale.class.getName());
         });
         
         return factory;
