@@ -366,6 +366,17 @@ public class AdminController {
         }
     }
     
+    @PostMapping("/test/add-relationships")
+    public ResponseEntity<?> addRelationshipsToDeals(Authentication authentication) {
+        try {
+            testDataService.addRelationshipsToExistingDeals();
+            return ResponseEntity.ok(Map.of("message", "Deal relationships added successfully"));
+        } catch (Exception e) {
+            logger.error("Error adding relationships: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
     @DeleteMapping("/test/delete-all-deals")
     public ResponseEntity<?> deleteAllDeals(Authentication authentication) {
         try {

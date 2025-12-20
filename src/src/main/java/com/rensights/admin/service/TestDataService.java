@@ -26,17 +26,29 @@ public class TestDataService implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         // Check if we should seed test data (only if database is empty)
-        if (dealRepository.count() == 0) {
+        long dealCount = dealRepository.count();
+        if (dealCount == 0) {
             logger.info("Seeding test deals into database...");
             seedTestDeals();
             logger.info("Test deals seeded successfully!");
         } else {
-            logger.info("Database already contains {} deals, skipping auto-seed.", dealRepository.count());
+            logger.info("Database already contains {} deals, skipping auto-seed.", dealCount);
+            
+            // Check if deals have relationships, if not, add them
+            boolean hasRelationships = dealRepository.findAll().stream()
+                    .anyMatch(d -> (d.getListedDeals() != null && !d.getListedDeals().isEmpty()) || 
+                                  (d.getRecentSales() != null && !d.getRecentSales().isEmpty()));
+            
+            if (!hasRelationships) {
+                logger.info("No deal relationships found. Adding relationships to existing deals...");
+                addRelationshipsToExistingDeals();
+            }
         }
     }
     
     @Transactional
     public void seedTestDeals() {
+        // First, save all deals without relationships
         List<Deal> testDeals = Arrays.asList(
             // Dubai - Marina Area - PENDING deals
             Deal.builder()
@@ -322,7 +334,122 @@ public class TestDataService implements CommandLineRunner {
                 .build()
         );
         
-        dealRepository.saveAll(testDeals);
+        List<Deal> savedDeals = dealRepository.saveAll(testDeals);
+        
+        // Now establish relationships between deals
+        if (savedDeals.size() >= 5) {
+            logger.info("Establishing deal relationships...");
+            
+            // Get the first approved deal (index 5 - JLT Lake View Apartment)
+            Deal mainDeal = savedDeals.get(5); // JLT Lake View Apartment
+            
+            // Add listed deals to the main deal
+            // Link deals at index 6, 7 as listed deals
+            if (savedDeals.size() > 6) {
+                Deal listedDeal1 = savedDeals.get(6); // JLT Business Bay View
+                Deal listedDeal2 = savedDeals.get(7); // Business Bay Off-Plan Tower
+                mainDeal.getListedDeals().add(listedDeal1);
+                mainDeal.getListedDeals().add(listedDeal2);
+                logger.info("Added {} listed deals to deal: {}", mainDeal.getListedDeals().size(), mainDeal.getName());
+            }
+            
+            // Add recent sales to the main deal
+            // Link deals at index 8, 11 as recent sales
+            if (savedDeals.size() > 11) {
+                Deal recentSale1 = savedDeals.get(8); // Business Bay Studio Off-Plan
+                Deal recentSale2 = savedDeals.get(11); // Corniche Beachfront
+                mainDeal.getRecentSales().add(recentSale1);
+                mainDeal.getRecentSales().add(recentSale2);
+                logger.info("Added {} recent sales to deal: {}", mainDeal.getRecentSales().size(), mainDeal.getName());
+            }
+            
+            // Save the main deal with relationships
+            dealRepository.save(mainDeal);
+            
+            // Create another deal with relationships (index 7 - Business Bay Off-Plan Tower)
+            if (savedDeals.size() > 7) {
+                Deal secondMainDeal = savedDeals.get(7);
+                
+                // Add listed deals
+                if (savedDeals.size() > 0) {
+                    secondMainDeal.getListedDeals().add(savedDeals.get(0)); // Marina Apartment
+                }
+                if (savedDeals.size() > 3) {
+                    secondMainDeal.getListedDeals().add(savedDeals.get(3)); // Burj Views Apartment
+                }
+                
+                // Add recent sales
+                if (savedDeals.size() > 5) {
+                    secondMainDeal.getRecentSales().add(savedDeals.get(5)); // JLT Lake View
+                }
+                if (savedDeals.size() > 6) {
+                    secondMainDeal.getRecentSales().add(savedDeals.get(6)); // JLT Business Bay View
+                }
+                
+                dealRepository.save(secondMainDeal);
+                logger.info("Added relationships to deal: {}", secondMainDeal.getName());
+            }
+            
+            logger.info("✅ Deal relationships established successfully!");
+        }
+    }
+    
+    /**
+     * Add relationships to existing deals for testing
+     */
+    @Transactional
+    public void addRelationshipsToExistingDeals() {
+        List<Deal> allDeals = dealRepository.findAll();
+        
+        if (allDeals.size() < 5) {
+            logger.warn("Not enough deals to create relationships. Need at least 5 deals.");
+            return;
+        }
+        
+        // Find approved deals
+        List<Deal> approvedDeals = allDeals.stream()
+                .filter(d -> d.getStatus() == Deal.DealStatus.APPROVED)
+                .collect(java.util.stream.Collectors.toList());
+        
+        if (approvedDeals.size() < 3) {
+            logger.warn("Not enough approved deals to create relationships.");
+            return;
+        }
+        
+        // Get first approved deal as main deal
+        Deal mainDeal = approvedDeals.get(0);
+        
+        // Clear existing relationships
+        mainDeal.getListedDeals().clear();
+        mainDeal.getRecentSales().clear();
+        
+        // Add listed deals (use other approved deals)
+        if (approvedDeals.size() > 1) {
+            mainDeal.getListedDeals().add(approvedDeals.get(1));
+        }
+        if (approvedDeals.size() > 2) {
+            mainDeal.getListedDeals().add(approvedDeals.get(2));
+        }
+        
+        // Add recent sales (use pending deals if available, otherwise approved)
+        List<Deal> otherDeals = allDeals.stream()
+                .filter(d -> !d.getId().equals(mainDeal.getId()) && 
+                            !approvedDeals.stream().anyMatch(ad -> ad.getId().equals(d.getId())))
+                .limit(2)
+                .collect(java.util.stream.Collectors.toList());
+        
+        if (otherDeals.size() >= 2) {
+            mainDeal.getRecentSales().add(otherDeals.get(0));
+            mainDeal.getRecentSales().add(otherDeals.get(1));
+        } else if (otherDeals.size() == 1) {
+            mainDeal.getRecentSales().add(otherDeals.get(0));
+        }
+        
+        dealRepository.save(mainDeal);
+        logger.info("✅ Added relationships to deal: {} ({} listed deals, {} recent sales)", 
+                mainDeal.getName(), 
+                mainDeal.getListedDeals().size(), 
+                mainDeal.getRecentSales().size());
     }
 }
 
