@@ -55,7 +55,20 @@ spec:
               value: {{ .Values.extraEnv.SERVER_PORT | quote }}
             - name: CORS_ORIGINS
               value: {{ .Values.extraEnv.CORS_ORIGINS | quote }}
-            # Admin Database (Primary)
+            # Single Database Configuration (consolidated from admin, public, and backend databases)
+            - name: DATABASE_URL
+              value: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}"
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.dbCredentials }}
+                  key: postgres-username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.dbCredentials }}
+                  key: postgres-password
+            # Legacy environment variables for backward compatibility (kept for migration period)
             - name: ADMIN_DATABASE_URL
               value: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}"
             - name: ADMIN_DATABASE_USER
@@ -67,32 +80,6 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secrets.dbCredentials }}
-                  key: postgres-password
-            # Public Database
-            - name: PUBLIC_DATABASE_URL
-              value: "jdbc:postgresql://{{ .Values.databases.public.host }}:{{ .Values.databases.public.port }}/{{ .Values.databases.public.name }}"
-            - name: PUBLIC_DATABASE_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.publicDbCredentials }}
-                  key: postgres-username
-            - name: PUBLIC_DATABASE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.publicDbCredentials }}
-                  key: postgres-password
-            # Backend Database (now using public-db)
-            - name: BACKEND_DATABASE_URL
-              value: "jdbc:postgresql://{{ .Values.databases.backend.host }}:{{ .Values.databases.backend.port }}/{{ .Values.databases.backend.name }}"
-            - name: BACKEND_DATABASE_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.publicDbCredentials }}
-                  key: postgres-username
-            - name: BACKEND_DATABASE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.publicDbCredentials }}
                   key: postgres-password
             - name: JWT_SECRET
               valueFrom:
