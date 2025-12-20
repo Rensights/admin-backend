@@ -12,6 +12,9 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
+import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,19 +76,19 @@ public class PublicDataSourceConfig {
         properties.put("hibernate.show_sql", isDev ? "true" : "false");
         
         // Public datasource configuration - for Deal entities from public database
-        // CRITICAL: Explicitly set only deal-related entities to prevent scanning entire package
+        // CRITICAL: Explicitly register only deal-related entities to prevent non-deal tables in public_db_dev
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
         factory.setPersistenceUnitName("public");
         factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         factory.setJpaPropertyMap(properties);
         
-        // Manually register only deal-related entities (prevents scanning entire com.rensights.admin.model package)
+        // CRITICAL: Do NOT use packages() - it scans entire package. Instead, explicitly register only deal entities
         factory.setPersistenceUnitPostProcessors((PersistenceUnitPostProcessor) persistenceUnitInfo -> {
             MutablePersistenceUnitInfo unit = (MutablePersistenceUnitInfo) persistenceUnitInfo;
-            // Clear all managed classes first (in case any were auto-detected)
+            // Clear any auto-detected classes
             unit.getManagedClassNames().clear();
-            // Add only deal-related entities explicitly
+            // Explicitly add ONLY deal-related entities
             unit.addManagedClassName(Deal.class.getName());
             unit.addManagedClassName(DealTranslation.class.getName());
             unit.addManagedClassName(ListedDeal.class.getName());
