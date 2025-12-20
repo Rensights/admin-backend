@@ -64,19 +64,41 @@ public class PublicDataSourceConfig {
         // Enable table creation/update for public database (public_db_dev) where Deal, ListedDeal, and RecentSale are stored
         properties.put("hibernate.hbm2ddl.auto", "update");
         
+        // CRITICAL: Only scan for specific entities to prevent creating non-deal tables in public_db_dev
+        properties.put("hibernate.archive.autodetection", "class, hbm");
+        
         // SECURITY FIX: Only enable SQL logging in dev profile to prevent sensitive data exposure in production
         boolean isDev = activeProfile != null && activeProfile.contains("dev");
         properties.put("hibernate.format_sql", isDev ? "true" : "false");
         properties.put("hibernate.show_sql", isDev ? "true" : "false");
         
         // Public datasource configuration - for Deal entities from public database
-        // Only deal-related entities: Deal, DealTranslation, ListedDeal, RecentSale
-        return builder
+        // CRITICAL: Use PersistenceUnitPostProcessor to filter out non-deal entities
+        LocalContainerEntityManagerFactoryBean factory = builder
             .dataSource(dataSource)
             .packages(Deal.class, DealTranslation.class, ListedDeal.class, RecentSale.class)
             .persistenceUnit("public")
             .properties(properties)
             .build();
+        
+        // Filter to only include deal-related entities
+        factory.setPersistenceUnitPostProcessors((PersistenceUnitPostProcessor) persistenceUnitInfo -> {
+            MutablePersistenceUnitInfo unit = (MutablePersistenceUnitInfo) persistenceUnitInfo;
+            // Only keep deal-related entities
+            unit.getManagedClassNames().removeIf(className -> {
+                String dealName = Deal.class.getName();
+                String dealTranslationName = DealTranslation.class.getName();
+                String listedDealName = ListedDeal.class.getName();
+                String recentSaleName = RecentSale.class.getName();
+                
+                return !className.equals(dealName) &&
+                       !className.equals(dealTranslationName) &&
+                       !className.equals(listedDealName) &&
+                       !className.equals(recentSaleName);
+            });
+        });
+        
+        return factory;
     }
 
     @Bean(name = "publicTransactionManager")
