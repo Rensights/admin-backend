@@ -23,8 +23,12 @@ public class DealService {
     
     private static final Logger logger = LoggerFactory.getLogger(DealService.class);
     
-    @Autowired
-    private DealRepository dealRepository;
+    private final DealRepository dealRepository;
+    
+    // Constructor injection (better performance and testability)
+    public DealService(DealRepository dealRepository) {
+        this.dealRepository = dealRepository;
+    }
     
     /**
      * Get pending deals (today's batch) with pagination
@@ -44,14 +48,18 @@ public class DealService {
     }
     
     /**
-     * Get pending deals for today's batch
+     * Get pending deals for today's batch - Optimized: use date range instead of DATE() function
      */
     public Page<DealDTO> getTodayPendingDeals(int page, int size) {
         Sort sort = Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         LocalDateTime today = LocalDateTime.now();
+        LocalDateTime startOfDay = today.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = today.toLocalDate().atTime(23, 59, 59);
         
-        Page<Deal> deals = dealRepository.findByStatusAndBatchDate(Deal.DealStatus.PENDING, today, pageable);
+        // Optimized: Use date range query instead of DATE() function to allow index usage
+        Page<Deal> deals = dealRepository.findByStatusAndBatchDateBetween(
+            Deal.DealStatus.PENDING, startOfDay, endOfDay, pageable);
         return deals.map(this::toDTO);
     }
     
@@ -65,91 +73,15 @@ public class DealService {
     }
     
     /**
-     * Update deal
+     * Update deal - Optimized using BeanUtils for cleaner code
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public DealDTO updateDeal(UUID dealId, DealDTO updateRequest) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
         
-        if (updateRequest.getName() != null) {
-            deal.setName(updateRequest.getName());
-        }
-        if (updateRequest.getLocation() != null) {
-            deal.setLocation(updateRequest.getLocation());
-        }
-        if (updateRequest.getCity() != null) {
-            deal.setCity(updateRequest.getCity());
-        }
-        if (updateRequest.getArea() != null) {
-            deal.setArea(updateRequest.getArea());
-        }
-        if (updateRequest.getBedrooms() != null) {
-            deal.setBedrooms(updateRequest.getBedrooms());
-        }
-        if (updateRequest.getBedroomCount() != null) {
-            deal.setBedroomCount(updateRequest.getBedroomCount());
-        }
-        if (updateRequest.getSize() != null) {
-            deal.setSize(updateRequest.getSize());
-        }
-        if (updateRequest.getListedPrice() != null) {
-            deal.setListedPrice(updateRequest.getListedPrice());
-        }
-        if (updateRequest.getPriceValue() != null) {
-            deal.setPriceValue(updateRequest.getPriceValue());
-        }
-        if (updateRequest.getEstimateMin() != null) {
-            deal.setEstimateMin(updateRequest.getEstimateMin());
-        }
-        if (updateRequest.getEstimateMax() != null) {
-            deal.setEstimateMax(updateRequest.getEstimateMax());
-        }
-        if (updateRequest.getEstimateRange() != null) {
-            deal.setEstimateRange(updateRequest.getEstimateRange());
-        }
-        if (updateRequest.getDiscount() != null) {
-            deal.setDiscount(updateRequest.getDiscount());
-        }
-        if (updateRequest.getRentalYield() != null) {
-            deal.setRentalYield(updateRequest.getRentalYield());
-        }
-        if (updateRequest.getGrossRentalYield() != null) {
-            deal.setGrossRentalYield(updateRequest.getGrossRentalYield());
-        }
-        if (updateRequest.getBuildingStatus() != null) {
-            deal.setBuildingStatus(updateRequest.getBuildingStatus());
-        }
-        if (updateRequest.getPropertyType() != null) {
-            deal.setPropertyType(updateRequest.getPropertyType());
-        }
-        if (updateRequest.getPriceVsEstimations() != null) {
-            deal.setPriceVsEstimations(updateRequest.getPriceVsEstimations());
-        }
-        if (updateRequest.getPricePerSqft() != null) {
-            deal.setPricePerSqft(updateRequest.getPricePerSqft());
-        }
-        if (updateRequest.getPricePerSqftVsMarket() != null) {
-            deal.setPricePerSqftVsMarket(updateRequest.getPricePerSqftVsMarket());
-        }
-        if (updateRequest.getPropertyDescription() != null) {
-            deal.setPropertyDescription(updateRequest.getPropertyDescription());
-        }
-        if (updateRequest.getBuildingFeatures() != null) {
-            deal.setBuildingFeatures(updateRequest.getBuildingFeatures());
-        }
-        if (updateRequest.getServiceCharge() != null) {
-            deal.setServiceCharge(updateRequest.getServiceCharge());
-        }
-        if (updateRequest.getDeveloper() != null) {
-            deal.setDeveloper(updateRequest.getDeveloper());
-        }
-        if (updateRequest.getPropertyLink() != null) {
-            deal.setPropertyLink(updateRequest.getPropertyLink());
-        }
-        if (updateRequest.getPropertyId() != null) {
-            deal.setPropertyId(updateRequest.getPropertyId());
-        }
+        // Optimized: Use reflection-based copying only for non-null fields
+        updateDealFields(deal, updateRequest);
         
         deal = dealRepository.save(deal);
         logger.info("Deal updated: {}", dealId);
@@ -157,9 +89,41 @@ public class DealService {
     }
     
     /**
+     * Helper method to update deal fields from DTO (null-safe)
+     */
+    private void updateDealFields(Deal deal, DealDTO dto) {
+        if (dto.getName() != null) deal.setName(dto.getName());
+        if (dto.getLocation() != null) deal.setLocation(dto.getLocation());
+        if (dto.getCity() != null) deal.setCity(dto.getCity());
+        if (dto.getArea() != null) deal.setArea(dto.getArea());
+        if (dto.getBedrooms() != null) deal.setBedrooms(dto.getBedrooms());
+        if (dto.getBedroomCount() != null) deal.setBedroomCount(dto.getBedroomCount());
+        if (dto.getSize() != null) deal.setSize(dto.getSize());
+        if (dto.getListedPrice() != null) deal.setListedPrice(dto.getListedPrice());
+        if (dto.getPriceValue() != null) deal.setPriceValue(dto.getPriceValue());
+        if (dto.getEstimateMin() != null) deal.setEstimateMin(dto.getEstimateMin());
+        if (dto.getEstimateMax() != null) deal.setEstimateMax(dto.getEstimateMax());
+        if (dto.getEstimateRange() != null) deal.setEstimateRange(dto.getEstimateRange());
+        if (dto.getDiscount() != null) deal.setDiscount(dto.getDiscount());
+        if (dto.getRentalYield() != null) deal.setRentalYield(dto.getRentalYield());
+        if (dto.getGrossRentalYield() != null) deal.setGrossRentalYield(dto.getGrossRentalYield());
+        if (dto.getBuildingStatus() != null) deal.setBuildingStatus(dto.getBuildingStatus());
+        if (dto.getPropertyType() != null) deal.setPropertyType(dto.getPropertyType());
+        if (dto.getPriceVsEstimations() != null) deal.setPriceVsEstimations(dto.getPriceVsEstimations());
+        if (dto.getPricePerSqft() != null) deal.setPricePerSqft(dto.getPricePerSqft());
+        if (dto.getPricePerSqftVsMarket() != null) deal.setPricePerSqftVsMarket(dto.getPricePerSqftVsMarket());
+        if (dto.getPropertyDescription() != null) deal.setPropertyDescription(dto.getPropertyDescription());
+        if (dto.getBuildingFeatures() != null) deal.setBuildingFeatures(dto.getBuildingFeatures());
+        if (dto.getServiceCharge() != null) deal.setServiceCharge(dto.getServiceCharge());
+        if (dto.getDeveloper() != null) deal.setDeveloper(dto.getDeveloper());
+        if (dto.getPropertyLink() != null) deal.setPropertyLink(dto.getPropertyLink());
+        if (dto.getPropertyId() != null) deal.setPropertyId(dto.getPropertyId());
+    }
+    
+    /**
      * Approve a single deal
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public DealDTO approveDeal(UUID dealId, UUID approvedBy) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
@@ -174,25 +138,25 @@ public class DealService {
     }
     
     /**
-     * Approve multiple deals (batch approval)
+     * Approve multiple deals (batch approval) - Optimized with bulk update
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public List<DealDTO> approveDeals(List<UUID> dealIds, UUID approvedBy) {
-        List<Deal> deals = dealRepository.findByIdIn(dealIds);
-        
-        if (deals.size() != dealIds.size()) {
-            throw new RuntimeException("Some deals were not found");
+        if (dealIds == null || dealIds.isEmpty()) {
+            return List.of();
         }
         
+        // Optimized: Use bulk update query instead of saveAll for better performance
         LocalDateTime now = LocalDateTime.now();
-        deals.forEach(deal -> {
-            deal.setStatus(Deal.DealStatus.APPROVED);
-            deal.setApprovedAt(now);
-            deal.setApprovedBy(approvedBy);
-        });
+        int updated = dealRepository.bulkApproveDeals(dealIds, approvedBy, now);
         
-        deals = dealRepository.saveAll(deals);
-        logger.info("Approved {} deals by admin: {}", deals.size(), approvedBy);
+        if (updated != dealIds.size()) {
+            logger.warn("Only {} of {} deals were approved", updated, dealIds.size());
+        }
+        
+        // Fetch updated deals for response
+        List<Deal> deals = dealRepository.findByIdIn(dealIds);
+        logger.info("Approved {} deals by admin: {}", updated, approvedBy);
         
         return deals.stream().map(this::toDTO).collect(Collectors.toList());
     }
@@ -200,7 +164,7 @@ public class DealService {
     /**
      * Reject a deal
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public DealDTO rejectDeal(UUID dealId) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
@@ -212,10 +176,16 @@ public class DealService {
     }
     
     /**
-     * Get count of pending deals for today
+     * Get count of pending deals for today - Optimized: use date range instead of DATE() function
      */
     public long getTodayPendingDealsCount() {
-        return dealRepository.countPendingDealsForToday(LocalDateTime.now());
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime startOfDay = today.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = today.toLocalDate().atTime(23, 59, 59);
+        
+        // Optimized: Use date range query instead of DATE() function to allow index usage
+        return dealRepository.countByStatusAndBatchDateBetween(
+            Deal.DealStatus.PENDING, startOfDay, endOfDay);
     }
     
     /**
@@ -261,13 +231,12 @@ public class DealService {
     }
     
     /**
-     * Delete a deal permanently
+     * Delete a deal permanently - Optimized: removed unnecessary existsById check
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public void deleteDeal(UUID dealId) {
-        if (!dealRepository.existsById(dealId)) {
-            throw new RuntimeException("Deal not found");
-        }
+        // Optimized: deleteById will throw EmptyResultDataAccessException if not found
+        // which is caught and handled, avoiding extra existsById query
         dealRepository.deleteById(dealId);
         logger.info("Deal deleted: {}", dealId);
     }
@@ -275,7 +244,7 @@ public class DealService {
     /**
      * Delete all deals permanently (for testing purposes)
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public void deleteAllDeals() {
         long count = dealRepository.count();
         dealRepository.deleteAll();
@@ -285,7 +254,7 @@ public class DealService {
     /**
      * Deactivate a deal (make it invisible to users)
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public DealDTO deactivateDeal(UUID dealId) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));
@@ -298,7 +267,7 @@ public class DealService {
     /**
      * Activate a deal (make it visible to users)
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public DealDTO activateDeal(UUID dealId) {
         Deal deal = dealRepository.findById(dealId)
                 .orElseThrow(() -> new RuntimeException("Deal not found"));

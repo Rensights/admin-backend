@@ -25,6 +25,14 @@ import com.rensights.admin.model.Subscription;
 import com.rensights.admin.model.Translation;
 import com.rensights.admin.model.LandingPageContent;
 import com.rensights.admin.model.User;
+import com.rensights.admin.model.Deal;
+import com.rensights.admin.model.DealTranslation;
+import com.rensights.admin.model.ListedDeal;
+import com.rensights.admin.model.RecentSale;
+import com.rensights.admin.model.Deal;
+import com.rensights.admin.model.DealTranslation;
+import com.rensights.admin.model.ListedDeal;
+import com.rensights.admin.model.RecentSale;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -34,22 +42,6 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableJpaRepositories(
     basePackages = "com.rensights.admin.repository",
-    includeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AdminUserRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.UserRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DeviceRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.SubscriptionRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.AnalysisRequestRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.LanguageRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.TranslationRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.LandingPageContentRepository.class})
-    },
-    excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.DealTranslationRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.ListedDealRepository.class}),
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {com.rensights.admin.repository.RecentSaleRepository.class})
-    },
     entityManagerFactoryRef = "adminEntityManagerFactory",
     transactionManagerRef = "adminTransactionManager"
 )
@@ -88,7 +80,7 @@ public class AdminDataSourceConfig {
         
         return builder
             .dataSource(dataSource)
-            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class, Language.class, Translation.class, LandingPageContent.class)
+            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class, Language.class, Translation.class, LandingPageContent.class, Deal.class, DealTranslation.class, ListedDeal.class, RecentSale.class)
             .persistenceUnit("admin")
             .properties(properties)
             .build();

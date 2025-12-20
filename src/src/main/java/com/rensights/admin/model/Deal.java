@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,7 +14,15 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "deals")
+@Table(name = "deals", indexes = {
+    @Index(name = "idx_deal_status", columnList = "status"),
+    @Index(name = "idx_deal_city", columnList = "city"),
+    @Index(name = "idx_deal_active", columnList = "active"),
+    @Index(name = "idx_deal_batch_date", columnList = "batch_date"),
+    @Index(name = "idx_deal_status_active", columnList = "status,active"),
+    @Index(name = "idx_deal_status_city", columnList = "status,city"),
+    @Index(name = "idx_deal_status_city_active", columnList = "status,city,active")
+})
 @Data
 @Builder
 @NoArgsConstructor
@@ -120,11 +129,14 @@ public class Deal {
     @Column(name = "approved_by")
     private UUID approvedBy; // Admin user ID who approved
     
+    // Optimized: Batch loading to prevent N+1 queries
     @ManyToMany(mappedBy = "deals", fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     @Builder.Default
     private Set<ListedDeal> listedDeals = new HashSet<>();
     
     @ManyToMany(mappedBy = "deals", fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     @Builder.Default
     private Set<RecentSale> recentSales = new HashSet<>();
     
