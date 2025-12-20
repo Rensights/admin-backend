@@ -59,7 +59,8 @@ public class PublicDataSourceConfig {
             EntityManagerFactoryBuilder builder,
             @Qualifier("publicDataSource") DataSource dataSource) {
         Map<String, String> properties = new HashMap<>();
-        properties.put("hibernate.hbm2ddl.auto", "none");
+        // Enable table creation/update for public database (public_db_dev) where Deal, ListedDeal, and RecentSale are stored
+        properties.put("hibernate.hbm2ddl.auto", "update");
         
         // SECURITY FIX: Only enable SQL logging in dev profile to prevent sensitive data exposure in production
         boolean isDev = activeProfile != null && activeProfile.contains("dev");
