@@ -152,7 +152,7 @@
   {
     "namespace": "authLogin",
     "translationKey": "authLogin.deviceTitle",
-    "translationValue": "\u00f0\u009f\u0094\u0092 New Device Detected"
+    "translationValue": "🔒 New Device Detected"
   },
   {
     "namespace": "authLogin",
@@ -762,7 +762,7 @@
   {
     "namespace": "authSignup",
     "translationKey": "authSignup.verifyInfoTitle",
-    "translationValue": "\u00f0\u009f\u0093\u00a7 Email Verification"
+    "translationValue": "📧 Email Verification"
   },
   {
     "namespace": "authSignup",
@@ -792,7 +792,7 @@
   {
     "namespace": "cityAnalysis",
     "translationKey": "cityAnalysis.module1.title",
-    "translationValue": "\u00f0\u009f\u0093\u008d Analysis by Dubai Areas"
+    "translationValue": "📍 Analysis by Dubai Areas"
   },
   {
     "namespace": "cityAnalysis",
@@ -802,7 +802,7 @@
   {
     "namespace": "cityAnalysis",
     "translationKey": "cityAnalysis.module2.title",
-    "translationValue": "\u00f0\u009f\u008f\u0097\u00ef\u00b8\u008f Property Type Comparison"
+    "translationValue": "🏗️ Property Type Comparison"
   },
   {
     "namespace": "cityAnalysis",
@@ -812,7 +812,7 @@
   {
     "namespace": "cityAnalysis",
     "translationKey": "cityAnalysis.module3.title",
-    "translationValue": "\u00f0\u009f\u008f\u00a0 Analysis of Properties by Size"
+    "translationValue": "🏠 Analysis of Properties by Size"
   },
   {
     "namespace": "cityAnalysis",
@@ -822,7 +822,7 @@
   {
     "namespace": "cityAnalysis",
     "translationKey": "cityAnalysis.module4.title",
-    "translationValue": "\u00f0\u009f\u0092\u00b0 Profitability Assessment"
+    "translationValue": "💰 Profitability Assessment"
   },
   {
     "namespace": "cityAnalysis",
@@ -832,7 +832,7 @@
   {
     "namespace": "cityAnalysis",
     "translationKey": "cityAnalysis.module5.title",
-    "translationValue": "\u00f0\u009f\u008e\u00af Which Property to Buy"
+    "translationValue": "🎯 Which Property to Buy"
   },
   {
     "namespace": "cityAnalysis",
@@ -842,7 +842,7 @@
   {
     "namespace": "cityAnalysis",
     "translationKey": "cityAnalysis.module6.title",
-    "translationValue": "\u00f0\u009f\u00a4\u009d Price Negotiation Intelligence"
+    "translationValue": "🤝 Price Negotiation Intelligence"
   },
   {
     "namespace": "cityAnalysis",
@@ -907,7 +907,7 @@
   {
     "namespace": "cityAnalysis",
     "translationKey": "cityAnalysis.title",
-    "translationValue": "\u00f0\u009f\u008f\u0099\u00ef\u00b8\u008f Dubai City Analysis"
+    "translationValue": "🏙️ Dubai City Analysis"
   },
   {
     "namespace": "contact",
@@ -1067,22 +1067,22 @@
   {
     "namespace": "dashboard",
     "translationKey": "dashboard.market1",
-    "translationValue": "\u00f0\u009f\u009a\u0080 Dubai real estate up 12% YoY"
+    "translationValue": "🚀 Dubai real estate up 12% YoY"
   },
   {
     "namespace": "dashboard",
     "translationKey": "dashboard.market2",
-    "translationValue": "\u00f0\u009f\u0097\u009d\u00ef\u00b8\u008f New projects: Business Bay & Bluewaters"
+    "translationValue": "🗝️ New projects: Business Bay & Bluewaters"
   },
   {
     "namespace": "dashboard",
     "translationKey": "dashboard.market3",
-    "translationValue": "\u00f0\u009f\u0092\u008e Luxury market: Strong investor demand"
+    "translationValue": "💎 Luxury market: Strong investor demand"
   },
   {
     "namespace": "dashboard",
     "translationKey": "dashboard.market4",
-    "translationValue": "\u00f0\u009f\u008f\u0099\u00ef\u00b8\u008f Dubai avg: AED 1,450/sq ft"
+    "translationValue": "🏙️ Dubai avg: AED 1,450/sq ft"
   },
   {
     "namespace": "dashboard",
@@ -1837,7 +1837,7 @@
   {
     "namespace": "weeklyDeals",
     "translationKey": "weeklyDeals.alert.area1",
-    "translationValue": "\u00f0\u009f\u008f\u0099\u00ef\u00b8\u008f Downtown Dubai:"
+    "translationValue": "🏙️ Downtown Dubai:"
   },
   {
     "namespace": "weeklyDeals",
@@ -1847,12 +1847,12 @@
   {
     "namespace": "weeklyDeals",
     "translationKey": "weeklyDeals.alert.area3",
-    "translationValue": "\u00f0\u009f\u008f\u00a2 Business Bay:"
+    "translationValue": "🏢 Business Bay:"
   },
   {
     "namespace": "weeklyDeals",
     "translationKey": "weeklyDeals.alert.area4",
-    "translationValue": "\u00f0\u009f\u008c\u00b4 Jumeirah Beach:"
+    "translationValue": "🌴 Jumeirah Beach:"
   },
   {
     "namespace": "weeklyDeals",
@@ -1922,7 +1922,7 @@
   {
     "namespace": "weeklyDeals",
     "translationKey": "weeklyDeals.highlights.discount",
-    "translationValue": "\u00f0\u009f\u0092\u008e Best discount found:"
+    "translationValue": "💎 Best discount found:"
   },
   {
     "namespace": "weeklyDeals",
@@ -1932,7 +1932,7 @@
   {
     "namespace": "weeklyDeals",
     "translationKey": "weeklyDeals.highlights.market",
-    "translationValue": "\u00f0\u009f\u0094\u00a5 Hottest market:"
+    "translationValue": "🔥 Hottest market:"
   },
   {
     "namespace": "weeklyDeals",
@@ -1942,7 +1942,7 @@
   {
     "namespace": "weeklyDeals",
     "translationKey": "weeklyDeals.highlights.performing",
-    "translationValue": "\u00f0\u009f\u008f\u0086 Best performing area:"
+    "translationValue": "🏆 Best performing area:"
   },
   {
     "namespace": "weeklyDeals",
