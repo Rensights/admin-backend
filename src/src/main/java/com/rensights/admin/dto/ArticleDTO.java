@@ -1,5 +1,6 @@
 package com.rensights.admin.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,5 +16,6 @@ public class ArticleDTO {
     private String content;
     private String coverImage;
     private LocalDateTime publishedAt;
+    @JsonProperty("isActive")
     private boolean isActive;
 }
