@@ -1,5 +1,6 @@
 package com.rensights.admin.controller;
 
+import com.rensights.admin.dto.SeedTranslationsRequest;
 import com.rensights.admin.dto.TranslationDTO;
 import com.rensights.admin.dto.TranslationRequest;
 import com.rensights.admin.service.TranslationService;
@@ -63,7 +64,14 @@ public class TranslationController {
     public ResponseEntity<List<String>> getNamespaces(@PathVariable String languageCode, Authentication authentication) {
         return ResponseEntity.ok(translationService.getNamespaces(languageCode));
     }
-}
 
+    @PostMapping("/seed")
+    public ResponseEntity<List<TranslationDTO>> seedTranslations(
+        @Valid @RequestBody SeedTranslationsRequest request,
+        Authentication authentication
+    ) {
+        return ResponseEntity.ok(translationService.seedTranslations(request));
+    }
+}
 
 

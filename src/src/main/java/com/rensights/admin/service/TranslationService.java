@@ -1,5 +1,6 @@
 package com.rensights.admin.service;
 
+import com.rensights.admin.dto.SeedTranslationsRequest;
 import com.rensights.admin.dto.TranslationDTO;
 import com.rensights.admin.dto.TranslationRequest;
 import com.rensights.admin.model.Translation;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -93,6 +95,57 @@ public class TranslationService {
     public List<String> getNamespaces(String languageCode) {
         return translationRepository.findDistinctNamespaceByLanguageCode(languageCode);
     }
+
+    @Transactional
+    public List<TranslationDTO> seedTranslations(SeedTranslationsRequest request) {
+        String sourceLanguage = request.getSourceLanguageCode();
+        String targetLanguage = request.getTargetLanguageCode();
+        boolean overwrite = request.isOverwrite();
+
+        if (sourceLanguage.equalsIgnoreCase(targetLanguage)) {
+            throw new RuntimeException("Source and target language must be different");
+        }
+
+        List<Translation> sourceTranslations = translationRepository.findByLanguageCode(sourceLanguage);
+        List<Translation> targetTranslations = translationRepository.findByLanguageCode(targetLanguage);
+
+        Map<String, Translation> targetMap = targetTranslations.stream()
+            .collect(Collectors.toMap(
+                t -> t.getNamespace() + "::" + t.getTranslationKey(),
+                t -> t
+            ));
+
+        List<Translation> toSave = sourceTranslations.stream()
+            .map(source -> {
+                String key = source.getNamespace() + "::" + source.getTranslationKey();
+                Translation existing = targetMap.get(key);
+                if (existing != null) {
+                    if (!overwrite) {
+                        return null;
+                    }
+                    existing.setTranslationValue(source.getTranslationValue());
+                    existing.setDescription(source.getDescription());
+                    return existing;
+                }
+                return Translation.builder()
+                    .languageCode(targetLanguage)
+                    .namespace(source.getNamespace())
+                    .translationKey(source.getTranslationKey())
+                    .translationValue(source.getTranslationValue())
+                    .description(source.getDescription())
+                    .build();
+            })
+            .filter(t -> t != null)
+            .collect(Collectors.toList());
+
+        if (toSave.isEmpty()) {
+            return List.of();
+        }
+
+        return translationRepository.saveAll(toSave).stream()
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+    }
     
     private TranslationDTO toDTO(Translation translation) {
         return TranslationDTO.builder()
@@ -107,6 +160,5 @@ public class TranslationService {
             .build();
     }
 }
-
 
 
