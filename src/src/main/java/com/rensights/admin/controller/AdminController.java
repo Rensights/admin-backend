@@ -133,6 +133,11 @@ public class AdminController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/dashboard/stats")
+    public ResponseEntity<?> getDashboardStatsAlias(Authentication authentication) {
+        return getDashboardStats(authentication);
+    }
     
     @GetMapping("/analysis-requests")
     public ResponseEntity<?> getAllAnalysisRequests(
