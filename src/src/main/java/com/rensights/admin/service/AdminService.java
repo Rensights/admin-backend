@@ -3,6 +3,7 @@ package com.rensights.admin.service;
 import com.rensights.admin.dto.*;
 import com.rensights.admin.repository.*;
 import com.rensights.admin.model.AnalysisRequest;
+import com.rensights.admin.model.Device;
 import com.rensights.admin.model.User;
 import com.rensights.admin.model.Subscription;
 import org.slf4j.Logger;
@@ -15,7 +16,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +32,8 @@ import java.util.stream.Collectors;
 public class AdminService {
     
     private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
+    private static final long PREMIUM_MONTHLY_PRICE = 20;
+    private static final long ENTERPRISE_YEARLY_PRICE = 2000;
     
     @Autowired
     private UserRepository userRepository;
@@ -160,12 +168,100 @@ public class AdminService {
         long enterpriseUsers = userRepository.countByUserTier(User.UserTier.ENTERPRISE);
         long activeUsers = userRepository.countByIsActive(true);
         long verifiedUsers = userRepository.countByEmailVerified(true);
-        
-        // Calculate revenue (simplified - you'd get this from Stripe or payment records)
-        long totalRevenue = activeSubscriptions * 50; // Placeholder calculation
-        
+
+        List<User> users = userRepository.findAll();
+        List<Subscription> subscriptions = subscriptionRepository.findAll();
+        List<Device> devices = deviceRepository.findAll();
+
+        Map<YearMonth, long[]> monthlyUserCounts = new HashMap<>();
+        Map<LocalDate, long[]> dailyUserCounts = new HashMap<>();
+
+        for (User user : users) {
+            if (user.getCreatedAt() == null || user.getUserTier() == null) {
+                continue;
+            }
+            YearMonth month = YearMonth.from(user.getCreatedAt());
+            LocalDate day = user.getCreatedAt().toLocalDate();
+            int tierIndex = getTierIndex(user.getUserTier());
+
+            monthlyUserCounts.computeIfAbsent(month, key -> new long[3])[tierIndex]++;
+            dailyUserCounts.computeIfAbsent(day, key -> new long[3])[tierIndex]++;
+        }
+
+        Map<YearMonth, Long> monthlyIncomeTotals = new HashMap<>();
+        Map<LocalDate, Long> dailyIncomeTotals = new HashMap<>();
+        Map<Subscription.SubscriptionStatus, Long> subscriptionStatusTotals = new EnumMap<>(Subscription.SubscriptionStatus.class);
+
+        long totalRevenue = 0;
+        for (Subscription subscription : subscriptions) {
+            long amount = getPlanAmount(subscription.getPlanType());
+            totalRevenue += amount;
+
+            if (subscription.getStartDate() != null) {
+                YearMonth month = YearMonth.from(subscription.getStartDate());
+                LocalDate day = subscription.getStartDate().toLocalDate();
+                monthlyIncomeTotals.merge(month, amount, Long::sum);
+                dailyIncomeTotals.merge(day, amount, Long::sum);
+            }
+
+            if (subscription.getStatus() != null) {
+                subscriptionStatusTotals.merge(subscription.getStatus(), 1L, Long::sum);
+            }
+        }
+
+        Map<String, Long> deviceTypeCounts = new HashMap<>();
+        for (Device device : devices) {
+            String type = resolveDeviceType(device.getUserAgent());
+            deviceTypeCounts.merge(type, 1L, Long::sum);
+        }
+
+        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM yyyy");
+        List<MonthlyIncomeDTO> monthlyIncome = new ArrayList<>();
+        List<MonthlyUserRegistrationsDTO> monthlyUserRegistrations = new ArrayList<>();
+        YearMonth currentMonth = YearMonth.now();
+        for (int i = 11; i >= 0; i--) {
+            YearMonth month = currentMonth.minusMonths(i);
+            long income = monthlyIncomeTotals.getOrDefault(month, 0L);
+            long[] counts = monthlyUserCounts.getOrDefault(month, new long[3]);
+            monthlyIncome.add(new MonthlyIncomeDTO(monthFormatter.format(month.atDay(1)), income));
+            monthlyUserRegistrations.add(new MonthlyUserRegistrationsDTO(
+                    monthFormatter.format(month.atDay(1)),
+                    counts[0],
+                    counts[1],
+                    counts[2]
+            ));
+        }
+
+        List<DailyIncomeDTO> dailyIncome = new ArrayList<>();
+        List<DailyUserRegistrationsDTO> dailyUserRegistrations = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        for (int i = 29; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            long income = dailyIncomeTotals.getOrDefault(date, 0L);
+            long[] counts = dailyUserCounts.getOrDefault(date, new long[3]);
+            dailyIncome.add(new DailyIncomeDTO(date.toString(), income));
+            dailyUserRegistrations.add(new DailyUserRegistrationsDTO(
+                    date.toString(),
+                    counts[0],
+                    counts[1],
+                    counts[2]
+            ));
+        }
+
+        List<DeviceTypeStatDTO> deviceTypeStats = List.of(
+                new DeviceTypeStatDTO("Desktop", deviceTypeCounts.getOrDefault("Desktop", 0L)),
+                new DeviceTypeStatDTO("Mobile", deviceTypeCounts.getOrDefault("Mobile", 0L)),
+                new DeviceTypeStatDTO("Tablet", deviceTypeCounts.getOrDefault("Tablet", 0L))
+        );
+
+        List<SubscriptionStatusStatDTO> subscriptionStatusStats = List.of(
+                new SubscriptionStatusStatDTO("ACTIVE", subscriptionStatusTotals.getOrDefault(Subscription.SubscriptionStatus.ACTIVE, 0L)),
+                new SubscriptionStatusStatDTO("CANCELLED", subscriptionStatusTotals.getOrDefault(Subscription.SubscriptionStatus.CANCELLED, 0L)),
+                new SubscriptionStatusStatDTO("EXPIRED", subscriptionStatusTotals.getOrDefault(Subscription.SubscriptionStatus.EXPIRED, 0L))
+        );
+
         long pendingRequests = analysisRequestRepository.countByStatus(AnalysisRequest.AnalysisRequestStatus.PENDING);
-        
+
         return DashboardStatsDTO.builder()
                 .totalUsers(totalUsers)
                 .activeSubscriptions(activeSubscriptions)
@@ -176,7 +272,47 @@ public class AdminService {
                 .activeUsers(activeUsers)
                 .verifiedUsers(verifiedUsers)
                 .pendingAnalysisRequests(pendingRequests)
+                .monthlyIncome(monthlyIncome)
+                .dailyIncome(dailyIncome)
+                .deviceTypeStats(deviceTypeStats)
+                .monthlyUserRegistrations(monthlyUserRegistrations)
+                .dailyUserRegistrations(dailyUserRegistrations)
+                .subscriptionStatusStats(subscriptionStatusStats)
                 .build();
+    }
+
+    private int getTierIndex(User.UserTier tier) {
+        if (tier == User.UserTier.PREMIUM) {
+            return 1;
+        }
+        if (tier == User.UserTier.ENTERPRISE) {
+            return 2;
+        }
+        return 0;
+    }
+
+    private long getPlanAmount(User.UserTier tier) {
+        if (tier == User.UserTier.PREMIUM) {
+            return PREMIUM_MONTHLY_PRICE;
+        }
+        if (tier == User.UserTier.ENTERPRISE) {
+            return ENTERPRISE_YEARLY_PRICE;
+        }
+        return 0;
+    }
+
+    private String resolveDeviceType(String userAgent) {
+        if (userAgent == null) {
+            return "Desktop";
+        }
+        String ua = userAgent.toLowerCase();
+        if (ua.contains("ipad") || ua.contains("tablet")) {
+            return "Tablet";
+        }
+        if (ua.contains("mobi") || ua.contains("iphone") || ua.contains("android")) {
+            return "Mobile";
+        }
+        return "Desktop";
     }
     
     /**
@@ -284,5 +420,3 @@ public class AdminService {
                 .build();
     }
 }
-
-

@@ -19,5 +19,10 @@ public class DashboardStatsDTO {
     private long activeUsers;
     private long verifiedUsers;
     private long pendingAnalysisRequests;
+    private java.util.List<MonthlyIncomeDTO> monthlyIncome;
+    private java.util.List<DailyIncomeDTO> dailyIncome;
+    private java.util.List<DeviceTypeStatDTO> deviceTypeStats;
+    private java.util.List<MonthlyUserRegistrationsDTO> monthlyUserRegistrations;
+    private java.util.List<DailyUserRegistrationsDTO> dailyUserRegistrations;
+    private java.util.List<SubscriptionStatusStatDTO> subscriptionStatusStats;
 }
-
