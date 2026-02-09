@@ -62,15 +62,15 @@ public class ArticleController {
     }
 
     @DeleteMapping("/admin/articles/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<?> delete(@PathVariable UUID id) {
         articleService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(java.util.Map.of("deleted", true));
     }
 
     @DeleteMapping("/admin/articles/delete")
-    public ResponseEntity<Void> deleteByQuery(@RequestParam UUID id) {
+    public ResponseEntity<?> deleteByQuery(@RequestParam UUID id) {
         articleService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(java.util.Map.of("deleted", true));
     }
 
     @PutMapping("/admin/articles/enable")
