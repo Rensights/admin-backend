@@ -1,14 +1,19 @@
 package com.rensights.admin.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rensights.admin.dto.SeedTranslationsRequest;
 import com.rensights.admin.dto.TranslationDTO;
 import com.rensights.admin.dto.TranslationRequest;
+import com.rensights.admin.dto.TranslationSeedEntry;
 import com.rensights.admin.model.Translation;
 import com.rensights.admin.repository.TranslationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,6 +24,7 @@ import java.util.stream.Collectors;
 public class TranslationService {
     
     private final TranslationRepository translationRepository;
+    private final ObjectMapper objectMapper;
     
     @Transactional(readOnly = true)
     public List<TranslationDTO> getAllTranslations() {
@@ -146,6 +152,64 @@ public class TranslationService {
             .map(this::toDTO)
             .collect(Collectors.toList());
     }
+
+    @Transactional
+    public List<TranslationDTO> seedDefaultTranslations(String languageCode, boolean overwrite) {
+        List<TranslationSeedEntry> entries = loadDefaultSeedEntries();
+        if (entries.isEmpty()) {
+            return List.of();
+        }
+
+        List<Translation> existingTranslations = translationRepository.findByLanguageCode(languageCode);
+        Map<String, Translation> existingMap = existingTranslations.stream()
+            .collect(Collectors.toMap(
+                t -> t.getNamespace() + "::" + t.getTranslationKey(),
+                t -> t
+            ));
+
+        List<Translation> toSave = entries.stream()
+            .map(entry -> {
+                String key = entry.getNamespace() + "::" + entry.getTranslationKey();
+                Translation existing = existingMap.get(key);
+                if (existing != null) {
+                    if (!overwrite) {
+                        return null;
+                    }
+                    existing.setTranslationValue(entry.getTranslationValue());
+                    existing.setDescription(entry.getDescription());
+                    return existing;
+                }
+                return Translation.builder()
+                    .languageCode(languageCode)
+                    .namespace(entry.getNamespace())
+                    .translationKey(entry.getTranslationKey())
+                    .translationValue(entry.getTranslationValue())
+                    .description(entry.getDescription())
+                    .build();
+            })
+            .filter(t -> t != null)
+            .collect(Collectors.toList());
+
+        if (toSave.isEmpty()) {
+            return List.of();
+        }
+
+        return translationRepository.saveAll(toSave).stream()
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+    }
+
+    private List<TranslationSeedEntry> loadDefaultSeedEntries() {
+        ClassPathResource resource = new ClassPathResource("translation-defaults.json");
+        if (!resource.exists()) {
+            return List.of();
+        }
+        try (InputStream inputStream = resource.getInputStream()) {
+            return objectMapper.readValue(inputStream, new TypeReference<List<TranslationSeedEntry>>() {});
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load default translations", e);
+        }
+    }
     
     private TranslationDTO toDTO(Translation translation) {
         return TranslationDTO.builder()
@@ -160,5 +224,4 @@ public class TranslationService {
             .build();
     }
 }
-
 

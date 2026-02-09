@@ -72,6 +72,14 @@ public class TranslationController {
     ) {
         return ResponseEntity.ok(translationService.seedTranslations(request));
     }
-}
 
+    @PostMapping("/seed-default")
+    public ResponseEntity<List<TranslationDTO>> seedDefaultTranslations(
+        @RequestParam(defaultValue = "en") String language,
+        @RequestParam(defaultValue = "false") boolean overwrite,
+        Authentication authentication
+    ) {
+        return ResponseEntity.ok(translationService.seedDefaultTranslations(language, overwrite));
+    }
+}
 

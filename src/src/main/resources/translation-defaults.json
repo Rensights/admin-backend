@@ -1,0 +1,2007 @@
+[
+  {
+    "namespace": "about",
+    "translationKey": "about.subtitle",
+    "translationValue": "We're on a mission to make real estate investing in Dubai accessible, transparent, and data-driven for foreign investors worldwide."
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.title",
+    "translationValue": "About Rensights"
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.value1.desc",
+    "translationValue": "We analyze thousands of listings using AI to surface the best opportunities."
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.value1.title",
+    "translationValue": "Data-Driven Insights"
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.value2.desc",
+    "translationValue": "Our team of local experts verifies every insight to ensure quality."
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.value2.title",
+    "translationValue": "Expert Curation"
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.value3.desc",
+    "translationValue": "Real-time market trends and analytics to help you invest smarter."
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.value3.title",
+    "translationValue": "Market Intelligence"
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.value4.desc",
+    "translationValue": "Built for foreign investors, by people who understand the challenges."
+  },
+  {
+    "namespace": "about",
+    "translationKey": "about.value4.title",
+    "translationValue": "Investor-First"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.backToLogin",
+    "translationValue": "Back to Login"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.continueReset",
+    "translationValue": "Continue to Reset Password"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.emailLabel",
+    "translationValue": "Email Address"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.emailPlaceholder",
+    "translationValue": "Enter your email"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.errorFailed",
+    "translationValue": "Failed to send reset code. Please try again."
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.errorInvalid",
+    "translationValue": "Please enter a valid email address"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.errorNotFound",
+    "translationValue": "No account found with this email address. Please check your email and try again."
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.errorRequired",
+    "translationValue": "Email is required"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.sending",
+    "translationValue": "Sending..."
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.submit",
+    "translationValue": "Send Reset Code"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.subtitle",
+    "translationValue": "Enter your email address and we'll send you a reset code"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.successBody",
+    "translationValue": "Please check your email and click the link to reset your password."
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.successSubtitle",
+    "translationValue": "We've sent a password reset code to"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.successTitle",
+    "translationValue": "Check Your Email"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.title",
+    "translationValue": "Forgot Password"
+  },
+  {
+    "namespace": "authForgot",
+    "translationKey": "authForgot.toastSent",
+    "translationValue": "Password reset code sent to your email"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.backToLogin",
+    "translationValue": "Back to Login"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.codeLabel",
+    "translationValue": "Verification Code"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.createAccount",
+    "translationValue": "Create an account"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.deviceText",
+    "translationValue": "We sent a 6-digit code to"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.deviceTitle",
+    "translationValue": "\u00f0\u009f\u0094\u0092 New Device Detected"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.emailLabel",
+    "translationValue": "Email Address"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.emailPlaceholder",
+    "translationValue": "your@email.com"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.errorCode",
+    "translationValue": "Please enter the complete verification code"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.errorDevice",
+    "translationValue": "Device fingerprint not available"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.errorEmail",
+    "translationValue": "Please enter a valid email address"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.errorLogin",
+    "translationValue": "Login failed. Please check your credentials."
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.errorPassword",
+    "translationValue": "Password is required"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.forgotPassword",
+    "translationValue": "Forgot password?"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.google",
+    "translationValue": "Continue with Google"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.loading",
+    "translationValue": "Loading..."
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.loggingIn",
+    "translationValue": "Logging in..."
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.loginButton",
+    "translationValue": "Login"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.or",
+    "translationValue": "OR"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.passwordLabel",
+    "translationValue": "Password"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.passwordPlaceholder",
+    "translationValue": "Enter your password"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.redirecting",
+    "translationValue": "Redirecting to dashboard..."
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.resendButton",
+    "translationValue": "Resend Code"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.resendCountdown",
+    "translationValue": "Resend available in"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.resendPrompt",
+    "translationValue": "Didn't receive the code?"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.successSubtitle",
+    "translationValue": "You're all set. Redirecting to your dashboard..."
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.successTitle",
+    "translationValue": "Welcome to Rensights!"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.tagline",
+    "translationValue": "Property Intelligence Platform"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.verifyButton",
+    "translationValue": "Verify & Continue"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.verifySubtitle",
+    "translationValue": "We noticed a login from a new device. Please enter the verification code sent to your email."
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.verifyTitle",
+    "translationValue": "Verify New Device"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.verifying",
+    "translationValue": "Verifying..."
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.welcomeSubtitle",
+    "translationValue": "Sign in to access your property insights"
+  },
+  {
+    "namespace": "authLogin",
+    "translationKey": "authLogin.welcomeTitle",
+    "translationValue": "Welcome Back"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.backToLogin",
+    "translationValue": "Back to Login"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.codeLabel",
+    "translationValue": "Verification Code"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.codeRequired",
+    "translationValue": "Please enter the complete 6-digit code"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.codeVerified",
+    "translationValue": "Code verified successfully"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.confirmPassword",
+    "translationValue": "Confirm New Password"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.confirmPlaceholder",
+    "translationValue": "Re-enter new password"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.emailLabel",
+    "translationValue": "Email Address"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.emailPlaceholder",
+    "translationValue": "Enter your email"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.emailRequired",
+    "translationValue": "Email is required"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.invalidCode",
+    "translationValue": "Invalid or expired code. Please try again."
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.loading",
+    "translationValue": "Loading..."
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.newPassword",
+    "translationValue": "New Password"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.passwordComplex",
+    "translationValue": "Password must contain: uppercase letter, lowercase letter, number, and special character (@$!%*?&)"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.passwordLength",
+    "translationValue": "Password must be at least 8 characters long"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.passwordMismatch",
+    "translationValue": "Passwords do not match"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.passwordMissing",
+    "translationValue": "Password must include: {missing}"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.passwordPlaceholder",
+    "translationValue": "Create a strong password"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.passwordRequired",
+    "translationValue": "Password is required"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.passwordSubtitle",
+    "translationValue": "Enter your new password"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.rateLimit",
+    "translationValue": "Too many password reset requests. Please wait a minute and try again."
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resendButton",
+    "translationValue": "Resend Code"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resendCountdown",
+    "translationValue": "Resend available in"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resendFailed",
+    "translationValue": "Failed to resend code. Please try again."
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resendPrompt",
+    "translationValue": "Didn't receive the code?"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resendSuccess",
+    "translationValue": "Reset code sent to your email"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resetButton",
+    "translationValue": "Reset Password"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resetFailed",
+    "translationValue": "Failed to reset password. Please try again."
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resetSuccess",
+    "translationValue": "Password reset successfully!"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.resetting",
+    "translationValue": "Resetting..."
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.subtitle",
+    "translationValue": "Enter the 6-digit code sent to your email"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.successSubtitle",
+    "translationValue": "Your password has been updated. You can now log in with your new password."
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.successTitle",
+    "translationValue": "Password Reset Successful"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.title",
+    "translationValue": "Reset Your Password"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.verifyButton",
+    "translationValue": "Verify Code"
+  },
+  {
+    "namespace": "authReset",
+    "translationKey": "authReset.verifying",
+    "translationValue": "Verifying..."
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.accountInfo",
+    "translationValue": "Account Information"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.and",
+    "translationValue": "and"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.backToRegistration",
+    "translationValue": "Back to Registration"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.budget",
+    "translationValue": "Investment Budget Range"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.budgetSelect",
+    "translationValue": "Select budget range"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.codeLabel",
+    "translationValue": "Verification Code"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.confirmPassword",
+    "translationValue": "Confirm Password"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.confirmPlaceholder",
+    "translationValue": "Re-enter password"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.email",
+    "translationValue": "Email"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.emailPlaceholder",
+    "translationValue": "your.email@example.com"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.firstName",
+    "translationValue": "First Name"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.goals.capitalAppreciation",
+    "translationValue": "Capital Appreciation"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.goals.lifestyleResidence",
+    "translationValue": "Lifestyle/Residence Investment"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.goals.portfolioDiversification",
+    "translationValue": "Portfolio Diversification"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.goals.rentalIncome",
+    "translationValue": "Rental Income"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.goalsTitle",
+    "translationValue": "Primary Investment Goals"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.haveAccount",
+    "translationValue": "Already have an account? Sign In"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.lastName",
+    "translationValue": "Last Name"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.loading",
+    "translationValue": "Loading..."
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.password",
+    "translationValue": "Password"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordHintAllowed",
+    "translationValue": "Only allowed characters (A-Z, a-z, 0-9, @$!%*?&)"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordHintLength",
+    "translationValue": "At least 8 characters"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordHintLower",
+    "translationValue": "One lowercase letter (a-z)"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordHintNumber",
+    "translationValue": "One number (0-9)"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordHintSpecial",
+    "translationValue": "One special character (@$!%*?&)"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordHintUpper",
+    "translationValue": "One uppercase letter (A-Z)"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordHintsTitle",
+    "translationValue": "Password must include:"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordInvalid",
+    "translationValue": "Password contains invalid characters. Only letters, numbers, and these special characters are allowed: @$!%*?&"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.passwordPlaceholder",
+    "translationValue": "Create a strong password"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.phone",
+    "translationValue": "Phone (Optional)"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planFeature1",
+    "translationValue": "1 tailored pricing analysis of properties selected by you"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planFeature2",
+    "translationValue": "City analysis"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planFeature3",
+    "translationValue": "5 tailored pricing analysis of properties selected by you"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planFeature4",
+    "translationValue": "Advanced city analysis"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planFeature5",
+    "translationValue": "Potentially underpriced deals"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planFree",
+    "translationValue": "Free Registration"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planFreeDesc",
+    "translationValue": "Get started with basic insights"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planStandard",
+    "translationValue": "Standard Package"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planStandardDesc",
+    "translationValue": "Perfect for active property seekers"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.planTitle",
+    "translationValue": "Choose Your Plan"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.portfolio",
+    "translationValue": "Current Investment Portfolio"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.portfolioSelect",
+    "translationValue": "Select portfolio size"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.privacyLink",
+    "translationValue": "Privacy Policy"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.profileTitle",
+    "translationValue": "Your Profile"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.redirecting",
+    "translationValue": "Redirecting to dashboard..."
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.resendButton",
+    "translationValue": "Resend Code"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.resendCountdown",
+    "translationValue": "Resend available in"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.resendPrompt",
+    "translationValue": "Didn't receive the code?"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.submitPay",
+    "translationValue": "Pay"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.submitRegister",
+    "translationValue": "Register"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.submitting",
+    "translationValue": "Creating Account..."
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.successSubtitle",
+    "translationValue": "Your account has been created. Redirecting to the platform..."
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.successTitle",
+    "translationValue": "Email Verified Successfully!"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.tagline",
+    "translationValue": "Property Intelligence Platform"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.termsLink",
+    "translationValue": "Terms of Services"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.termsText",
+    "translationValue": "I have read and agree to the"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.verifyButton",
+    "translationValue": "Verify & Continue"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.verifyInfoText",
+    "translationValue": "Please check your email and enter the 6-digit code sent to"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.verifyInfoTitle",
+    "translationValue": "\u00f0\u009f\u0093\u00a7 Email Verification"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.verifySubtitle",
+    "translationValue": "We've sent a verification code to your email address"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.verifyTitle",
+    "translationValue": "Verify Your Email"
+  },
+  {
+    "namespace": "authSignup",
+    "translationKey": "authSignup.verifying",
+    "translationValue": "Verifying..."
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.cta",
+    "translationValue": "See Full City Analysis"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module1.body",
+    "translationValue": "6 comprehensive area reports with comparative charts covering Downtown, Marina, JBR, Business Bay, JVC, and Arabian Ranches"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module1.title",
+    "translationValue": "\u00f0\u009f\u0093\u008d Analysis by Dubai Areas"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module2.body",
+    "translationValue": "6 detailed charts comparing off-plan vs ready properties including ROI, appreciation, and risk analysis"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module2.title",
+    "translationValue": "\u00f0\u009f\u008f\u0097\u00ef\u00b8\u008f Property Type Comparison"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module3.body",
+    "translationValue": "5 charts analyzing studio, 1-bedroom, 2-bedroom, 3-bedroom, and 4+ bedroom properties with yield and demand metrics"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module3.title",
+    "translationValue": "\u00f0\u009f\u008f\u00a0 Analysis of Properties by Size"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module4.body",
+    "translationValue": "ROI calculator and profit projection models for different investment horizons"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module4.title",
+    "translationValue": "\u00f0\u009f\u0092\u00b0 Profitability Assessment"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module5.body",
+    "translationValue": "Detailed analysis and comparison of properties by occupancy rates, proximity to metro, amenities, and other key variables to identify optimal investment opportunities"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module5.title",
+    "translationValue": "\u00f0\u009f\u008e\u00af Which Property to Buy"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module6.body",
+    "translationValue": "Real market value analysis to help negotiate optimal purchase prices"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.module6.title",
+    "translationValue": "\u00f0\u009f\u00a4\u009d Price Negotiation Intelligence"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.modulesTitle",
+    "translationValue": "Detailed Analysis Modules"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.subtitle",
+    "translationValue": "Data-Driven Investment Intelligence for Smart Investors"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary1",
+    "translationValue": "Median property price in Dubai is 1,850,000 AED (504,000 USD)"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary2",
+    "translationValue": "Year-over-year price appreciation stands at 12.4%"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary3",
+    "translationValue": "Gross rental yield averages 6.8% across all property types"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary4",
+    "translationValue": "Net rental yield after maintenance costs is 5.2%"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary5",
+    "translationValue": "Sales-to-listing ratio is 0.78 indicating balanced market conditions"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary6",
+    "translationValue": "Market volatility index is at moderate level (6.2/10)"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary7",
+    "translationValue": "Average age of properties is 8.5 years"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary8",
+    "translationValue": "Off-plan properties offer 7.2% yield vs 6.4% for ready homes"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summary9",
+    "translationValue": "Investment recovery period averages 15.6 years"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.summaryTitle",
+    "translationValue": "City Market Summary"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.title",
+    "translationValue": "\u00f0\u009f\u008f\u0099\u00ef\u00b8\u008f Dubai City Analysis"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.emailResponse",
+    "translationValue": "We'll respond within 24 hours"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.emailTitle",
+    "translationValue": "Email Us"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.form.email",
+    "translationValue": "Email"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.form.emailPlaceholder",
+    "translationValue": "your@email.com"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.form.message",
+    "translationValue": "Message"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.form.messagePlaceholder",
+    "translationValue": "Tell us how we can help..."
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.form.name",
+    "translationValue": "Name"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.form.namePlaceholder",
+    "translationValue": "Your name"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.form.submit",
+    "translationValue": "Send Message"
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.subtitle",
+    "translationValue": "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
+  },
+  {
+    "namespace": "contact",
+    "translationKey": "contact.title",
+    "translationValue": "Get in Touch"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.disclaimer.appraisalBody",
+    "translationValue": "The property estimates and scores provided by this platform are generated via automated machine learning algorithms and do not constitute a formal, legal, or professional real estate appraisal. This platform does not account for the physical condition, interior upgrades, or latent defects of a property."
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.disclaimer.appraisalTitle",
+    "translationValue": "No Formal Appraisal"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.disclaimer.body",
+    "translationValue": "This report is generated for informational and educational purposes only. Rensights.com is a data analytics provider, not a licensed real estate brokerage, financial advisor, or legal consultant. The \"Estimated Price\" and \"Scores\" provided are based on automated algorithms and third-party data; they do not constitute a formal appraisal or a guarantee of profit. All investments carry risk. We strongly recommend consulting with a licensed professional before making any financial commitments."
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.disclaimer.sourcesBody",
+    "translationValue": "Dubai Land Department (DLD), Bayut, and various public records."
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.disclaimer.sourcesTitle",
+    "translationValue": "Data Sources"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.disclaimer.title",
+    "translationValue": "Disclaimer"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.disclaimer.verificationBody",
+    "translationValue": "We scan external websites for pricing anomalies. We do not verify the physical condition, legal title, or the authenticity of the listing. Users must perform their own due diligence (physical viewing and title deed verification) before transferring funds to any third party."
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.disclaimer.verificationTitle",
+    "translationValue": "Verification Note"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.emptyTitle",
+    "translationValue": "You haven't submitted any property analysis requests yet."
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.fairValue",
+    "translationValue": "Fair Value"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.included1",
+    "translationValue": "Location score and neighborhood analysis"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.included2",
+    "translationValue": "Fair market value estimation in AED"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.included3",
+    "translationValue": "Rental yield potential calculation"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.included4",
+    "translationValue": "Comparable properties analysis"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.included5",
+    "translationValue": "Price trend history"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.included6",
+    "translationValue": "Investment recommendations"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.includedSubtitle",
+    "translationValue": "Our detailed property reports provide comprehensive analysis including:"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.includedTitle",
+    "translationValue": "What's Included"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.loadingReports",
+    "translationValue": "Loading reports..."
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.locationScore",
+    "translationValue": "Location Score"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.market1",
+    "translationValue": "\u00f0\u009f\u009a\u0080 Dubai real estate up 12% YoY"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.market2",
+    "translationValue": "\u00f0\u009f\u0097\u009d\u00ef\u00b8\u008f New projects: Business Bay & Bluewaters"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.market3",
+    "translationValue": "\u00f0\u009f\u0092\u008e Luxury market: Strong investor demand"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.market4",
+    "translationValue": "\u00f0\u009f\u008f\u0099\u00ef\u00b8\u008f Dubai avg: AED 1,450/sq ft"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.marketTitle",
+    "translationValue": "Dubai Market Insights"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.recentReport",
+    "translationValue": "Recent Report"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.rentalYield",
+    "translationValue": "Rental Yield Potential"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.reportLimit",
+    "translationValue": "You have reached your monthly report limit ({maxReports} report{plural}). Please upgrade your account to get more reports."
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.reportNumber",
+    "translationValue": "Report #{number}"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.requestFirst",
+    "translationValue": "Request Your First Report"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.requestNew",
+    "translationValue": "Request New Report"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.status.processing",
+    "translationValue": "Processing"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.status.ready",
+    "translationValue": "Ready"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.title",
+    "translationValue": "Property Reports"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.totalReports",
+    "translationValue": "{count} report{plural} total"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.upgradePrompt",
+    "translationValue": "Upgrade to Standard Package to request more analysis"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.viewPricing",
+    "translationValue": "View Pricing"
+  },
+  {
+    "namespace": "dashboard",
+    "translationKey": "dashboard.viewReport",
+    "translationValue": "View Report"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.backHome",
+    "translationValue": "Back to Home"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.budget",
+    "translationValue": "Investment Budget Range"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.challenges",
+    "translationValue": "Biggest Investment Challenges"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.challengesPlaceholder",
+    "translationValue": "Tell us about any challenges you've faced or concerns you have..."
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.email",
+    "translationValue": "Email Address"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.experience",
+    "translationValue": "Investment Experience Level"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.fullName",
+    "translationValue": "Full Name"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.goals",
+    "translationValue": "Primary Investment Goals"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.location",
+    "translationValue": "Current Location/Country"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.phone",
+    "translationValue": "Phone Number"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.portfolio",
+    "translationValue": "Current Portfolio Size"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.propertyTypes",
+    "translationValue": "Property Types of Interest"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.section.additional",
+    "translationValue": "Additional Details"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.section.contact",
+    "translationValue": "Contact Information"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.section.investment",
+    "translationValue": "Investment Profile"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.section.preferences",
+    "translationValue": "Investment Preferences"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.submit",
+    "translationValue": "Submit Request"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.submitting",
+    "translationValue": "Submitting..."
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.subtitle",
+    "translationValue": "We will support you in identifying attractive investment opportunities, coordinating with owners and agents so you don't have to, helping in determining and negotiating offers, and guiding you through every step of your international real estate investment journey. Request access now and be a pioneer!"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.successBody",
+    "translationValue": "Your early access request has been received. We'll reach out soon."
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.successTitle",
+    "translationValue": "Thanks for your interest!"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.targetRegions",
+    "translationValue": "Target Countries/Regions"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.targetRegionsPlaceholder",
+    "translationValue": "e.g., Spain, Portugal, Dubai, Thailand"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.timeline",
+    "translationValue": "Investment Timeline"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.title",
+    "translationValue": "Get Early Access to Premium Package \"Trusted Advisor\""
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.valuableServices",
+    "translationValue": "Most Valuable Services"
+  },
+  {
+    "namespace": "earlyAccess",
+    "translationKey": "earlyAccess.valuableServicesPlaceholder",
+    "translationValue": "What features or services would be most valuable to you?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.a1",
+    "translationValue": "Yes, you'll have full flexibility to manage your account, subscription, and preferences at any time through your account dashboard."
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.a2",
+    "translationValue": "We accept all major credit cards and debit cards through our secure payment processor."
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.a3",
+    "translationValue": "Yes, you can cancel your subscription at any time. Your access will continue until the end of your current billing period."
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.a4",
+    "translationValue": "If you exceed your monthly report limit, you can upgrade to a higher tier or wait until the next billing cycle for your limit to reset."
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.a5",
+    "translationValue": "Our AI-powered valuation models analyze thousands of data points including recent sales, market trends, and property characteristics to provide highly accurate estimates."
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.a6",
+    "translationValue": "Yes, Rensights is specifically designed for foreign investors looking to invest in Dubai real estate. We provide guidance on the buying process, ownership requirements, and market insights."
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.a7",
+    "translationValue": "Our property data is updated weekly, and market trends are refreshed daily to ensure you have the most current information."
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.a8",
+    "translationValue": "Currently, we focus on Dubai. We're continuously expanding our coverage and will notify users when new cities become available."
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.q1",
+    "translationValue": "Will we have flexibility to manage it later?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.q2",
+    "translationValue": "What payment methods do you accept?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.q3",
+    "translationValue": "Can I cancel my subscription anytime?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.q4",
+    "translationValue": "What happens if I exceed my report limit?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.q5",
+    "translationValue": "How accurate are the property valuations?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.q6",
+    "translationValue": "Do you provide support for international investors?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.q7",
+    "translationValue": "How often is the data updated?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.q8",
+    "translationValue": "What cities are currently covered?"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.subtitle",
+    "translationValue": "Find answers to common questions about Rensights"
+  },
+  {
+    "namespace": "faq",
+    "translationKey": "faq.title",
+    "translationValue": "Frequently Asked Questions"
+  },
+  {
+    "namespace": "navigation",
+    "translationKey": "navigation.account",
+    "translationValue": "Account"
+  },
+  {
+    "namespace": "navigation",
+    "translationKey": "navigation.cityAnalysis",
+    "translationValue": "City Analysis"
+  },
+  {
+    "namespace": "navigation",
+    "translationKey": "navigation.logout",
+    "translationValue": "Logout"
+  },
+  {
+    "namespace": "navigation",
+    "translationKey": "navigation.propertyReports",
+    "translationValue": "Property Reports"
+  },
+  {
+    "namespace": "navigation",
+    "translationKey": "navigation.weeklyDeals",
+    "translationValue": "Weekly Deals"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.annualNote",
+    "translationValue": "Save 20% with annual billing"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.annualPriceNote",
+    "translationValue": "/month billed annually"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.button.getStarted",
+    "translationValue": "Get Started"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.button.pay",
+    "translationValue": "Pay"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.button.requestEarlyAccess",
+    "translationValue": "Request Early Access"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.free.description",
+    "translationValue": "Get started with basic insights"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.free.feature1",
+    "translationValue": "1 tailored pricing analysis of properties selected by you"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.free.feature2",
+    "translationValue": "City analysis"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.free.name",
+    "translationValue": "Free Registration"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.popular",
+    "translationValue": "MOST POPULAR"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.description",
+    "translationValue": "Perfect for active property seekers"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.feature1",
+    "translationValue": "5 tailored pricing analysis of properties selected by you"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.feature2",
+    "translationValue": "Advanced city analysis"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.feature3",
+    "translationValue": "Potentially underpriced deals"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.name",
+    "translationValue": "Standard Package"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.subtitle",
+    "translationValue": "Transparent pricing for every stage of your investment journey"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.title",
+    "translationValue": "Pricing"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.trusted.description",
+    "translationValue": "Full support for confident investing"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.trusted.feature1",
+    "translationValue": "Everything in Standard"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.trusted.feature2",
+    "translationValue": "Trusted advisor support"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.trusted.feature3",
+    "translationValue": "Deal with agents assistance"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.trusted.feature4",
+    "translationValue": "Personalized guidance"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.trusted.name",
+    "translationValue": "Trusted Advisor"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.why.cancel.desc",
+    "translationValue": "No long-term commitments required"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.why.cancel.title",
+    "translationValue": "Cancel Anytime"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.why.noFees.desc",
+    "translationValue": "Transparent pricing with no surprises"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.why.noFees.title",
+    "translationValue": "No Hidden Fees"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.why.subtitle",
+    "translationValue": "Data-driven insights to help you make smarter property investment decisions"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.why.support.desc",
+    "translationValue": "Get help when you need it most"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.why.support.title",
+    "translationValue": "Expert Support"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.why.title",
+    "translationValue": "Why Choose Rensights?"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.disclaimer.changesBody",
+    "translationValue": "We reserve the right to modify these terms at any time. We will notify users of any material changes by posting the new terms on this page. Your continued use of the platform after any such changes constitutes your acceptance of the new terms."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.disclaimer.changesTitle",
+    "translationValue": "Changes to This Document"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.disclaimer.investmentBody",
+    "translationValue": "The content on Rensights does not constitute financial, investment, or legal advice. All investments carry risk, and past performance is not indicative of future results. You should consult with qualified professionals before making any investment decisions."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.disclaimer.investmentTitle",
+    "translationValue": "Investment Disclaimer"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.disclaimer.liabilityBody",
+    "translationValue": "Under no circumstance shall Rensights have any liability to you for any loss or damage of any kind incurred as a result of the use of the platform or reliance on any information provided on the platform. Your use of the platform and your reliance on any information is solely at your own risk."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.disclaimer.liabilityTitle",
+    "translationValue": "Limitation of Liability"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.disclaimer.p1",
+    "translationValue": "The information provided by Rensights is for general informational purposes only. All information on the platform is provided in good faith, however, we make no representation or warranty of any kind, express or implied, regarding the accuracy, adequacy, validity, reliability, availability, or completeness of any information on the platform."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.disclaimer.title",
+    "translationValue": "Disclaimer"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.lastUpdated",
+    "translationValue": "Last Updated:"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.privacy.infoBody",
+    "translationValue": "We collect information that you provide directly to us, including name, email address, and any other information you choose to provide. We also automatically collect certain information about your device and how you interact with our services."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.privacy.infoTitle",
+    "translationValue": "Information We Collect"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.privacy.p1",
+    "translationValue": "At Rensights, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.privacy.securityBody",
+    "translationValue": "We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.privacy.securityTitle",
+    "translationValue": "Data Security"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.privacy.title",
+    "translationValue": "Privacy Policy"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.privacy.useBody",
+    "translationValue": "We use the information we collect to provide, maintain, and improve our services, to communicate with you, and to protect our users and services."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.privacy.useTitle",
+    "translationValue": "How We Use Your Information"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.terms.licenseBody",
+    "translationValue": "Permission is granted to temporarily access the materials on Rensights for personal, non-commercial use only. This is the grant of a license, not a transfer of title."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.terms.licenseTitle",
+    "translationValue": "Use License"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.terms.modificationsBody",
+    "translationValue": "Rensights reserves the right to modify or discontinue, temporarily or permanently, the service with or without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuance of the service."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.terms.modificationsTitle",
+    "translationValue": "Service Modifications"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.terms.p1",
+    "translationValue": "By accessing and using Rensights, you accept and agree to be bound by the terms and provisions of this agreement."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.terms.responsibilitiesBody",
+    "translationValue": "You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account."
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.terms.responsibilitiesTitle",
+    "translationValue": "User Responsibilities"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.terms.title",
+    "translationValue": "Terms of Service"
+  },
+  {
+    "namespace": "privacyTerms",
+    "translationKey": "privacyTerms.title",
+    "translationValue": "Privacy Policy & Terms of Service"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.cta.button",
+    "translationValue": "Start Free Trial"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.cta.subtitle",
+    "translationValue": "Join thousands of investors using data-driven insights to find the best property deals in Dubai"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.cta.title",
+    "translationValue": "Ready to Start Your Investment Journey?"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.disclaimer.body",
+    "translationValue": "Rensights provides property market data and analysis for informational purposes only. We are not licensed property valuers, and our estimates do not constitute formal valuations under any regulatory framework. Nothing on this platform should be considered investment, financial, legal, or tax advice. All data is sourced from public records and third-party listing sources, and may contain inaccuracies or delays. Users should conduct their own due diligence and consult qualified professionals before making any property decisions. Past performance and historical trends do not guarantee future results."
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.disclaimer.title",
+    "translationValue": "Disclaimer"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step1.badge",
+    "translationValue": "Step 1"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step1.description",
+    "translationValue": "Get comprehensive city insights with interactive dashboards and detailed guides."
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step1.feature1",
+    "translationValue": "City dashboards with prices, yields, and growth areas"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step1.feature2",
+    "translationValue": "Step-by-step guide on buying process and ownership"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step1.subtitle",
+    "translationValue": "Don't know where to start?"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step1.title",
+    "translationValue": "Explore & Learn"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step2.badge",
+    "translationValue": "Step 2"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step2.description",
+    "translationValue": "Discover potentially underpriced properties through AI-powered analysis and expert filtering."
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step2.feature1",
+    "translationValue": "AI-powered deal scores based on yield signals"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step2.feature2",
+    "translationValue": "Expert-filtered shortlists matching your criteria"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step2.metric",
+    "translationValue": "10K+ properties and transactions analyzed weekly"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step2.subtitle",
+    "translationValue": "Looking for the best deals?"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step2.title",
+    "translationValue": "Find Deals"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step3.badge",
+    "translationValue": "Step 3"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step3.description",
+    "translationValue": "Get expert validation with data-backed price analysis and comprehensive risk assessment."
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step3.feature1",
+    "translationValue": "Price check using live market comparables"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step3.feature2",
+    "translationValue": "Risk, liquidity, and appreciation insights"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step3.subtitle",
+    "translationValue": "Already found a property?"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step3.title",
+    "translationValue": "Validate & Invest"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.subtitle",
+    "translationValue": "Data-driven tools to find potentially underpriced properties before everyone else"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.title",
+    "translationValue": "Solutions"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.about.p1",
+    "translationValue": "Our AI-powered system analyzes thousands of properties daily to identify underpriced opportunities across Dubai."
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.about.p2",
+    "translationValue": "Each deal is verified by expert analysts to ensure accuracy and potential value. Get notified weekly about properties priced significantly below market value in prime locations."
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.about.title",
+    "translationValue": "About Deal Alerts"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.area1",
+    "translationValue": "\u00f0\u009f\u008f\u0099\u00ef\u00b8\u008f Downtown Dubai:"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.area2",
+    "translationValue": "\u00e2\u009a\u0093 Dubai Marina:"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.area3",
+    "translationValue": "\u00f0\u009f\u008f\u00a2 Business Bay:"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.area4",
+    "translationValue": "\u00f0\u009f\u008c\u00b4 Jumeirah Beach:"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.deals",
+    "translationValue": "deals"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.subtitle",
+    "translationValue": "Hot deals discovered across Dubai areas this week!"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.title",
+    "translationValue": "Latest Alert"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.total",
+    "translationValue": "Total active alerts:"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.view",
+    "translationValue": "View This Week's Alerts"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.disclaimer.appraisalBody",
+    "translationValue": "The property estimates and scores provided by this platform are generated via automated machine learning algorithms and do not constitute a formal, legal, or professional real estate appraisal. This platform does not account for the physical condition, interior upgrades, or latent defects of a property."
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.disclaimer.appraisalTitle",
+    "translationValue": "No Formal Appraisal"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.disclaimer.body",
+    "translationValue": "This report is generated for informational and educational purposes only. Rensights.com is a data analytics provider, not a licensed real estate brokerage, financial advisor, or legal consultant. The \"Estimated Price\" and \"Scores\" provided are based on automated algorithms and third-party data; they do not constitute a formal appraisal or a guarantee of profit. All investments carry risk. We strongly recommend consulting with a licensed professional before making any financial commitments."
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.disclaimer.sourcesBody",
+    "translationValue": "Dubai Land Department (DLD), Bayut, and various public records."
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.disclaimer.sourcesTitle",
+    "translationValue": "Data Sources"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.disclaimer.title",
+    "translationValue": "Disclaimer"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.disclaimer.verificationBody",
+    "translationValue": "We scan external websites for pricing anomalies. We do not verify the physical condition, legal title, or the authenticity of the listing. Users must perform their own due diligence (physical viewing and title deed verification) before transferring funds to any third party."
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.disclaimer.verificationTitle",
+    "translationValue": "Verification Note"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.highlights.discount",
+    "translationValue": "\u00f0\u009f\u0092\u008e Best discount found:"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.highlights.discountValue",
+    "translationValue": "22% below market"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.highlights.market",
+    "translationValue": "\u00f0\u009f\u0094\u00a5 Hottest market:"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.highlights.marketValue",
+    "translationValue": "Dubai Marina (4 deals)"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.highlights.performing",
+    "translationValue": "\u00f0\u009f\u008f\u0086 Best performing area:"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.highlights.performingValue",
+    "translationValue": "Downtown Dubai"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.highlights.title",
+    "translationValue": "This Week's Highlights"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.section.title",
+    "translationValue": "Weekly Property Deals"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.button",
+    "translationValue": "Upgrade to Standard Package"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.feature1",
+    "translationValue": "5 tailored pricing analysis of properties selected by you"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.feature2",
+    "translationValue": "Advanced city analysis"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.feature3",
+    "translationValue": "Potentially underpriced deals"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.feature4",
+    "translationValue": "Full access to property analytics"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.perMonth",
+    "translationValue": "/month"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.price",
+    "translationValue": "$20"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.subtitle",
+    "translationValue": "Access exclusive deals and premium features with Standard Package."
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.upgrade.title",
+    "translationValue": "Upgrade to Standard Package"
+  }
+]
