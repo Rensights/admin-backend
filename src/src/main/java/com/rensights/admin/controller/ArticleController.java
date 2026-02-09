@@ -72,6 +72,11 @@ public class ArticleController {
         return ResponseEntity.ok(java.util.Map.of("enabled", articleService.setArticlesEnabled(enabled)));
     }
 
+    @GetMapping("/admin/articles/enable")
+    public ResponseEntity<?> getEnabled() {
+        return ResponseEntity.ok(java.util.Map.of("enabled", articleService.isArticlesEnabled()));
+    }
+
     @PutMapping("/admin/articles/enable/{id}")
     public ResponseEntity<ArticleDTO> enableOne(@PathVariable UUID id, @RequestParam boolean enabled) {
         return ResponseEntity.ok(articleService.setActive(id, enabled));
