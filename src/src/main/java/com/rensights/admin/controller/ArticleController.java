@@ -67,6 +67,12 @@ public class ArticleController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/admin/articles/delete")
+    public ResponseEntity<Void> deleteByQuery(@RequestParam UUID id) {
+        articleService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/admin/articles/enable")
     public ResponseEntity<?> enableAll(@RequestParam boolean enabled) {
         return ResponseEntity.ok(java.util.Map.of("enabled", articleService.setArticlesEnabled(enabled)));
