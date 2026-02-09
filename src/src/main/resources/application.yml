@@ -51,6 +51,8 @@ cors:
 
 app:
   main-backend-url: ${APP_MAIN_BACKEND_URL:http://localhost:8080}
+  rate-limit:
+    enabled: ${APP_RATE_LIMIT_ENABLED:false}
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY:}
@@ -65,4 +67,3 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
     org.springframework.jdbc.core: OFF
     org.springframework.security: WARN
-

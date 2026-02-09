@@ -10,6 +10,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -26,6 +27,9 @@ import java.util.concurrent.TimeUnit;
 public class RateLimitFilter extends OncePerRequestFilter {
     
     private static final Logger logger = LoggerFactory.getLogger(RateLimitFilter.class);
+
+    @Value("${app.rate-limit.enabled:false}")
+    private boolean rateLimitEnabled;
     
     // Rate limit configurations
     private static final int AUTH_RATE_LIMIT = 5; // 5 requests per window
@@ -48,6 +52,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        if (!rateLimitEnabled) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         
         // Skip rate limiting for OPTIONS requests (CORS preflight)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {

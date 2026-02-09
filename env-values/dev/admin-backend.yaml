@@ -66,4 +66,4 @@ extraEnv:
   CORS_ORIGINS: "http://dev-admin.72.62.40.154.nip.io:31416"
   OTEL_SERVICE_NAME: "admin-backend-dev"
   APP_MAIN_BACKEND_URL: "http://dev-api.72.62.40.154.nip.io:31416"
-
+  APP_RATE_LIMIT_ENABLED: "false"

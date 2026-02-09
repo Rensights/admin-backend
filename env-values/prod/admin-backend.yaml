@@ -59,4 +59,4 @@ extraEnv:
   SERVER_PORT: "8081"
   CORS_ORIGINS: "https://admin.72.62.40.154.nip.io,http://admin.72.62.40.154.nip.io:31416"
   OTEL_SERVICE_NAME: "admin-backend-prod"
-
+  APP_RATE_LIMIT_ENABLED: "false"
