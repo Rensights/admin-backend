@@ -29,8 +29,6 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     
-    @Autowired
-    private RateLimitFilter rateLimitFilter;
     
     @Value("${cors.allowed-origins:http://localhost:3001,http://localhost:3002}")
     private String allowedOrigins;
@@ -62,8 +60,6 @@ public class SecurityConfig {
             // SECURITY: Add filters in correct order
             // First add JWT filter before Spring Security's authentication filter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            // Then add rate limit filter before JWT filter (rate limiting happens first)
-            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/auth/**").permitAll()
                 .requestMatchers("/api/admin/**").authenticated()
@@ -134,4 +130,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-
