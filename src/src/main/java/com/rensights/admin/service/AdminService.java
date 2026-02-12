@@ -15,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,6 +49,9 @@ public class AdminService {
     
     @Autowired
     private AnalysisRequestRepository analysisRequestRepository;
+
+    @Value("${analysis.api.url:http://10.42.0.1:8000}")
+    private String analysisApiUrl;
     
     /**
      * Get all users with pagination
@@ -355,6 +361,27 @@ public class AdminService {
             throw new RuntimeException("Invalid status: " + status);
         }
     }
+
+    @Transactional
+    public AnalysisRequestDTO refreshAnalysisResult(UUID requestId) {
+        AnalysisRequest request = analysisRequestRepository.findById(requestId)
+            .orElseThrow(() -> new RuntimeException("Analysis request not found"));
+
+        if (request.getAnalysisId() == null || request.getAnalysisId().isBlank()) {
+            throw new RuntimeException("Analysis ID not found for this request");
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        String url = analysisApiUrl + "/analyse/" + request.getAnalysisId();
+        JsonNode response = restTemplate.getForObject(url, JsonNode.class);
+        if (response == null || response.isNull()) {
+            throw new RuntimeException("No analysis result returned from external service");
+        }
+
+        request.setAnalysisResult(response);
+        request = analysisRequestRepository.save(request);
+        return toAnalysisRequestDTO(request);
+    }
     
     private AnalysisRequestDTO toAnalysisRequestDTO(AnalysisRequest request) {
         return AnalysisRequestDTO.builder()
@@ -385,6 +412,8 @@ public class AdminService {
                 .furnishing(request.getFurnishing())
                 .additionalNotes(request.getAdditionalNotes())
                 .filePaths(request.getFilePaths())
+                .analysisId(request.getAnalysisId())
+                .analysisResult(request.getAnalysisResult())
                 .status(request.getStatus() != null ? request.getStatus().name() : "PENDING")
                 .createdAt(request.getCreatedAt() != null ? request.getCreatedAt().toString() : "")
                 .updatedAt(request.getUpdatedAt() != null ? request.getUpdatedAt().toString() : "")

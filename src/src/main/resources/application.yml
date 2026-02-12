@@ -54,6 +54,10 @@ app:
   rate-limit:
     enabled: ${APP_RATE_LIMIT_ENABLED:false}
 
+analysis:
+  api:
+    url: ${ANALYSIS_API_URL:http://10.42.0.1:8000}
+
 stripe:
   secret-key: ${STRIPE_SECRET_KEY:}
   publishable-key: ${STRIPE_PUBLISHABLE_KEY:}

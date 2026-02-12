@@ -39,10 +39,11 @@ public class AnalysisRequestDTO {
     private String furnishing;
     private String additionalNotes;
     private List<String> filePaths;
+    private String analysisId;
+    private Object analysisResult;
     private String status;
     private String createdAt;
     private String updatedAt;
 }
-
 
 

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -103,6 +104,13 @@ public class AnalysisRequest {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "file_paths", columnDefinition = "jsonb")
     private List<String> filePaths;
+
+    @Column(name = "analysis_id", length = 120)
+    private String analysisId;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "analysis_result", columnDefinition = "jsonb")
+    private JsonNode analysisResult;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -122,6 +130,5 @@ public class AnalysisRequest {
         CANCELLED
     }
 }
-
 
 

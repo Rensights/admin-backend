@@ -183,6 +183,17 @@ public class AdminController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/analysis-requests/{requestId}/analysis-result")
+    public ResponseEntity<?> refreshAnalysisResult(@PathVariable UUID requestId, Authentication authentication) {
+        try {
+            AnalysisRequestDTO updatedRequest = adminService.refreshAnalysisResult(requestId);
+            return ResponseEntity.ok(updatedRequest);
+        } catch (Exception e) {
+            logger.error("Error fetching analysis result: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
     
     // Deal management endpoints
     @GetMapping("/deals/pending")
