@@ -378,7 +378,7 @@ public class AdminService {
         }
 
         RestTemplate restTemplate = new RestTemplate();
-        String url = analysisApiUrl + "/analyse/" + request.getAnalysisId();
+        String url = analysisApiUrl + "/analysis_request/" + request.getAnalysisId();
         JsonNode response = restTemplate.getForObject(url, JsonNode.class);
         if (response == null || response.isNull()) {
             throw new RuntimeException("No analysis result returned from external service");
