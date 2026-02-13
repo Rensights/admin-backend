@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
@@ -49,6 +52,9 @@ public class AdminService {
     
     @Autowired
     private AnalysisRequestRepository analysisRequestRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Value("${analysis.api.url:http://10.42.0.1:8000}")
     private String analysisApiUrl;
@@ -427,12 +433,28 @@ public class AdminService {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .phone(user.getPhone())
+                .budget(user.getBudget())
+                .portfolio(user.getPortfolio())
+                .goals(readJsonList(user.getGoalsJson()))
+                .registrationPlan(user.getRegistrationPlan())
                 .userTier(user.getUserTier() != null ? user.getUserTier().name() : "FREE")
                 .customerId(user.getCustomerId())
                 .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toString() : "")
                 .isActive(user.getIsActive())
                 .emailVerified(user.getEmailVerified())
                 .build();
+    }
+
+    private List<String> readJsonList(String json) {
+        if (json == null || json.isBlank()) {
+            return java.util.Collections.emptyList();
+        }
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<String>>() {});
+        } catch (JsonProcessingException e) {
+            return java.util.Collections.emptyList();
+        }
     }
     
     private SubscriptionDTO toSubscriptionDTO(Subscription subscription) {
