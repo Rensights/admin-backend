@@ -373,12 +373,13 @@ public class AdminService {
         AnalysisRequest request = analysisRequestRepository.findById(requestId)
             .orElseThrow(() -> new RuntimeException("Analysis request not found"));
 
-        if (request.getAnalysisId() == null || request.getAnalysisId().isBlank()) {
-            throw new RuntimeException("Analysis ID not found for this request");
-        }
-
         RestTemplate restTemplate = new RestTemplate();
-        String url = analysisApiUrl + "/analysis_request/" + request.getAnalysisId();
+        String analysisId = request.getAnalysisId();
+        if (analysisId == null || analysisId.isBlank()) {
+            logger.warn("Analysis ID missing for request {} - falling back to request ID", requestId);
+            analysisId = request.getId().toString();
+        }
+        String url = analysisApiUrl + "/analysis_request/" + analysisId;
         JsonNode response = restTemplate.getForObject(url, JsonNode.class);
         if (response == null || response.isNull()) {
             throw new RuntimeException("No analysis result returned from external service");
