@@ -37,6 +37,13 @@ resources:
     cpu: "500m"
     memory: "1Gi"
 
+networkPolicy:
+  enabled: true
+  analysisApi:
+    enabled: true
+    cidr: "10.42.0.1/32"
+    port: 8000
+
 ingress:
   enabled: true
   className: "kong"

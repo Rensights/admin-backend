@@ -62,5 +62,13 @@ spec:
           port: 80
         - protocol: TCP
           port: 443
+    {{- if .Values.networkPolicy.analysisApi.enabled }}
+    # Allow access to analysis API running outside the cluster
+    - to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicy.analysisApi.cidr | quote }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.analysisApi.port }}
+    {{- end }}
 {{- end }}
-
