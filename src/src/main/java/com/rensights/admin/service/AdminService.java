@@ -380,13 +380,17 @@ public class AdminService {
             analysisId = request.getId().toString();
         }
         String url = analysisApiUrl + "/analysis_request/" + analysisId;
+        logger.info("Fetching analysis result from external service. requestId={}, analysisId={}, url={}", requestId, analysisId, url);
         JsonNode response = restTemplate.getForObject(url, JsonNode.class);
         if (response == null || response.isNull()) {
+            logger.warn("No analysis result returned. requestId={}, analysisId={}", requestId, analysisId);
             throw new RuntimeException("No analysis result returned from external service");
         }
 
+        logger.info("Analysis result fetched successfully. requestId={}, analysisId={}", requestId, analysisId);
         request.setAnalysisResult(response);
         request = analysisRequestRepository.save(request);
+        logger.info("Analysis result saved. requestId={}", requestId);
         return toAnalysisRequestDTO(request);
     }
     
