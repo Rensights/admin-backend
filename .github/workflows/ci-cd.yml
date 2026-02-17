@@ -208,6 +208,8 @@ jobs:
             --create-namespace \
             -f env-values/dev/global.yaml \
             -f env-values/dev/admin-backend.yaml \
+            --set reports.storage.path=/data/reports \
+            --set reports.storage.existingClaim=reports-storage \
             --set image.tag=${IMAGE_TAG} \
             --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
             --set imagePullSecrets[0].name=ghcr-secret \
