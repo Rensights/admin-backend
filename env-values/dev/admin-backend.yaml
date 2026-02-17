@@ -74,3 +74,8 @@ extraEnv:
   OTEL_SERVICE_NAME: "admin-backend-dev"
   APP_MAIN_BACKEND_URL: "http://dev-api.72.62.40.154.nip.io:31416"
   APP_RATE_LIMIT_ENABLED: "false"
+  REPORTS_STORAGE_PATH: "/data/reports"
+
+reports:
+  storage:
+    path: /data/reports

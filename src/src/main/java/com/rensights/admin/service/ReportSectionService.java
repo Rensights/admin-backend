@@ -60,12 +60,9 @@ public class ReportSectionService {
         ReportSection section = sectionRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Section not found"));
 
-        section.setSectionKey(request.getSectionKey());
         section.setTitle(request.getTitle());
         section.setNavTitle(request.getNavTitle());
         section.setDescription(request.getDescription());
-        section.setAccessTier(ReportSection.AccessTier.valueOf(request.getAccessTier().toUpperCase()));
-        section.setDisplayOrder(request.getDisplayOrder());
         section.setLanguageCode(request.getLanguageCode());
         if (request.getIsActive() != null) {
             section.setIsActive(request.getIsActive());

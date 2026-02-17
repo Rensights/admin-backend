@@ -79,6 +79,11 @@ tolerations: []
 
 extraEnv: {}
 
+reports:
+  storage:
+    path: /data/reports
+    existingClaim: ""
+
 secrets:
   dbCredentials: admin-db-credentials
   publicDbCredentials: public-db-credentials
