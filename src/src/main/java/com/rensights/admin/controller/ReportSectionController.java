@@ -34,21 +34,12 @@ public class ReportSectionController {
         return ResponseEntity.ok(reportSectionService.getSection(sectionId));
     }
 
-    @PostMapping("/sections")
-    public ResponseEntity<ReportSectionDTO> createSection(@Valid @RequestBody ReportSectionRequest request) {
-        return ResponseEntity.ok(reportSectionService.createSection(request));
-    }
 
     @PutMapping("/sections/{sectionId}")
     public ResponseEntity<ReportSectionDTO> updateSection(@PathVariable UUID sectionId, @Valid @RequestBody ReportSectionRequest request) {
         return ResponseEntity.ok(reportSectionService.updateSection(sectionId, request));
     }
 
-    @DeleteMapping("/sections/{sectionId}")
-    public ResponseEntity<Void> deleteSection(@PathVariable UUID sectionId) {
-        reportSectionService.deleteSection(sectionId);
-        return ResponseEntity.noContent().build();
-    }
 
     @PostMapping("/sections/{sectionId}/documents")
     public ResponseEntity<ReportDocumentDTO> uploadDocument(

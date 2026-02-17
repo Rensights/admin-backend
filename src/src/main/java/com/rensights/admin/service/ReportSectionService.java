@@ -99,7 +99,7 @@ public class ReportSectionService {
             .title(request.getTitle())
             .description(request.getDescription())
             .displayOrder(request.getDisplayOrder())
-            .languageCode(request.getLanguageCode())
+            .languageCode("en")
             .isActive(request.getIsActive() != null ? request.getIsActive() : true)
             .filePath("pending")
             .originalFilename(file.getOriginalFilename())
@@ -121,7 +121,6 @@ public class ReportSectionService {
         document.setTitle(request.getTitle());
         document.setDescription(request.getDescription());
         document.setDisplayOrder(request.getDisplayOrder());
-        document.setLanguageCode(request.getLanguageCode());
         if (request.getIsActive() != null) {
             document.setIsActive(request.getIsActive());
         }
