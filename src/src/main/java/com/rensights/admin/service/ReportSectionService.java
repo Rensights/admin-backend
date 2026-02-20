@@ -94,6 +94,7 @@ public class ReportSectionService {
             throw new RuntimeException("Section already has maximum allowed documents");
         }
 
+        String fileBase64 = java.util.Base64.getEncoder().encodeToString(file.getBytes());
         ReportDocument document = ReportDocument.builder()
             .section(section)
             .title(request.getTitle())
@@ -101,14 +102,12 @@ public class ReportSectionService {
             .displayOrder(request.getDisplayOrder())
             .languageCode("en")
             .isActive(request.getIsActive() != null ? request.getIsActive() : true)
-            .filePath("pending")
+            .filePath(null)
+            .fileContentBase64(fileBase64)
             .originalFilename(file.getOriginalFilename())
             .fileSize(file.getSize())
             .build();
 
-        document = documentRepository.save(document);
-        String relativePath = storageService.storeReportFile(section.getSectionKey(), document.getId(), file);
-        document.setFilePath(relativePath);
         document = documentRepository.save(document);
         return toDocumentDTO(document);
     }
@@ -132,7 +131,7 @@ public class ReportSectionService {
     public void deleteDocument(UUID documentId) {
         ReportDocument document = documentRepository.findById(documentId)
             .orElseThrow(() -> new RuntimeException("Document not found"));
-        if (document.getFilePath() != null) {
+        if (document.getFilePath() != null && !document.getFilePath().isBlank()) {
             storageService.deleteFile(document.getFilePath());
         }
         documentRepository.delete(document);
