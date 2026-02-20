@@ -102,7 +102,7 @@ public class ReportSectionService {
             .displayOrder(request.getDisplayOrder())
             .languageCode("en")
             .isActive(request.getIsActive() != null ? request.getIsActive() : true)
-            .filePath(null)
+            .filePath("db")
             .fileContentBase64(fileBase64)
             .originalFilename(file.getOriginalFilename())
             .fileSize(file.getSize())
