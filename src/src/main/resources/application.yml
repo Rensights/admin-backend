@@ -17,7 +17,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     # SECURITY FIX: Disable SQL logging in production (prevents sensitive data exposure)
     show-sql: false
     open-in-view: false
