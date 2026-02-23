@@ -13,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,6 +36,9 @@ public class AdminController {
     
     @Autowired
     private TestDataService testDataService;
+
+    @Autowired
+    private DataSource dataSource;
     
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers(
@@ -137,6 +144,44 @@ public class AdminController {
     @GetMapping("/dashboard/stats")
     public ResponseEntity<?> getDashboardStatsAlias(Authentication authentication) {
         return getDashboardStats(authentication);
+    }
+
+    @GetMapping("/debug/db-info")
+    public ResponseEntity<?> getDbInfo(Authentication authentication) {
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            String database = "unknown";
+            String schema = "unknown";
+            Long usersCount = null;
+            String latestUserEmail = null;
+
+            try (ResultSet rs = statement.executeQuery("select current_database(), current_schema()")) {
+                if (rs.next()) {
+                    database = rs.getString(1);
+                    schema = rs.getString(2);
+                }
+            }
+            try (ResultSet rs = statement.executeQuery("select count(*) from users")) {
+                if (rs.next()) {
+                    usersCount = rs.getLong(1);
+                }
+            }
+            try (ResultSet rs = statement.executeQuery("select email from users order by created_at desc nulls last limit 1")) {
+                if (rs.next()) {
+                    latestUserEmail = rs.getString(1);
+                }
+            }
+
+            return ResponseEntity.ok(Map.of(
+                "database", database,
+                "schema", schema,
+                "usersCount", usersCount,
+                "latestUserEmail", latestUserEmail
+            ));
+        } catch (Exception e) {
+            logger.error("Error fetching DB info: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
     }
     
     @GetMapping("/analysis-requests")
