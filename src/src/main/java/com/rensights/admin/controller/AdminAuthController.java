@@ -18,11 +18,13 @@ public class AdminAuthController {
     
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        logger.info("Admin login attempt for: {}", request.getEmail());
         try {
             AdminAuthService.AdminAuthResponse response = adminAuthService.login(
                     request.getEmail(), 
                     request.getPassword()
             );
+            logger.info("Admin login success for: {}", request.getEmail());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Admin login error: {}", e.getMessage());
@@ -32,8 +34,10 @@ public class AdminAuthController {
     
     @PostMapping("/init-admin")
     public ResponseEntity<?> initAdmin() {
+        logger.info("Admin init requested");
         try {
             adminAuthService.initializeDefaultAdmin();
+            logger.info("Admin init completed");
             return ResponseEntity.ok(new SuccessResponse("Default admin user created successfully"));
         } catch (Exception e) {
             logger.error("Failed to initialize admin: {}", e.getMessage());
@@ -63,4 +67,3 @@ public class AdminAuthController {
         }
     }
 }
-
