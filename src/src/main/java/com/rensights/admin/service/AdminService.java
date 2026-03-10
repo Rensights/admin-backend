@@ -147,6 +147,17 @@ public class AdminService {
                 .map(this::toSubscriptionDTO)
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
     }
+
+    /**
+     * Get all subscriptions for a specific user
+     */
+    @Transactional(readOnly = true)
+    public List<SubscriptionDTO> getUserSubscriptions(UUID userId) {
+        return subscriptionRepository.findByUserId(userId, Sort.by(Sort.Direction.DESC, "createdAt"))
+            .stream()
+            .map(this::toSubscriptionDTO)
+            .collect(Collectors.toList());
+    }
     
     /**
      * Cancel subscription

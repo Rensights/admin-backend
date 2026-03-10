@@ -66,6 +66,17 @@ public class AdminController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/users/{userId}/subscriptions")
+    public ResponseEntity<?> getUserSubscriptions(@PathVariable UUID userId, Authentication authentication) {
+        try {
+            List<SubscriptionDTO> subscriptions = adminService.getUserSubscriptions(userId);
+            return ResponseEntity.ok(subscriptions);
+        } catch (Exception e) {
+            logger.error("Error fetching user subscriptions: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
     
     @PutMapping("/users/{userId}")
     public ResponseEntity<?> updateUser(

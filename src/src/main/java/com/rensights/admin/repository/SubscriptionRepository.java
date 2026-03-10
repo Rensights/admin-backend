@@ -4,6 +4,7 @@ import com.rensights.admin.model.Subscription;
 import com.rensights.admin.model.Subscription.SubscriptionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public interface SubscriptionRepository extends JpaRepository<Subscription, UUID> {
     Optional<Subscription> findByUserIdAndStatus(UUID userId, SubscriptionStatus status);
     List<Subscription> findByUserId(UUID userId);
+    List<Subscription> findByUserId(UUID userId, Sort sort);
     Optional<Subscription> findByStripeSubscriptionId(String stripeSubscriptionId);
     long countByStatus(SubscriptionStatus status);
     
@@ -25,4 +27,3 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
     @EntityGraph(attributePaths = {"user"})
     Optional<Subscription> findById(UUID id);
 }
-
