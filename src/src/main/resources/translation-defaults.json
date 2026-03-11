@@ -1416,6 +1416,41 @@
   },
   {
     "namespace": "pricing",
+    "translationKey": "pricing.free.price",
+    "translationValue": "$0"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.free.period",
+    "translationValue": "/month"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.price",
+    "translationValue": "$20"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.period",
+    "translationValue": "/month"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.annualPrice",
+    "translationValue": "$16"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.trusted.price",
+    "translationValue": "$2,000"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.trusted.period",
+    "translationValue": "/year"
+  },
+  {
+    "namespace": "pricing",
     "translationKey": "pricing.button.getStarted",
     "translationValue": "Get Started"
   },
@@ -1458,6 +1493,26 @@
     "namespace": "pricing",
     "translationKey": "pricing.standard.description",
     "translationValue": "Perfect for active property seekers"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.upgradeTitle",
+    "translationValue": "Upgrade to Standard Package"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.upgradeSubtitle",
+    "translationValue": "Access exclusive deals and premium features with Standard Package."
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.upgradeFeature4",
+    "translationValue": "Full access to property analytics"
+  },
+  {
+    "namespace": "pricing",
+    "translationKey": "pricing.standard.upgradeButton",
+    "translationValue": "Upgrade to Standard Package"
   },
   {
     "namespace": "pricing",
