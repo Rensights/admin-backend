@@ -1896,6 +1896,26 @@
   },
   {
     "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.stats.availableDeals",
+    "translationValue": "Available Deals in Selected Area"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.stats.avgPriceVsMarket",
+    "translationValue": "Avg. Price vs. Market"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.stats.liquidSizeRange",
+    "translationValue": "Most Liquid Size Range"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.stats.avgGrossYield",
+    "translationValue": "Avg. Gross Rental Yield"
+  },
+  {
+    "namespace": "weeklyDeals",
     "translationKey": "weeklyDeals.section.title",
     "translationValue": "Weekly Property Deals"
   },
