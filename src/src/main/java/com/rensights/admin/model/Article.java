@@ -34,7 +34,7 @@ public class Article {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "cover_image")
+    @Column(name = "cover_image", columnDefinition = "TEXT")
     private String coverImage;
 
     @Column(name = "published_at")
