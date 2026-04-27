@@ -150,6 +150,24 @@ jobs:
           export KUBECONFIG=/tmp/kubeconfig
           kubectl cluster-info
 
+      - name: Vault + External Secrets Operator (dev)
+        env:
+          VAULT_ESO_TOKEN: ${{ secrets.VAULT_ESO_TOKEN }}
+          VAULT_INTERNAL_ADDR: ${{ vars.VAULT_INTERNAL_ADDR }}
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          if [ -z "${VAULT_ESO_TOKEN}" ]; then
+            echo "VAULT_ESO_TOKEN not set — skipping SecretStore / ExternalSecrets."
+            exit 0
+          fi
+          VAULT_SRV="${VAULT_INTERNAL_ADDR:-http://vault.vault.svc.cluster.local:8200}"
+          kubectl create secret generic vault-eso-token -n ${DEV_NAMESPACE} \
+            --from-literal=token="${VAULT_ESO_TOKEN}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          sed "s|VAULT_SERVER_PLACEHOLDER|${VAULT_SRV}|g" infra/external-secrets/dev/secretstore-vault-dev.yaml | kubectl apply -f -
+          kubectl apply -f infra/external-secrets/dev/externalsecrets.yaml
+          kubectl wait --for=condition=Ready "secretstore/vault-dev" -n "${DEV_NAMESPACE}" --timeout=120s || true
+
       - name: Ensure reports PVC exists (dev)
         run: |
           export KUBECONFIG=/tmp/kubeconfig
