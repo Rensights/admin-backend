@@ -14,8 +14,16 @@ database:
   host: postgres-admin.prod.svc.cluster.local
   port: 5432
   name: admin_db_prod
-  usernameSecret: admin-db-user
-  passwordSecret: admin-db-password
+
+databases:
+  public:
+    host: postgres-public.prod.svc.cluster.local
+    port: 5432
+    name: public_db_prod
+
+secrets:
+  dbCredentials: admin-db-credentials
+  publicDbCredentials: public-db-credentials
 
 global:
   generalDb:

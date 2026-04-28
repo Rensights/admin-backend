@@ -12,7 +12,7 @@ service:
   type: ClusterIP
   port: 8081
 
-# Admin Database (Primary)
+# Primary datasource: admin DB.
 database:
   host: postgres-admin.dev.svc.cluster.local
   port: 5432
