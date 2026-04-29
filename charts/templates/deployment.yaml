@@ -68,19 +68,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secrets.dbCredentials }}
                   key: postgres-password
-            # Public database for user/subscription data reads
-            - name: PUBLIC_DATABASE_URL
-              value: "jdbc:postgresql://{{ .Values.databases.public.host }}:{{ .Values.databases.public.port }}/{{ .Values.databases.public.name }}"
-            - name: PUBLIC_DATABASE_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.publicDbCredentials }}
-                  key: postgres-username
-            - name: PUBLIC_DATABASE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.publicDbCredentials }}
-                  key: postgres-password
             # Legacy admin-prefixed environment variables for compatibility
             - name: ADMIN_DATABASE_URL
               value: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}"

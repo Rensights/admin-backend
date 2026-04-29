@@ -6,7 +6,7 @@ image:
   tag: "latest"
   pullPolicy: Always
 
-# Database configuration for all three databases
+# Database configuration
 
 service:
   type: ClusterIP
@@ -17,17 +17,6 @@ database:
   host: postgres-admin.dev.svc.cluster.local
   port: 5432
   name: admin_db_dev
-
-# Public and Backend Databases (both now use public-db)
-databases:
-  public:
-    host: postgres-public.dev.svc.cluster.local
-    port: 5432
-    name: public_db_dev
-  backend:
-    host: postgres-public.dev.svc.cluster.local
-    port: 5432
-    name: public_db_dev
 
 resources:
   requests:
@@ -62,8 +51,6 @@ ingress:
 
 secrets:
   dbCredentials: admin-db-credentials
-  publicDbCredentials: public-db-credentials
-  backendDbCredentials: public-db-credentials  # Now using public-db for deals
   jwtSecret: jwt-secret
   stripeSecrets: stripe-secrets
 

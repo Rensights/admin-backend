@@ -32,15 +32,6 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
-    # Allow connection to Public PostgreSQL database
-    - to:
-      - podSelector:
-          matchLabels:
-            app.kubernetes.io/name: postgresql
-            app.kubernetes.io/instance: postgres-public
-      ports:
-        - protocol: TCP
-          port: 5432
     # Allow connection to Backend PostgreSQL database
     - to:
       - podSelector:

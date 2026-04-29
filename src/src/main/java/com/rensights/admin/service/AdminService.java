@@ -2,8 +2,6 @@ package com.rensights.admin.service;
 
 import com.rensights.admin.dto.*;
 import com.rensights.admin.repository.*;
-import com.rensights.admin.repository.publicdb.PublicSubscriptionRepository;
-import com.rensights.admin.repository.publicdb.PublicUserRepository;
 import com.rensights.admin.model.AnalysisRequest;
 import com.rensights.admin.model.Device;
 import com.rensights.admin.model.User;
@@ -44,10 +42,10 @@ public class AdminService {
     private static final long ENTERPRISE_YEARLY_PRICE = 2000;
     
     @Autowired
-    private PublicUserRepository userRepository;
+    private UserRepository userRepository;
     
     @Autowired
-    private PublicSubscriptionRepository subscriptionRepository;
+    private SubscriptionRepository subscriptionRepository;
     
     @Autowired
     private DeviceRepository deviceRepository;
@@ -86,7 +84,7 @@ public class AdminService {
     /**
      * Update user
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public UserDTO updateUser(UUID userId, UpdateUserRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -115,7 +113,7 @@ public class AdminService {
     /**
      * Delete user (soft delete - deactivate)
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public void deleteUser(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -164,7 +162,7 @@ public class AdminService {
     /**
      * Cancel subscription
      */
-    @Transactional(transactionManager = "publicTransactionManager")
+    @Transactional
     public SubscriptionDTO cancelSubscription(UUID subscriptionId) {
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));

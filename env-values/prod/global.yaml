@@ -15,14 +15,6 @@ global:
     passwordSecret: general-prod-password
     schema: prod_general
   
-  # Public database (prod-specific)
-  publicDb:
-    host: postgres-public.prod.svc.cluster.local
-    port: 5432
-    name: public_db_prod
-    usernameSecret: public-db-user
-    passwordSecret: public-db-password
-  
   # Admin database (prod-specific)
   adminDb:
     host: postgres-admin.prod.svc.cluster.local
