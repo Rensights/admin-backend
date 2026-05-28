@@ -1746,6 +1746,36 @@
   },
   {
     "namespace": "solutions",
+    "translationKey": "solutions.step4.badge",
+    "translationValue": "Step 4"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step4.description",
+    "translationValue": "Track performance, optimize returns, and stay ahead with continuous market updates."
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step4.feature1",
+    "translationValue": "Performance tracking dashboards"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step4.feature2",
+    "translationValue": "Market alerts and optimization insights"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step4.subtitle",
+    "translationValue": "Keep your portfolio on track"
+  },
+  {
+    "namespace": "solutions",
+    "translationKey": "solutions.step4.title",
+    "translationValue": "Monitor & Optimize"
+  },
+  {
+    "namespace": "solutions",
     "translationKey": "solutions.subtitle",
     "translationValue": "Data-driven tools to find potentially underpriced properties before everyone else"
   },
