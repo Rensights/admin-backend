@@ -50,6 +50,13 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              unset JAVA_TOOL_OPTIONS
+              unset _JAVA_OPTIONS
+              unset JDK_JAVA_OPTIONS
+              exec java -jar app.jar
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: {{ .Values.extraEnv.SPRING_PROFILES_ACTIVE | quote }}
