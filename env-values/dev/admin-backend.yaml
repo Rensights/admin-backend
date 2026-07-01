@@ -3,7 +3,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/rensights/admin-backend
-  tag: "latest"
+  tag: ""  # Set by CI/CD via --set image.tag=${IMAGE_TAG}
   pullPolicy: Always
 
 # Database configuration
@@ -60,7 +60,7 @@ extraEnv:
   CORS_ORIGINS: "http://dev-admin.72.62.40.154.nip.io:31416"
   OTEL_SERVICE_NAME: "admin-backend-dev"
   APP_MAIN_BACKEND_URL: "http://dev-api.72.62.40.154.nip.io:31416"
-  APP_RATE_LIMIT_ENABLED: "false"
+  APP_RATE_LIMIT_ENABLED: "true"
   REPORTS_STORAGE_PATH: "/data/reports"
 
 reports:

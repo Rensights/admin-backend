@@ -3,7 +3,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/rensights/admin-backend
-  tag: "latest"
+  tag: ""  # Set by CI/CD via --set image.tag=${IMAGE_TAG}
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []

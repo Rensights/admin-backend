@@ -12,12 +12,16 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 5
       connection-timeout: 30000
+      max-lifetime: 600000
+      idle-timeout: 300000
+      data-source-properties:
+        sslmode: require
   
   # JPA Configuration - disabled auto-configuration since we use custom datasources
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     # SECURITY FIX: Disable SQL logging in production (prevents sensitive data exposure)
     show-sql: false
     open-in-view: false
@@ -45,14 +49,23 @@ management:
 jwt:
   secret: ${JWT_SECRET:admin-secret-key-change-in-production-minimum-32-characters-long}
   expiration: ${JWT_EXPIRATION:86400000}
+  cookie:
+    max-age: ${JWT_COOKIE_MAX_AGE:86400}        # seconds — must match JWT expiration (86400 s = 24 h)
+    secure: ${JWT_COOKIE_SECURE:true}            # set to false only for local HTTP dev
+    same-site: ${JWT_COOKIE_SAME_SITE:strict}    # strict, lax, or none
+    path: ${JWT_COOKIE_PATH:/}
 
 cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:3001,http://localhost:3002}
 
+admin:
+  default-email: ${ADMIN_DEFAULT_EMAIL:admin@rensights.com}
+  default-password: ${ADMIN_DEFAULT_PASSWORD:}
+
 app:
   main-backend-url: ${APP_MAIN_BACKEND_URL:http://localhost:8080}
   rate-limit:
-    enabled: ${APP_RATE_LIMIT_ENABLED:false}
+    enabled: ${APP_RATE_LIMIT_ENABLED:true}
 
 analysis:
   api:

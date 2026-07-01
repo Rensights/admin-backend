@@ -5,6 +5,7 @@ import com.rensights.admin.repository.AdminUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -23,10 +24,12 @@ public class DataInitializer implements CommandLineRunner {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
-    // Default admin credentials
-    private static final String DEFAULT_ADMIN_EMAIL = "admin@rensights.com";
-    private static final String DEFAULT_ADMIN_PASSWORD = "admin123";
+
+    @Value("${admin.default-email:admin@rensights.com}")
+    private String defaultAdminEmail;
+
+    @Value("${admin.default-password:}")
+    private String defaultAdminPassword;
     
     @Override
     @Transactional
@@ -48,28 +51,27 @@ public class DataInitializer implements CommandLineRunner {
         logger.info("═══════════════════════════════════════════════════════");
     
         try {
-            logger.info("Checking for existing admin user: {}", DEFAULT_ADMIN_EMAIL);
-            Optional<AdminUser> existingAdmin = adminUserRepository.findByEmail(DEFAULT_ADMIN_EMAIL);
-            
+            logger.info("Checking for existing admin user: {}", defaultAdminEmail);
+            Optional<AdminUser> existingAdmin = adminUserRepository.findByEmail(defaultAdminEmail);
+
             if (existingAdmin.isEmpty()) {
                 logger.info("═══════════════════════════════════════════════════════");
                 logger.info("Creating default admin user...");
-                
+
                 AdminUser defaultAdmin = AdminUser.builder()
-                        .email(DEFAULT_ADMIN_EMAIL)
-                        .passwordHash(passwordEncoder.encode(DEFAULT_ADMIN_PASSWORD))
+                        .email(defaultAdminEmail)
+                        .passwordHash(passwordEncoder.encode(defaultAdminPassword))
                         .firstName("Admin")
                         .lastName("User")
                         .isActive(true)
                         .isSuperAdmin(true)
                         .build();
-                
+
                 adminUserRepository.save(defaultAdmin);
-                
-                logger.info("✅ Default admin user created successfully!");
-                logger.info("📧 Email: {}", DEFAULT_ADMIN_EMAIL);
-                logger.info("🔑 Password: {}", DEFAULT_ADMIN_PASSWORD);
-                logger.warn("⚠️  SECURITY: Please change the default password after first login!");
+
+                logger.info("Default admin user created successfully!");
+                logger.info("Email: {}", defaultAdminEmail);
+                logger.warn("SECURITY: Please change the default password after first login!");
                 logger.info("═══════════════════════════════════════════════════════");
             } else {
                 logger.debug("Default admin user already exists - skipping creation");
