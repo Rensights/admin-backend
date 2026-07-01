@@ -219,6 +219,10 @@ jobs:
             fi
           fi
           
+          # Remove OTel Operator Instrumentation CRs so the operator stops auto-injecting the Java agent
+          kubectl delete instrumentation --all -n ${DEV_NAMESPACE} --ignore-not-found 2>/dev/null || true
+          kubectl annotate namespace ${DEV_NAMESPACE} instrumentation.opentelemetry.io/inject-java- 2>/dev/null || true
+
           echo "🚀 Deploying to DEV with tag: ${IMAGE_TAG}"
           helm upgrade --install admin-backend ./charts \
             --namespace ${DEV_NAMESPACE} \
