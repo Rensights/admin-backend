@@ -71,7 +71,10 @@ public class User {
     
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-    
+
+    @Column(name = "last_seen_at")
+    private LocalDateTime lastSeenAt;
+
     public enum UserTier {
         FREE, PREMIUM, ENTERPRISE
     }
