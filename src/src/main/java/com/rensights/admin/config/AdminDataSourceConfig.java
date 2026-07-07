@@ -21,6 +21,7 @@ import com.rensights.admin.model.Article;
 import com.rensights.admin.model.AppSetting;
 import com.rensights.admin.model.Device;
 import com.rensights.admin.model.Language;
+import com.rensights.admin.model.LoginEvent;
 import com.rensights.admin.model.Subscription;
 import com.rensights.admin.model.Translation;
 import com.rensights.admin.model.LandingPageContent;
@@ -76,7 +77,7 @@ public class AdminDataSourceConfig {
         
         return builder
             .dataSource(dataSource)
-            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class, Language.class, Translation.class, LandingPageContent.class, Deal.class, DealTranslation.class, Article.class, AppSetting.class, ReportSection.class, ReportDocument.class)
+            .packages(AdminUser.class, User.class, Device.class, Subscription.class, AnalysisRequest.class, Language.class, Translation.class, LandingPageContent.class, Deal.class, DealTranslation.class, Article.class, AppSetting.class, ReportSection.class, ReportDocument.class, LoginEvent.class)
             .persistenceUnit("admin")
             .properties(properties)
             .build();
