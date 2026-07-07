@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AppSetting {
     @Id
-    @Column(length = 120)
+    @Column(name = "setting_key", length = 120)
     private String settingKey;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "setting_value", columnDefinition = "TEXT")
     private String settingValue;
 
     @Column(name = "updated_at", nullable = false)

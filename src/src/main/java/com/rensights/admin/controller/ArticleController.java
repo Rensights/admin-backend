@@ -2,11 +2,14 @@ package com.rensights.admin.controller;
 
 import com.rensights.admin.dto.ArticleDTO;
 import com.rensights.admin.dto.ArticleRequest;
+import com.rensights.admin.service.ArticleImageStorageService;
 import com.rensights.admin.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +19,7 @@ import java.util.UUID;
 public class ArticleController {
 
     private final ArticleService articleService;
+    private final ArticleImageStorageService articleImageStorageService;
 
     // Public endpoints (for app-backend to consume)
     @GetMapping("/articles")
@@ -86,5 +90,17 @@ public class ArticleController {
     @PutMapping("/admin/articles/enable/{id}")
     public ResponseEntity<ArticleDTO> enableOne(@PathVariable UUID id, @RequestParam boolean enabled) {
         return ResponseEntity.ok(articleService.setActive(id, enabled));
+    }
+
+    /**
+     * Uploads a cover/inline image for an article and returns its filename.
+     * Stored as a real file on the shared reports volume (served publicly via
+     * app-backend's GET /api/articles/images/{filename}) instead of embedding
+     * it as base64 in the article payload.
+     */
+    @PostMapping("/admin/articles/upload-image")
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
+        String filename = articleImageStorageService.storeImage(file);
+        return ResponseEntity.ok(java.util.Map.of("filename", filename));
     }
 }
