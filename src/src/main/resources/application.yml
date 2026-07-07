@@ -66,10 +66,31 @@ app:
   main-backend-url: ${APP_MAIN_BACKEND_URL:http://localhost:8080}
   rate-limit:
     enabled: ${APP_RATE_LIMIT_ENABLED:true}
+  email:
+    enabled: ${EMAIL_ENABLED:true}
+  frontend-url: ${APP_FRONTEND_URL:http://localhost:3000}
 
 analysis:
   api:
     url: ${ANALYSIS_API_URL:http://10.42.0.1:8000}
+
+# Microsoft Graph API configuration (shared credentials with app-backend)
+microsoft:
+  graph:
+    tenant-id: ${MICROSOFT_TENANT_ID:}
+    client-id: ${MICROSOFT_CLIENT_ID:}
+    client-secret: ${MICROSOFT_CLIENT_SECRET:}
+    from-email: ${MICROSOFT_FROM_EMAIL:no-reply@rensights.com}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      microsoft-graph:
+        sliding-window-size: 5
+        failure-rate-threshold: 60
+        wait-duration-in-open-state: 60s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY:}

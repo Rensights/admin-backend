@@ -56,6 +56,9 @@ public class AdminService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private EmailService emailService;
+
     @Value("${analysis.api.url:http://10.42.0.1:8000}")
     private String analysisApiUrl;
     
@@ -367,15 +370,43 @@ public class AdminService {
     public AnalysisRequestDTO updateAnalysisRequestStatus(UUID requestId, String status) {
         AnalysisRequest request = analysisRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Analysis request not found"));
-        
+
         try {
+            AnalysisRequest.AnalysisRequestStatus previousStatus = request.getStatus();
             AnalysisRequest.AnalysisRequestStatus newStatus = AnalysisRequest.AnalysisRequestStatus.valueOf(status.toUpperCase());
             request.setStatus(newStatus);
             request = analysisRequestRepository.save(request);
             logger.info("Admin updated analysis request status: {} -> {}", requestId, status);
+
+            if (newStatus == AnalysisRequest.AnalysisRequestStatus.COMPLETED
+                    && previousStatus != AnalysisRequest.AnalysisRequestStatus.COMPLETED) {
+                notifyReportReady(request);
+            }
+
             return toAnalysisRequestDTO(request);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid status: " + status);
+        }
+    }
+
+    /**
+     * Send the requester a "your report is ready" email. Best-effort: failures are
+     * logged, not propagated, so a broken email integration can't block the admin
+     * from completing the status update.
+     */
+    private void notifyReportReady(AnalysisRequest request) {
+        try {
+            String toEmail = request.getEmail() != null && !request.getEmail().isBlank()
+                    ? request.getEmail()
+                    : (request.getUser() != null ? request.getUser().getEmail() : null);
+
+            String propertyLabel = request.getBuildingName() != null && !request.getBuildingName().isBlank()
+                    ? request.getBuildingName()
+                    : request.getArea();
+
+            emailService.sendReportReadyEmail(toEmail, propertyLabel, request.getId().toString());
+        } catch (Exception e) {
+            logger.error("Failed to send report-ready notification for request {}: {}", request.getId(), e.getMessage(), e);
         }
     }
 

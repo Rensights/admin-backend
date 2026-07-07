@@ -1,0 +1,157 @@
+package com.rensights.admin.service;
+
+import com.microsoft.graph.models.Message;
+import com.microsoft.graph.models.ItemBody;
+import com.microsoft.graph.models.BodyType;
+import com.microsoft.graph.models.Recipient;
+import com.microsoft.graph.models.EmailAddress;
+import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.authentication.IAuthenticationProvider;
+import com.azure.identity.ClientSecretCredential;
+import com.azure.identity.ClientSecretCredentialBuilder;
+import com.azure.core.credential.TokenRequestContext;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * Mirrors com.rensights.service.MicrosoftGraphEmailService in app-backend.
+ * Duplicated here (rather than shared) to match this codebase's existing
+ * per-service model/service duplication pattern between app-backend and
+ * admin-backend, and so admin-backend can send email without depending on
+ * app-backend being reachable.
+ */
+@Service
+public class MicrosoftGraphEmailService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MicrosoftGraphEmailService.class);
+
+    @Value("${microsoft.graph.tenant-id:}")
+    private String tenantId;
+
+    @Value("${microsoft.graph.client-id:}")
+    private String clientId;
+
+    @Value("${microsoft.graph.client-secret:}")
+    private String clientSecret;
+
+    @Value("${microsoft.graph.from-email:no-reply@rensights.com}")
+    private String fromEmail;
+
+    @Value("${app.email.enabled:true}")
+    private boolean emailEnabled;
+
+    private GraphServiceClient<?> graphClient;
+
+    private GraphServiceClient<?> getGraphClient() {
+        if (graphClient == null) {
+            try {
+                ClientSecretCredential credential = new ClientSecretCredentialBuilder()
+                    .tenantId(tenantId)
+                    .clientId(clientId)
+                    .clientSecret(clientSecret)
+                    .build();
+
+                IAuthenticationProvider authProvider = new IAuthenticationProvider() {
+                    @Override
+                    public CompletableFuture<String> getAuthorizationTokenAsync(URL requestUrl) {
+                        try {
+                            TokenRequestContext tokenRequestContext = new TokenRequestContext()
+                                .addScopes("https://graph.microsoft.com/.default");
+                            String accessToken = credential.getToken(tokenRequestContext).block().getToken();
+                            return CompletableFuture.completedFuture(accessToken);
+                        } catch (Exception e) {
+                            logger.error("Failed to get access token", e);
+                            return CompletableFuture.failedFuture(e);
+                        }
+                    }
+                };
+
+                graphClient = GraphServiceClient.builder()
+                    .authenticationProvider(authProvider)
+                    .buildClient();
+
+                logger.info("Microsoft Graph client initialized successfully");
+            } catch (Exception e) {
+                logger.error("Failed to initialize Microsoft Graph client", e);
+                throw new RuntimeException("Failed to initialize Microsoft Graph client: " + e.getMessage(), e);
+            }
+        }
+        return graphClient;
+    }
+
+    /**
+     * Send email using Microsoft Graph API.
+     * Protected by a circuit breaker: if Microsoft Graph is repeatedly unavailable
+     * the breaker opens and failures are logged rather than propagated, since email
+     * is non-critical for this flow.
+     */
+    @CircuitBreaker(name = "microsoft-graph", fallbackMethod = "sendEmailFallback")
+    public void sendEmail(String toEmail, String subject, String body) {
+        if (!emailEnabled) {
+            logger.warn("Email is disabled. Email to {}: [REDACTED]", toEmail);
+            return;
+        }
+
+        if (tenantId == null || tenantId.isEmpty() ||
+            clientId == null || clientId.isEmpty() ||
+            clientSecret == null || clientSecret.isEmpty()) {
+            logger.error("Microsoft Graph credentials are not configured! Tenant: {}, Client ID: {}, Secret: {}",
+                        tenantId != null && !tenantId.isEmpty() ? "SET" : "MISSING",
+                        clientId != null && !clientId.isEmpty() ? "SET" : "MISSING",
+                        clientSecret != null && !clientSecret.isEmpty() ? "SET" : "MISSING");
+            throw new RuntimeException("Microsoft Graph credentials are not configured. Please set MICROSOFT_TENANT_ID, MICROSOFT_CLIENT_ID, and MICROSOFT_CLIENT_SECRET environment variables.");
+        }
+
+        try {
+            GraphServiceClient<?> client = getGraphClient();
+
+            Message message = new Message();
+            message.subject = subject;
+
+            ItemBody itemBody = new ItemBody();
+            itemBody.contentType = BodyType.TEXT;
+            itemBody.content = body;
+            message.body = itemBody;
+
+            List<Recipient> toRecipients = new LinkedList<>();
+            Recipient recipient = new Recipient();
+            EmailAddress emailAddress = new EmailAddress();
+            emailAddress.address = toEmail;
+            recipient.emailAddress = emailAddress;
+            toRecipients.add(recipient);
+            message.toRecipients = toRecipients;
+
+            String userPrincipalName = fromEmail;
+            if (!userPrincipalName.contains("@")) {
+                userPrincipalName = fromEmail + "@rensights.com";
+            }
+
+            logger.info("Sending email via Microsoft Graph from {} to {}", fromEmail, toEmail);
+
+            client.users(userPrincipalName)
+                .sendMail(com.microsoft.graph.models.UserSendMailParameterSet.newBuilder()
+                    .withMessage(message)
+                    .build())
+                .buildRequest()
+                .post();
+
+            logger.info("Email sent successfully via Microsoft Graph to: {}", toEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send email via Microsoft Graph to: {}", toEmail, e);
+            throw new RuntimeException("Failed to send email via Microsoft Graph: " + e.getMessage(), e);
+        }
+    }
+
+    private void sendEmailFallback(String toEmail, String subject, String body, Exception ex) {
+        logger.error("Microsoft Graph circuit breaker open - email to {} with subject '{}' could not be sent: {}",
+                toEmail, subject, ex.getMessage());
+    }
+}
