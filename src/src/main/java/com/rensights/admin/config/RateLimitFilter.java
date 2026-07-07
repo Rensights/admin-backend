@@ -63,9 +63,18 @@ public class RateLimitFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        
-        String clientIp = getClientIpAddress(request);
+
         String path = request.getRequestURI();
+
+        // Skip rate limiting for actuator health checks — these come from the
+        // kubelet's liveness/readiness probes, not attacker-facing traffic, and
+        // throttling them makes the pod flap (probe failures -> restarts).
+        if (path.startsWith("/actuator/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String clientIp = getClientIpAddress(request);
         
         // Apply stricter rate limiting to authentication endpoints
         if (path.startsWith("/api/admin/auth/")) {

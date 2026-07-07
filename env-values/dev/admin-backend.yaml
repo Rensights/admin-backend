@@ -64,6 +64,9 @@ extraEnv:
   # This dev ingress is HTTP-only (no TLS) — a Secure cookie would never be sent
   # back by the browser, breaking auth on every request after login.
   JWT_COOKIE_SECURE: "false"
+  # Report-ready emails link to the user-facing app-frontend (rensights.com),
+  # not this admin service — matches app-backend's own dev config convention.
+  APP_FRONTEND_URL: "https://rensights.com"
 
 reports:
   storage:

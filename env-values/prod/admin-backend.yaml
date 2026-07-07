@@ -21,3 +21,4 @@ imagePullSecrets:
 
 extraEnv:
   APP_RATE_LIMIT_ENABLED: "true"
+  APP_FRONTEND_URL: "https://rensights.com"
