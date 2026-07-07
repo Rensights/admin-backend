@@ -61,6 +61,9 @@ extraEnv:
   APP_MAIN_BACKEND_URL: "http://dev-api.72.62.40.154.nip.io:31416"
   APP_RATE_LIMIT_ENABLED: "true"
   REPORTS_STORAGE_PATH: "/data/reports"
+  # This dev ingress is HTTP-only (no TLS) — a Secure cookie would never be sent
+  # back by the browser, breaking auth on every request after login.
+  JWT_COOKIE_SECURE: "false"
 
 reports:
   storage:
