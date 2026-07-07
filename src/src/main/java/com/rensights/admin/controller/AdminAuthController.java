@@ -51,19 +51,6 @@ public class AdminAuthController {
         return ResponseEntity.ok(new SuccessResponse("Logged out successfully"));
     }
 
-    @PostMapping("/init-admin")
-    public ResponseEntity<?> initAdmin() {
-        logger.info("Admin init requested");
-        try {
-            adminAuthService.initializeDefaultAdmin();
-            logger.info("Admin init completed");
-            return ResponseEntity.ok(new SuccessResponse("Default admin user created successfully"));
-        } catch (Exception e) {
-            logger.error("Failed to initialize admin: {}", e.getMessage());
-            return ResponseEntity.status(500).body(new ErrorResponse(e.getMessage()));
-        }
-    }
-
     @lombok.Data
     private static class LoginRequest {
         private String email;
