@@ -39,4 +39,22 @@ public class ArticleImageStorageService {
 
         return filename;
     }
+
+    /**
+     * Deletes a previously uploaded image by filename. Silently ignores
+     * missing files - cleanup is best-effort and shouldn't block article
+     * deletion if the file is already gone.
+     */
+    public void deleteImage(String filename) {
+        if (filename == null || filename.isBlank()
+                || filename.contains("/") || filename.contains("\\") || filename.contains("..")) {
+            return;
+        }
+        try {
+            Path path = Paths.get(storagePath, "article-images", filename);
+            Files.deleteIfExists(path);
+        } catch (IOException ignored) {
+            // Best-effort cleanup - an orphaned file is not worth failing the delete over.
+        }
+    }
 }

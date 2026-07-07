@@ -10,9 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,8 +25,13 @@ public class ArticleService {
 
     public static final String ARTICLES_ENABLED_KEY = "articles.enabled";
 
+    // Matches the filename out of a self-hosted article image URL, e.g.
+    // http://.../api/articles/images/3fa2b1c4-....jpg -> 3fa2b1c4-....jpg
+    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile("/api/articles/images/([A-Za-z0-9._-]+)");
+
     private final ArticleRepository articleRepository;
     private final AppSettingRepository appSettingRepository;
+    private final ArticleImageStorageService articleImageStorageService;
 
     @Transactional(readOnly = true)
     public List<ArticleDTO> listPublic() {
@@ -98,7 +107,26 @@ public class ArticleService {
 
     @Transactional
     public void delete(UUID id) {
-        articleRepository.deleteById(id);
+        Article article = articleRepository.findById(id).orElse(null);
+        if (article == null) {
+            return;
+        }
+        Set<String> imageFilenames = extractImageFilenames(article);
+        articleRepository.delete(article);
+        for (String filename : imageFilenames) {
+            articleImageStorageService.deleteImage(filename);
+        }
+    }
+
+    private Set<String> extractImageFilenames(Article article) {
+        Set<String> filenames = new HashSet<>();
+        String combined = (article.getCoverImage() != null ? article.getCoverImage() : "")
+            + " " + (article.getContent() != null ? article.getContent() : "");
+        Matcher matcher = IMAGE_URL_PATTERN.matcher(combined);
+        while (matcher.find()) {
+            filenames.add(matcher.group(1));
+        }
+        return filenames;
     }
 
     @Transactional
