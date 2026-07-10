@@ -89,6 +89,8 @@ secrets:
   jwtSecret: jwt-secret
   stripeSecrets: stripe-secrets
   microsoftGraphSecrets: microsoft-graph-credentials
+  # Shared, deduplicated cross-app values (STRIPE_PUBLISHABLE_KEY). Managed in Portainer.
+  sharedConfig: dev-shared-config
 
 # Database configuration (primary admin DB)
 database:

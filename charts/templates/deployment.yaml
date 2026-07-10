@@ -103,8 +103,8 @@ spec:
             - name: STRIPE_PUBLISHABLE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.stripeSecrets }}
-                  key: stripe-publishable-key
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: STRIPE_PUBLISHABLE_KEY
             - name: MICROSOFT_TENANT_ID
               valueFrom:
                 secretKeyRef:
