@@ -59,11 +59,18 @@ spec:
               exec java -jar app.jar
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: {{ .Values.extraEnv.SPRING_PROFILES_ACTIVE | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: SPRING_PROFILES_ACTIVE
+            # SERVER_PORT stays chart-derived so it always matches containerPort/probes.
             - name: SERVER_PORT
-              value: {{ .Values.extraEnv.SERVER_PORT | quote }}
+              value: {{ .Values.service.port | quote }}
             - name: CORS_ORIGINS
-              value: {{ .Values.extraEnv.CORS_ORIGINS | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: ADMIN_CORS_ORIGINS
             # Primary admin database
             - name: DATABASE_URL
               value: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}"
@@ -121,17 +128,28 @@ spec:
                   name: {{ .Values.secrets.sharedConfig }}
                   key: MICROSOFT_CLIENT_SECRET
             - name: APP_MAIN_BACKEND_URL
-              value: {{ .Values.extraEnv.APP_MAIN_BACKEND_URL | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: ADMIN_APP_MAIN_BACKEND_URL
+            - name: APP_RATE_LIMIT_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: ADMIN_RATE_LIMIT_ENABLED
+            - name: JWT_COOKIE_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: ADMIN_JWT_COOKIE_SECURE
+            - name: APP_FRONTEND_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: APP_FRONTEND_URL
+            # REPORTS_STORAGE_PATH stays chart-derived (matches the PVC mount path).
             - name: REPORTS_STORAGE_PATH
               value: {{ .Values.reports.storage.path | quote }}
-            {{- if .Values.extraEnv }}
-            {{- range $key, $value := .Values.extraEnv }}
-            {{- if and $value (not (eq $key "SPRING_PROFILES_ACTIVE")) (not (eq $key "SERVER_PORT")) (not (eq $key "CORS_ORIGINS")) (not (eq $key "APP_MAIN_BACKEND_URL")) (not (eq $key "REPORTS_STORAGE_PATH")) }}
-            - name: {{ $key }}
-              value: {{ $value | quote }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
           {{- if .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
