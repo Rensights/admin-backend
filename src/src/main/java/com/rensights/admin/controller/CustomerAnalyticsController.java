@@ -13,8 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 import java.util.List;
 import java.util.Map;
@@ -47,6 +51,41 @@ public class CustomerAnalyticsController {
             return ResponseEntity.ok(trend);
         } catch (Exception e) {
             logger.error("Error fetching DAU trend: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/trend/monthly-active")
+    public ResponseEntity<?> getMonthlyActiveTrend(@RequestParam(defaultValue = "12") int months) {
+        try {
+            return ResponseEntity.ok(customerAnalyticsService.getMonthlyActiveTrend(months));
+        } catch (Exception e) {
+            logger.error("Error fetching MAU trend: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/trend/customer-growth")
+    public ResponseEntity<?> getCustomerGrowthTrend(@RequestParam(defaultValue = "12") int months) {
+        try {
+            return ResponseEntity.ok(customerAnalyticsService.getCustomerGrowthTrend(months));
+        } catch (Exception e) {
+            logger.error("Error fetching customer growth trend: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/customers/export")
+    public ResponseEntity<?> exportCustomerLoginStats() {
+        try {
+            String csv = customerAnalyticsService.buildCustomerLoginStatsCsv();
+            String filename = "customer-login-stats-" + LocalDate.now() + ".csv";
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csv);
+        } catch (Exception e) {
+            logger.error("Error exporting customer login stats: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }

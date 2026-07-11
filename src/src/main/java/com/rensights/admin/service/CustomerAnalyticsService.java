@@ -2,10 +2,12 @@ package com.rensights.admin.service;
 
 import com.rensights.admin.dto.ActivityTimelineItemDTO;
 import com.rensights.admin.dto.CustomerAnalyticsSummaryDTO;
+import com.rensights.admin.dto.CustomerGrowthPointDTO;
 import com.rensights.admin.dto.CustomerLoginStatDTO;
 import com.rensights.admin.dto.DailyActiveUsersPointDTO;
 import com.rensights.admin.dto.EventTypeStatDTO;
 import com.rensights.admin.dto.LoginEventDTO;
+import com.rensights.admin.dto.MonthlyActiveUsersPointDTO;
 import com.rensights.admin.dto.PageViewStatDTO;
 import com.rensights.admin.dto.UserLoginSummaryDTO;
 import com.rensights.admin.model.ActivityEvent;
@@ -23,7 +25,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -118,6 +122,94 @@ public class CustomerAnalyticsService {
         return loginEventRepository.findDailyActiveUserCounts(since).stream()
             .map(row -> new DailyActiveUsersPointDTO(row.getDay().toLocalDate().toString(), row.getActiveUsers()))
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Distinct active users per calendar month over the last {@code months} months,
+     * gap-filled with zeros so the chart is continuous.
+     */
+    @Transactional(readOnly = true)
+    public List<MonthlyActiveUsersPointDTO> getMonthlyActiveTrend(int months) {
+        LocalDateTime since = firstOfMonthWindow(months);
+        Map<String, Long> byMonth = loginEventRepository.findMonthlyActiveUserCounts(since).stream()
+            .collect(Collectors.toMap(
+                LoginEventRepository.MonthlyActiveCount::getMonth,
+                LoginEventRepository.MonthlyActiveCount::getActiveUsers));
+
+        List<MonthlyActiveUsersPointDTO> result = new ArrayList<>();
+        for (YearMonth ym = YearMonth.from(since); !ym.isAfter(YearMonth.now()); ym = ym.plusMonths(1)) {
+            String key = ym.toString(); // "YYYY-MM"
+            result.add(new MonthlyActiveUsersPointDTO(key, byMonth.getOrDefault(key, 0L)));
+        }
+        return result;
+    }
+
+    /**
+     * New customers per calendar month plus the running all-time total (cumulative
+     * seeded with everyone who signed up before the window). Gap-filled with zeros.
+     */
+    @Transactional(readOnly = true)
+    public List<CustomerGrowthPointDTO> getCustomerGrowthTrend(int months) {
+        LocalDateTime since = firstOfMonthWindow(months);
+        Map<String, Long> newByMonth = userRepository.findMonthlyNewUserCounts(since).stream()
+            .collect(Collectors.toMap(
+                UserRepository.MonthlyNewCount::getMonth,
+                UserRepository.MonthlyNewCount::getNewCustomers));
+
+        long cumulative = userRepository.countByCreatedAtBefore(since);
+        List<CustomerGrowthPointDTO> result = new ArrayList<>();
+        for (YearMonth ym = YearMonth.from(since); !ym.isAfter(YearMonth.now()); ym = ym.plusMonths(1)) {
+            long added = newByMonth.getOrDefault(ym.toString(), 0L);
+            cumulative += added;
+            result.add(new CustomerGrowthPointDTO(ym.toString(), added, cumulative));
+        }
+        return result;
+    }
+
+    /** Full per-customer login stats as CSV (all users, unpaginated) for aggregate analysis. */
+    @Transactional(readOnly = true)
+    public String buildCustomerLoginStatsCsv() {
+        List<User> users = userRepository.findAll(Sort.by("createdAt").descending());
+        List<UUID> ids = users.stream().map(User::getId).collect(Collectors.toList());
+        Map<UUID, LoginEventRepository.UserLoginStat> statsByUser = ids.isEmpty()
+            ? Map.of()
+            : loginEventRepository.findLoginStatsForUsers(ids).stream()
+                .collect(Collectors.toMap(LoginEventRepository.UserLoginStat::getUserId, s -> s));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("userId,email,firstName,lastName,tier,createdAt,loginCount,lastLoginAt\n");
+        for (User u : users) {
+            LoginEventRepository.UserLoginStat stat = statsByUser.get(u.getId());
+            long loginCount = stat != null ? stat.getLoginCount() : 0L;
+            String lastLogin = stat != null && stat.getLastLoginAt() != null
+                ? stat.getLastLoginAt().toLocalDateTime().toString() : "";
+            sb.append(csv(u.getId().toString())).append(',')
+              .append(csv(u.getEmail())).append(',')
+              .append(csv(u.getFirstName())).append(',')
+              .append(csv(u.getLastName())).append(',')
+              .append(csv(u.getUserTier() != null ? u.getUserTier().name() : "")).append(',')
+              .append(csv(u.getCreatedAt() != null ? u.getCreatedAt().toString() : "")).append(',')
+              .append(loginCount).append(',')
+              .append(csv(lastLogin)).append('\n');
+        }
+        return sb.toString();
+    }
+
+    private static LocalDateTime firstOfMonthWindow(int months) {
+        int span = Math.max(1, months);
+        return LocalDate.now().withDayOfMonth(1).minusMonths(span - 1L).atStartOfDay();
+    }
+
+    /** Minimal RFC-4180 CSV field escaping. */
+    private static String csv(String v) {
+        if (v == null) {
+            return "";
+        }
+        String s = v.replace("\"", "\"\"");
+        if (s.contains(",") || s.contains("\"") || s.contains("\n") || s.contains("\r")) {
+            return "\"" + s + "\"";
+        }
+        return s;
     }
 
     @Transactional(readOnly = true)

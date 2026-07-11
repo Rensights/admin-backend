@@ -31,12 +31,24 @@ public interface LoginEventRepository extends JpaRepository<LoginEvent, UUID> {
         + "GROUP BY CAST(logged_in_at AS DATE) ORDER BY day", nativeQuery = true)
     List<DailyActiveCount> findDailyActiveUserCounts(@Param("since") LocalDateTime since);
 
+    @Query(value = "SELECT TO_CHAR(DATE_TRUNC('month', logged_in_at), 'YYYY-MM') AS month, "
+        + "COUNT(DISTINCT user_id) AS activeUsers "
+        + "FROM login_events WHERE logged_in_at >= :since "
+        + "GROUP BY DATE_TRUNC('month', logged_in_at) "
+        + "ORDER BY DATE_TRUNC('month', logged_in_at)", nativeQuery = true)
+    List<MonthlyActiveCount> findMonthlyActiveUserCounts(@Param("since") LocalDateTime since);
+
     @Query(value = "SELECT user_id AS userId, COUNT(*) AS loginCount, MAX(logged_in_at) AS lastLoginAt "
         + "FROM login_events WHERE user_id IN :userIds GROUP BY user_id", nativeQuery = true)
     List<UserLoginStat> findLoginStatsForUsers(@Param("userIds") Collection<UUID> userIds);
 
     interface DailyActiveCount {
         java.sql.Date getDay();
+        Long getActiveUsers();
+    }
+
+    interface MonthlyActiveCount {
+        String getMonth();
         Long getActiveUsers();
     }
 
