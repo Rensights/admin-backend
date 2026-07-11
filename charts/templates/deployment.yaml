@@ -70,36 +70,36 @@ spec:
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
-                  key: postgres-username
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: POSTGRES_USERNAME
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
-                  key: postgres-password
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: POSTGRES_PASSWORD
             # Legacy admin-prefixed environment variables for compatibility
             - name: ADMIN_DATABASE_URL
               value: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}"
             - name: ADMIN_DATABASE_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
-                  key: postgres-username
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: POSTGRES_USERNAME
             - name: ADMIN_DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.dbCredentials }}
-                  key: postgres-password
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: POSTGRES_PASSWORD
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.jwtSecret }}
-                  key: jwt-secret
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: JWT_SECRET
             - name: STRIPE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.stripeSecrets }}
-                  key: stripe-secret-key
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: STRIPE_SECRET_KEY
             - name: STRIPE_PUBLISHABLE_KEY
               valueFrom:
                 secretKeyRef:
@@ -108,18 +108,18 @@ spec:
             - name: MICROSOFT_TENANT_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.microsoftGraphSecrets }}
-                  key: tenant-id
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: MICROSOFT_TENANT_ID
             - name: MICROSOFT_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.microsoftGraphSecrets }}
-                  key: client-id
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: MICROSOFT_CLIENT_ID
             - name: MICROSOFT_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secrets.microsoftGraphSecrets }}
-                  key: client-secret
+                  name: {{ .Values.secrets.sharedConfig }}
+                  key: MICROSOFT_CLIENT_SECRET
             - name: APP_MAIN_BACKEND_URL
               value: {{ .Values.extraEnv.APP_MAIN_BACKEND_URL | quote }}
             - name: REPORTS_STORAGE_PATH

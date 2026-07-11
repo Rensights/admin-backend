@@ -49,10 +49,8 @@ ingress:
     konghq.com/read-timeout: "60000"
     konghq.com/write-timeout: "60000"
 
-secrets:
-  dbCredentials: admin-db-credentials
-  jwtSecret: jwt-secret
-  stripeSecrets: stripe-secrets
+# All app config comes from the single Portainer-managed `dev-shared-config`
+# secret (see chart default secrets.sharedConfig).
 
 extraEnv:
   SPRING_PROFILES_ACTIVE: "dev"

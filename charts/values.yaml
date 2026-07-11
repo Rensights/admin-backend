@@ -85,11 +85,8 @@ reports:
     existingClaim: ""
 
 secrets:
-  dbCredentials: admin-db-credentials
-  jwtSecret: jwt-secret
-  stripeSecrets: stripe-secrets
-  microsoftGraphSecrets: microsoft-graph-credentials
-  # Shared, deduplicated cross-app values (STRIPE_PUBLISHABLE_KEY). Managed in Portainer.
+  # Single secret holding ALL app config for every app. Managed in Portainer.
+  # Keys: POSTGRES_*, JWT_SECRET, STRIPE_*, MICROSOFT_*, GOOGLE_CLIENT_ID, *_API_URL.
   sharedConfig: dev-shared-config
 
 # Database configuration (primary admin DB)
