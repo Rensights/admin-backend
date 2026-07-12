@@ -195,6 +195,68 @@ public class CustomerAnalyticsService {
         return sb.toString();
     }
 
+    /**
+     * One flat CSV of EVERYTHING: every login and every activity event across all
+     * customers, one row per event, with the owning customer's details on each row
+     * so it's clear who it belongs to. Rows are grouped by customer email then time.
+     */
+    @Transactional(readOnly = true)
+    public String buildFullExportCsv() {
+        Map<UUID, User> usersById = userRepository.findAll().stream()
+            .collect(Collectors.toMap(User::getId, u -> u, (a, b) -> a));
+
+        List<String[]> rows = new ArrayList<>();
+
+        for (LoginEvent e : loginEventRepository.findAll()) {
+            User u = usersById.get(e.getUserId());
+            rows.add(eventRow(u, e.getUserId(), "LOGIN", "LOGIN",
+                e.getLoggedInAt(), e.getIpAddress(), "", ""));
+        }
+        for (ActivityEvent e : activityEventRepository.findAll()) {
+            User u = usersById.get(e.getUserId());
+            rows.add(eventRow(u, e.getUserId(), "ACTIVITY",
+                e.getEventType() != null ? e.getEventType() : "",
+                e.getOccurredAt(), "", e.getPagePath(), e.getMetadata()));
+        }
+
+        // Group by customer (email), then chronological within each customer.
+        rows.sort(Comparator
+            .comparing((String[] r) -> r[1])
+            .thenComparing(r -> r[8]));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("userId,email,firstName,lastName,tier,userCreatedAt,")
+          .append("eventCategory,eventType,occurredAt,ipAddress,pagePath,metadata\n");
+        for (String[] r : rows) {
+            for (int i = 0; i < r.length; i++) {
+                if (i > 0) {
+                    sb.append(',');
+                }
+                sb.append(csv(r[i]));
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
+    private static String[] eventRow(User u, UUID userId, String category, String type,
+                                     LocalDateTime occurredAt, String ip, String pagePath, String metadata) {
+        return new String[] {
+            userId != null ? userId.toString() : "",
+            u != null && u.getEmail() != null ? u.getEmail() : "",
+            u != null && u.getFirstName() != null ? u.getFirstName() : "",
+            u != null && u.getLastName() != null ? u.getLastName() : "",
+            u != null && u.getUserTier() != null ? u.getUserTier().name() : "",
+            u != null && u.getCreatedAt() != null ? u.getCreatedAt().toString() : "",
+            category,
+            type,
+            occurredAt != null ? occurredAt.toString() : "",
+            ip != null ? ip : "",
+            pagePath != null ? pagePath : "",
+            metadata != null ? metadata : "",
+        };
+    }
+
     private static LocalDateTime firstOfMonthWindow(int months) {
         int span = Math.max(1, months);
         return LocalDate.now().withDayOfMonth(1).minusMonths(span - 1L).atStartOfDay();

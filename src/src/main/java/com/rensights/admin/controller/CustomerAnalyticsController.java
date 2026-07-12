@@ -90,6 +90,21 @@ public class CustomerAnalyticsController {
         }
     }
 
+    @GetMapping("/customers/export-all")
+    public ResponseEntity<?> exportEverything() {
+        try {
+            String csv = customerAnalyticsService.buildFullExportCsv();
+            String filename = "customer-analytics-full-export-" + LocalDate.now() + ".csv";
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csv);
+        } catch (Exception e) {
+            logger.error("Error exporting full customer analytics: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/customers")
     public ResponseEntity<?> getCustomerLoginStats(
             @RequestParam(defaultValue = "0") int page,
