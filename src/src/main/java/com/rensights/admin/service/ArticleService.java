@@ -87,8 +87,8 @@ public class ArticleService {
         Article article = Article.builder()
             .title(request.getTitle())
             .slug(request.getSlug())
-            .excerpt(request.getExcerpt())
-            .content(persistContentImages(request.getContent()))
+            .excerpt(normalizeSpaces(request.getExcerpt()))
+            .content(persistContentImages(normalizeSpaces(request.getContent())))
             .coverImage(persistCoverImage(request.getCoverImage()))
             .publishedAt(request.getPublishedAt())
             .isActive(Optional.ofNullable(request.getIsActive()).orElse(true))
@@ -104,8 +104,8 @@ public class ArticleService {
 
         article.setTitle(request.getTitle());
         article.setSlug(request.getSlug());
-        article.setExcerpt(request.getExcerpt());
-        article.setContent(persistContentImages(request.getContent()));
+        article.setExcerpt(normalizeSpaces(request.getExcerpt()));
+        article.setContent(persistContentImages(normalizeSpaces(request.getContent())));
         article.setCoverImage(persistCoverImage(request.getCoverImage()));
         article.setPublishedAt(request.getPublishedAt());
         if (request.getIsActive() != null) {
@@ -127,6 +127,19 @@ public class ArticleService {
         for (String filename : imageFilenames) {
             articleImageStorageService.deleteImage(filename);
         }
+    }
+
+    /**
+     * Replaces non-breaking spaces (both the U+00A0 character and the &nbsp;
+     * HTML entity) with regular spaces. Pasted rich text uses NBSP between every
+     * word, which stops the browser wrapping lines and makes the article overflow
+     * the mobile viewport; normalising on save keeps the stored content clean.
+     */
+    private String normalizeSpaces(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.replace('\u00A0', ' ').replace("&nbsp;", " ");
     }
 
     /**
