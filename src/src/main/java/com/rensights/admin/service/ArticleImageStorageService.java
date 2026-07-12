@@ -9,7 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Base64;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Stores article images (cover + inline content images) as files on the shared
@@ -19,6 +22,11 @@ import java.util.UUID;
  */
 @Service
 public class ArticleImageStorageService {
+
+    // Matches a base64 image data URI, e.g. "data:image/png;base64,iVBOR...".
+    // Group 1 = mime subtype (png/jpeg/...), group 2 = base64 payload.
+    private static final Pattern DATA_URI_PATTERN =
+        Pattern.compile("^data:image/([A-Za-z0-9.+-]+);base64,(.+)$", Pattern.DOTALL);
 
     @Value("${reports.storage.path:/data/reports}")
     private String storagePath;
@@ -38,6 +46,52 @@ public class ArticleImageStorageService {
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
 
         return filename;
+    }
+
+    /**
+     * Persists a base64 image data URI (e.g. "data:image/png;base64,iVBOR...")
+     * as a real file on the shared reports volume and returns the stored
+     * filename, or {@code null} if the input is not a base64 image data URI.
+     *
+     * <p>Used to keep article cover/inline images off the article row: a data
+     * URI submitted with the article is decoded here and replaced with a
+     * "/api/articles/images/{filename}" URL so reads stay small.
+     */
+    public String storeDataUri(String dataUri) throws IOException {
+        if (dataUri == null) {
+            return null;
+        }
+        Matcher matcher = DATA_URI_PATTERN.matcher(dataUri.trim());
+        if (!matcher.matches()) {
+            return null;
+        }
+        byte[] bytes;
+        try {
+            bytes = Base64.getDecoder().decode(matcher.group(2).replaceAll("\\s", ""));
+        } catch (IllegalArgumentException invalidBase64) {
+            return null;
+        }
+        String filename = UUID.randomUUID() + extensionForMime(matcher.group(1));
+
+        Path baseDir = Paths.get(storagePath, "article-images");
+        Files.createDirectories(baseDir);
+        Files.write(baseDir.resolve(filename), bytes);
+
+        return filename;
+    }
+
+    private String extensionForMime(String mimeSubtype) {
+        switch (mimeSubtype.toLowerCase()) {
+            case "png":     return ".png";
+            case "jpeg":
+            case "jpg":     return ".jpg";
+            case "gif":     return ".gif";
+            case "webp":    return ".webp";
+            case "avif":    return ".avif";
+            case "bmp":     return ".bmp";
+            case "svg+xml": return ".svg";
+            default:         return "";
+        }
     }
 
     /**
