@@ -1871,6 +1871,31 @@
   },
   {
     "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.count1",
+    "translationValue": "3"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.count2",
+    "translationValue": "4"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.count3",
+    "translationValue": "3"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.count4",
+    "translationValue": "3"
+  },
+  {
+    "namespace": "weeklyDeals",
+    "translationKey": "weeklyDeals.alert.totalCount",
+    "translationValue": "13"
+  },
+  {
+    "namespace": "weeklyDeals",
     "translationKey": "weeklyDeals.alert.subtitle",
     "translationValue": "Hot deals discovered across Dubai areas this week!"
   },
