@@ -1,5 +1,50 @@
 [
   {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.premiumTitle",
+    "translationValue": "Premium report"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.premiumBody",
+    "translationValue": "Upgrade to unlock this section and download the full report."
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.premiumButton",
+    "translationValue": "Upgrade to unlock"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.processing",
+    "translationValue": "Processing…"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.enterpriseTitle",
+    "translationValue": "Enterprise report"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.enterpriseBody",
+    "translationValue": "Available on request — no payment required. Send us a request and our team will set you up."
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.enterpriseButton",
+    "translationValue": "Request access"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.teaserTitle",
+    "translationValue": "Premium analysis report"
+  },
+  {
+    "namespace": "cityAnalysis",
+    "translationKey": "cityAnalysis.shadow.teaserBody",
+    "translationValue": "Full charts and downloadable PDF available with an upgrade."
+  },
+  {
     "namespace": "about",
     "translationKey": "about.subtitle",
     "translationValue": "We're on a mission to make real estate investing in Dubai accessible, transparent, and data-driven for foreign investors worldwide."
