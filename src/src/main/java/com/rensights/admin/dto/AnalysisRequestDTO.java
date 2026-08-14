@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -41,6 +42,8 @@ public class AnalysisRequestDTO {
     private List<String> filePaths;
     private String analysisId;
     private Object analysisResult;
+    /** The mapped, display-ready view of {@code analysisResult}; null until a result exists. */
+    private Map<String, Object> analysis;
     private String status;
     private String createdAt;
     private String updatedAt;

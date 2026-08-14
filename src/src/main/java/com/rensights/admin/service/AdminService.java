@@ -59,6 +59,9 @@ public class AdminService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private AnalysisResultMapper analysisResultMapper;
+
     @Value("${analysis.api.url:http://10.42.0.1:8000}")
     private String analysisApiUrl;
     
@@ -467,6 +470,10 @@ public class AdminService {
                 .filePaths(request.getFilePaths())
                 .analysisId(request.getAnalysisId())
                 .analysisResult(request.getAnalysisResult())
+                // The same mapped view the user's report renders, so the admin reviews exactly
+                // what gets published. `analysisResult` stays raw for the fields the review
+                // screen shows beyond the report (scores, module diagnostics).
+                .analysis(analysisResultMapper.toReportView(request.getAnalysisResult()))
                 .status(request.getStatus() != null ? request.getStatus().name() : "PENDING")
                 .createdAt(request.getCreatedAt() != null ? request.getCreatedAt().toString() : "")
                 .updatedAt(request.getUpdatedAt() != null ? request.getUpdatedAt().toString() : "")
