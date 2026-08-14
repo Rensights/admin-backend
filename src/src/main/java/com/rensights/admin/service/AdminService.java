@@ -62,6 +62,9 @@ public class AdminService {
     @Autowired
     private AnalysisResultMapper analysisResultMapper;
 
+    @Autowired
+    private AnalysisResultEditor analysisResultEditor;
+
     @Value("${analysis.api.url:http://10.42.0.1:8000}")
     private String analysisApiUrl;
     
@@ -436,6 +439,29 @@ public class AdminService {
         request.setAnalysisResult(response);
         request = analysisRequestRepository.save(request);
         logger.info("Analysis result saved. requestId={}", requestId);
+        return toAnalysisRequestDTO(request);
+    }
+
+    /**
+     * Apply an admin's manual corrections to an already fetched analysis result.
+     *
+     * <p>The submitted map is the mapped, display-ready view (the same shape the DTO's
+     * {@code analysis} field carries); it is written back onto the payload keys the mapper
+     * reads, so the correction shows up identically here and in the user's report.
+     */
+    @Transactional
+    public AnalysisRequestDTO updateAnalysisResult(UUID requestId, Map<String, Object> edits) {
+        AnalysisRequest request = analysisRequestRepository.findById(requestId)
+            .orElseThrow(() -> new RuntimeException("Analysis request not found"));
+
+        JsonNode current = request.getAnalysisResult();
+        if (current == null || current.isNull()) {
+            throw new IllegalStateException("No analysis result to edit - fetch it first");
+        }
+
+        request.setAnalysisResult(analysisResultEditor.applyEdits(current, edits));
+        request = analysisRequestRepository.save(request);
+        logger.info("Analysis result manually edited. requestId={}", requestId);
         return toAnalysisRequestDTO(request);
     }
     

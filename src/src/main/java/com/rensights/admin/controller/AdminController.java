@@ -250,6 +250,23 @@ public class AdminController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
+    /** Manual corrections to a fetched result, submitted as the mapped (camelCase) view. */
+    @PutMapping("/analysis-requests/{requestId}/analysis-result")
+    public ResponseEntity<?> updateAnalysisResult(
+            @PathVariable UUID requestId,
+            @RequestBody Map<String, Object> analysis,
+            Authentication authentication) {
+        try {
+            AnalysisRequestDTO updatedRequest = adminService.updateAnalysisResult(requestId, analysis);
+            return ResponseEntity.ok(updatedRequest);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Error updating analysis result: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
     
     // Deal management endpoints
     @GetMapping("/deals/pending")
