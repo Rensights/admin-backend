@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
+
+import java.util.Map;
 
 @Service
 public class EmailService {
@@ -13,6 +16,9 @@ public class EmailService {
 
     @Autowired(required = false)
     private MicrosoftGraphEmailService graphEmailService;
+
+    @Autowired
+    private EmailTemplateService emailTemplateService;
 
     @Value("${app.email.enabled:true}")
     private boolean emailEnabled;
@@ -39,19 +45,14 @@ public class EmailService {
 
         String reportUrl = frontendUrl + "/analysis-request?id=" + requestId;
         String subject = "Rensights - Your Property Report Is Ready";
-        String body = String.join("\n",
-            "Good news! Your requested property analysis report is ready.",
-            "",
-            "Property: " + (propertyLabel != null && !propertyLabel.isBlank() ? propertyLabel : "Your requested property"),
-            "",
-            "View your full report here:",
-            reportUrl,
-            "",
-            "Thank you for using Rensights.",
-            "",
-            "Best regards,",
-            "Rensights Team"
-        );
+        String propertyName = propertyLabel != null && !propertyLabel.isBlank()
+            ? propertyLabel
+            : "Your requested property";
+        // The property name is user-submitted, so it is escaped before it lands in the markup.
+        String body = emailTemplateService.render("report-ready", Map.of(
+            "PROPERTY_NAME", HtmlUtils.htmlEscape(propertyName),
+            "REPORT_URL", reportUrl
+        ));
 
         if (graphEmailService == null) {
             logger.error("Microsoft Graph API is not configured! Report-ready email cannot be sent.");
@@ -60,7 +61,7 @@ public class EmailService {
         }
 
         try {
-            graphEmailService.sendEmail(toEmail, subject, body);
+            graphEmailService.sendEmail(toEmail, subject, body, true);
             logger.info("Report-ready email sent successfully to: {}", toEmail);
         } catch (Exception e) {
             logger.error("Failed to send report-ready email to: {}", toEmail, e);

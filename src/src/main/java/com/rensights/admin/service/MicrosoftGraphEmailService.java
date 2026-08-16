@@ -95,6 +95,14 @@ public class MicrosoftGraphEmailService {
      */
     @CircuitBreaker(name = "microsoft-graph", fallbackMethod = "sendEmailFallback")
     public void sendEmail(String toEmail, String subject, String body) {
+        sendEmail(toEmail, subject, body, false);
+    }
+
+    /**
+     * Send email using Microsoft Graph API with HTML support.
+     */
+    @CircuitBreaker(name = "microsoft-graph", fallbackMethod = "sendEmailHtmlFallback")
+    public void sendEmail(String toEmail, String subject, String body, boolean isHtml) {
         if (!emailEnabled) {
             logger.warn("Email is disabled. Email to {}: [REDACTED]", toEmail);
             return;
@@ -117,7 +125,7 @@ public class MicrosoftGraphEmailService {
             message.subject = subject;
 
             ItemBody itemBody = new ItemBody();
-            itemBody.contentType = BodyType.TEXT;
+            itemBody.contentType = isHtml ? BodyType.HTML : BodyType.TEXT;
             itemBody.content = body;
             message.body = itemBody;
 
@@ -151,6 +159,11 @@ public class MicrosoftGraphEmailService {
     }
 
     private void sendEmailFallback(String toEmail, String subject, String body, Exception ex) {
+        logger.error("Microsoft Graph circuit breaker open - email to {} with subject '{}' could not be sent: {}",
+                toEmail, subject, ex.getMessage());
+    }
+
+    private void sendEmailHtmlFallback(String toEmail, String subject, String body, boolean isHtml, Exception ex) {
         logger.error("Microsoft Graph circuit breaker open - email to {} with subject '{}' could not be sent: {}",
                 toEmail, subject, ex.getMessage());
     }
