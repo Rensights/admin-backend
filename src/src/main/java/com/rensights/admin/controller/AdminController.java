@@ -96,7 +96,7 @@ public class AdminController {
     public ResponseEntity<?> deleteUser(@PathVariable UUID userId, Authentication authentication) {
         try {
             adminService.deleteUser(userId);
-            return ResponseEntity.ok(Map.of("message", "User deactivated successfully"));
+            return ResponseEntity.ok(Map.of("message", "User account permanently deleted"));
         } catch (Exception e) {
             logger.error("Error deleting user: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));

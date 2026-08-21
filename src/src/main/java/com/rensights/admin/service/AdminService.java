@@ -15,6 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -67,6 +71,12 @@ public class AdminService {
 
     @Value("${analysis.api.url:http://10.42.0.1:8000}")
     private String analysisApiUrl;
+
+    @Value("${app.main-backend-url:http://localhost:8080}")
+    private String mainBackendUrl;
+
+    @Autowired
+    private JwtService jwtService;
     
     /**
      * Get all users with pagination
@@ -123,12 +133,41 @@ public class AdminService {
      * Delete user (soft delete - deactivate)
      */
     @Transactional
+    /**
+     * Permanently erase a user account (GDPR right to erasure).
+     *
+     * <p>Delegated to the main backend rather than done here. That service owns the uploaded
+     * analysis documents on its own filesystem — which this one cannot reach — and holds the
+     * single erasure implementation, so the Stripe cancellation, the file deletion and the
+     * anonymisation all stay in step. This used to only flip {@code isActive}, which left the
+     * data and, worse, the subscription still billing.
+     *
+     * <p>Authenticated with a short-lived admin JWT: both services read the same
+     * {@code JWT_SECRET}, so the main backend can verify it without a separate credential.
+     */
     public void deleteUser(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setIsActive(false);
-        userRepository.save(user);
-        logger.info("Admin deactivated user: {}", userId);
+
+        String url = mainBackendUrl + "/api/internal/admin/users/" + userId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtService.generateToken(userId, user.getEmail()));
+
+        try {
+            new RestTemplate().exchange(url, HttpMethod.DELETE,
+                new HttpEntity<>(headers), String.class);
+            logger.info("Admin erased user account: {}", userId);
+        } catch (RestClientResponseException e) {
+            // Surface what the main backend said - most usefully "billing could not be
+            // cancelled, nothing was deleted", which the admin should retry rather than ignore.
+            logger.error("Main backend refused to delete user {}: {} {}",
+                userId, e.getRawStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Could not delete this account: " + e.getResponseBodyAsString(), e);
+        } catch (Exception e) {
+            logger.error("Could not reach the main backend to delete user {}", userId, e);
+            throw new RuntimeException(
+                "Could not reach the application backend to delete this account.", e);
+        }
     }
     
     /**
