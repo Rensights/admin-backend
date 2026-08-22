@@ -1,7 +1,7 @@
 package com.rensights.admin.service;
 
-import com.rensights.admin.model.Building;
-import com.rensights.admin.repository.BuildingRepository;
+import com.rensights.admin.model.Area;
+import com.rensights.admin.repository.AreaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,24 +16,27 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Imports the building catalogue from a CSV uploaded in the admin app.
+ * Imports the area / district list from a CSV uploaded in the admin app.
  *
  * <p>File handling lives in {@link NameCsvReader} — see it for which shapes are accepted. Only
  * the name is stored; any other column in the file is ignored.
+ *
+ * <p>The name matters more here than for buildings: it is submitted to the analysis module as
+ * the property's community, so it has to match that module's naming (DLD community names).
  *
  * <p>Re-running an import is safe: names already present are skipped case-insensitively, as are
  * duplicates within the file itself.
  */
 @Service
-public class BuildingImportService {
+public class AreaImportService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BuildingImportService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AreaImportService.class);
 
-    private final BuildingRepository buildingRepository;
+    private final AreaRepository areaRepository;
     private final NameCsvReader csvReader;
 
-    public BuildingImportService(BuildingRepository buildingRepository, NameCsvReader csvReader) {
-        this.buildingRepository = buildingRepository;
+    public AreaImportService(AreaRepository areaRepository, NameCsvReader csvReader) {
+        this.areaRepository = areaRepository;
         this.csvReader = csvReader;
     }
 
@@ -49,8 +52,8 @@ public class BuildingImportService {
         List<String> names = csvReader.readNames(file);
 
         if (replaceExisting) {
-            buildingRepository.deleteAllInBatch();
-            logger.info("Building catalogue cleared before import");
+            areaRepository.deleteAllInBatch();
+            logger.info("Area catalogue cleared before import");
         }
 
         Set<String> seen = new HashSet<>();
@@ -67,11 +70,11 @@ public class BuildingImportService {
 
             try {
                 if (!replaceExisting
-                    && buildingRepository.findByNameIgnoringCase(name.toLowerCase(Locale.ROOT)).isPresent()) {
+                    && areaRepository.findByNameIgnoringCase(name.toLowerCase(Locale.ROOT)).isPresent()) {
                     skipped++;
                     continue;
                 }
-                buildingRepository.save(Building.builder().name(name).build());
+                areaRepository.save(Area.builder().name(name).build());
                 created++;
             } catch (Exception e) {
                 skipped++;
@@ -82,7 +85,7 @@ public class BuildingImportService {
             }
         }
 
-        logger.info("Building import finished: {} added, {} skipped", created, skipped);
+        logger.info("Area import finished: {} added, {} skipped", created, skipped);
         return new ImportResult(created, skipped, problems);
     }
 }
