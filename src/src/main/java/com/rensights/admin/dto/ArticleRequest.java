@@ -13,4 +13,6 @@ public class ArticleRequest {
     private String coverImage;
     private LocalDateTime publishedAt;
     private Boolean isActive;
+    /** Category ids to file this article under; null leaves the existing set untouched. */
+    private java.util.List<String> categoryIds;
 }

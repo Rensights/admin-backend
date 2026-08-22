@@ -18,4 +18,5 @@ public class ArticleDTO {
     private LocalDateTime publishedAt;
     @JsonProperty("isActive")
     private boolean isActive;
+    private java.util.List<ArticleCategoryDTO> categories;
 }

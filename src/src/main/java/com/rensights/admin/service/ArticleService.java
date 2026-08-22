@@ -43,6 +43,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final AppSettingRepository appSettingRepository;
     private final ArticleImageStorageService articleImageStorageService;
+    private final com.rensights.admin.repository.ArticleCategoryRepository articleCategoryRepository;
 
     @Transactional(readOnly = true)
     public List<ArticleDTO> listPublic() {
@@ -93,6 +94,7 @@ public class ArticleService {
             .publishedAt(request.getPublishedAt())
             .isActive(Optional.ofNullable(request.getIsActive()).orElse(true))
             .build();
+        applyCategories(article, request.getCategoryIds());
         Article saved = articleRepository.save(article);
         return toDTO(saved);
     }
@@ -111,6 +113,7 @@ public class ArticleService {
         if (request.getIsActive() != null) {
             article.setIsActive(request.getIsActive());
         }
+        applyCategories(article, request.getCategoryIds());
 
         Article saved = articleRepository.save(article);
         return toDTO(saved);
@@ -234,6 +237,52 @@ public class ArticleService {
             .coverImage(article.getCoverImage())
             .publishedAt(article.getPublishedAt())
             .isActive(Boolean.TRUE.equals(article.getIsActive()))
+            .categories(toCategoryDTOs(article))
             .build();
+    }
+
+    /**
+     * Replace the article's categories with the submitted ids.
+     *
+     * <p>A null list means "not part of this request" and leaves the existing set alone; an empty
+     * list clears them. Ids that no longer exist are ignored rather than failing the save - a
+     * category deleted in another tab should not block publishing.
+     */
+    private void applyCategories(Article article, java.util.List<String> categoryIds) {
+        if (categoryIds == null) {
+            return;
+        }
+
+        java.util.Set<com.rensights.admin.model.ArticleCategory> resolved = new java.util.LinkedHashSet<>();
+        for (String id : categoryIds) {
+            try {
+                articleCategoryRepository.findById(java.util.UUID.fromString(id))
+                    .ifPresent(resolved::add);
+            } catch (IllegalArgumentException e) {
+                // Not a UUID - skip it rather than reject the whole article.
+            }
+        }
+
+        if (article.getCategories() == null) {
+            article.setCategories(resolved);
+        } else {
+            article.getCategories().clear();
+            article.getCategories().addAll(resolved);
+        }
+    }
+
+    private java.util.List<com.rensights.admin.dto.ArticleCategoryDTO> toCategoryDTOs(Article article) {
+        if (article.getCategories() == null) {
+            return java.util.List.of();
+        }
+        return article.getCategories().stream()
+            .map(c -> com.rensights.admin.dto.ArticleCategoryDTO.builder()
+                .id(c.getId().toString())
+                .slug(c.getSlug())
+                .label(c.getLabel())
+                .color(c.getColor())
+                .sortOrder(c.getSortOrder())
+                .build())
+            .collect(Collectors.toList());
     }
 }

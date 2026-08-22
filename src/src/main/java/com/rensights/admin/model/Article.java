@@ -7,7 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "articles", uniqueConstraints = {
@@ -39,6 +43,22 @@ public class Article {
 
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
+
+    /**
+     * Categories this article is filed under. Mirrors the mapping in the app backend - both
+     * services read the same join table, so the two definitions have to stay identical.
+     */
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "article_categories",
+        joinColumns = @JoinColumn(name = "article_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    @OrderBy("sortOrder ASC, label ASC")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private Set<ArticleCategory> categories = new LinkedHashSet<>();
 
     @Column(name = "is_active", nullable = false)
     @Builder.Default
