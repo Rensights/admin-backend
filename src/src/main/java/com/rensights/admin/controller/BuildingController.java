@@ -66,6 +66,23 @@ public class BuildingController {
         }
     }
 
+    /** Add a single building by hand, for the one-off that is not worth a CSV. */
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody Map<String, String> request) {
+        String name = request.getOrDefault("name", "").trim();
+        if (name.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Name is required"));
+        }
+
+        if (buildingRepository.findByNameIgnoringCase(name.toLowerCase(Locale.ROOT)).isPresent()) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "\"" + name + "\" is already in the catalogue"));
+        }
+
+        Building saved = buildingRepository.save(Building.builder().name(name).build());
+        return ResponseEntity.ok(saved);
+    }
+
     @DeleteMapping("/{buildingId}")
     public ResponseEntity<?> delete(@PathVariable UUID buildingId) {
         buildingRepository.deleteById(buildingId);

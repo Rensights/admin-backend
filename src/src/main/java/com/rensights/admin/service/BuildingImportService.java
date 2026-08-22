@@ -13,42 +13,37 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * Imports the building catalogue from a CSV uploaded in the admin app.
  *
  * <h2>Accepted shape</h2>
- * A header row is expected and column names are matched loosely, because the file comes from
- * whatever tool produced it: the name column may be called {@code name}, {@code building},
- * {@code building_name} or {@code project}; the rest ({@code area}/{@code community}/
- * {@code district}, {@code city}, {@code developer}) are optional. A file with no recognisable
- * header is read as a single column of names, which is the other common export.
+ * The catalogue holds names and nothing else, so only one column is read. If the first line
+ * looks like a header naming that column ({@code name}, {@code building}, {@code building_name},
+ * {@code project}, {@code tower}) it is skipped and that column is used; otherwise the file is
+ * treated as a bare list of names and the first column is read from line one. Extra columns are
+ * ignored rather than rejected — a file exported with area and developer still imports, those
+ * values are simply dropped.
  *
  * <p>Both comma and semicolon delimiters are handled — Excel writes semicolons in several
  * locales — and quoted fields containing the delimiter are parsed correctly.
  *
  * <h2>Re-running an import</h2>
- * Rows are matched on name + area and updated in place, so importing a corrected file does not
- * duplicate the catalogue. Blank names are skipped rather than failing the whole file: a
- * trailing empty line should not cost the admin the other 4,000 rows.
+ * Names already in the catalogue are skipped, case-insensitively, so importing a file twice does
+ * not duplicate it. Blank lines are skipped rather than failing the file: a trailing empty line
+ * should not cost the admin the other 4,000 rows.
  */
 @Service
 public class BuildingImportService {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildingImportService.class);
 
-    private static final List<String> NAME_HEADERS =
-        List.of("name", "building", "building_name", "buildingname", "project", "project_name", "tower");
-    private static final List<String> AREA_HEADERS =
-        List.of("area", "community", "district", "location", "sub_community");
-    private static final List<String> CITY_HEADERS = List.of("city", "emirate");
-    private static final List<String> DEVELOPER_HEADERS = List.of("developer", "builder");
+    private static final List<String> NAME_HEADERS = List.of(
+        "name", "building", "building_name", "buildingname", "project", "project_name", "tower");
 
     private final BuildingRepository buildingRepository;
 
@@ -57,7 +52,7 @@ public class BuildingImportService {
     }
 
     /** What the import did, for the admin to see rather than a bare "done". */
-    public record ImportResult(int created, int updated, int skipped, List<String> problems) {}
+    public record ImportResult(int created, int skipped, List<String> problems) {}
 
     /**
      * @param replaceExisting when true the catalogue is emptied first — for when the CSV is the
@@ -74,12 +69,12 @@ public class BuildingImportService {
             throw new IllegalArgumentException("The file is empty.");
         }
 
-        Map<String, Integer> columns = mapHeader(rows.get(0));
-        // No recognisable header means the file is a bare list of names, and the first line is
-        // data rather than a header.
-        int firstDataRow = columns.isEmpty() ? 0 : 1;
-        if (columns.isEmpty()) {
-            columns = Map.of("name", 0);
+        int nameColumn = 0;
+        int firstDataRow = 0;
+        int headerColumn = findNameColumn(rows.get(0));
+        if (headerColumn >= 0) {
+            nameColumn = headerColumn;
+            firstDataRow = 1;
         }
 
         if (replaceExisting) {
@@ -87,45 +82,32 @@ public class BuildingImportService {
             logger.info("Building catalogue cleared before import");
         }
 
+        // Tracks names seen in this file too, so a CSV with its own duplicates only lands once.
+        Set<String> seen = new HashSet<>();
         int created = 0;
-        int updated = 0;
         int skipped = 0;
         List<String> problems = new ArrayList<>();
 
         for (int i = firstDataRow; i < rows.size(); i++) {
-            String[] row = rows.get(i);
-            String name = value(row, columns.get("name"));
-
+            String name = value(rows.get(i), nameColumn);
             if (name.isEmpty()) {
                 skipped++;
                 continue;
             }
 
-            String area = value(row, columns.get("area"));
-            String city = value(row, columns.get("city"));
-            String developer = value(row, columns.get("developer"));
+            String key = name.toLowerCase(Locale.ROOT);
+            if (!seen.add(key)) {
+                skipped++;
+                continue;
+            }
 
             try {
-                Optional<Building> existing = replaceExisting
-                    ? Optional.empty()
-                    : buildingRepository.findByNameAndArea(
-                        name.toLowerCase(Locale.ROOT), area.toLowerCase(Locale.ROOT));
-
-                if (existing.isPresent()) {
-                    Building building = existing.get();
-                    building.setCity(city.isEmpty() ? building.getCity() : city);
-                    building.setDeveloper(developer.isEmpty() ? building.getDeveloper() : developer);
-                    buildingRepository.save(building);
-                    updated++;
-                } else {
-                    buildingRepository.save(Building.builder()
-                        .name(name)
-                        .area(area.isEmpty() ? null : area)
-                        .city(city.isEmpty() ? null : city)
-                        .developer(developer.isEmpty() ? null : developer)
-                        .build());
-                    created++;
+                if (!replaceExisting && buildingRepository.findByNameIgnoringCase(key).isPresent()) {
+                    skipped++;
+                    continue;
                 }
+                buildingRepository.save(Building.builder().name(name).build());
+                created++;
             } catch (Exception e) {
                 skipped++;
                 // Cap the report: a badly formed file should not return 4,000 error lines.
@@ -135,9 +117,8 @@ public class BuildingImportService {
             }
         }
 
-        logger.info("Building import finished: {} created, {} updated, {} skipped",
-            created, updated, skipped);
-        return new ImportResult(created, updated, skipped, problems);
+        logger.info("Building import finished: {} added, {} skipped", created, skipped);
+        return new ImportResult(created, skipped, problems);
     }
 
     private List<String[]> readRows(MultipartFile file) throws IOException {
@@ -196,34 +177,21 @@ public class BuildingImportService {
         return fields.toArray(new String[0]);
     }
 
-    /** Column name -> index, for whichever of the known aliases the file happens to use. */
-    private Map<String, Integer> mapHeader(String[] header) {
-        Map<String, Integer> columns = new HashMap<>();
+    /** Index of the name column if the first row is a header, or -1 when it is data already. */
+    private int findNameColumn(String[] header) {
         for (int i = 0; i < header.length; i++) {
             String cell = header[i].trim().toLowerCase(Locale.ROOT).replace(' ', '_');
             if (NAME_HEADERS.contains(cell)) {
-                columns.putIfAbsent("name", i);
-            } else if (AREA_HEADERS.contains(cell)) {
-                columns.putIfAbsent("area", i);
-            } else if (CITY_HEADERS.contains(cell)) {
-                columns.putIfAbsent("city", i);
-            } else if (DEVELOPER_HEADERS.contains(cell)) {
-                columns.putIfAbsent("developer", i);
+                return i;
             }
         }
-        // Without a name column there is nothing to import, whatever else was recognised.
-        return columns.containsKey("name") ? columns : Map.of();
+        return -1;
     }
 
-    private String value(String[] row, Integer index) {
-        if (index == null || index >= row.length || row[index] == null) {
+    private String value(String[] row, int index) {
+        if (index >= row.length || row[index] == null) {
             return "";
         }
         return row[index].trim();
-    }
-
-    /** Exposed for the header-detection unit check in the admin app. */
-    List<String> knownNameHeaders() {
-        return Arrays.asList(NAME_HEADERS.toArray(new String[0]));
     }
 }

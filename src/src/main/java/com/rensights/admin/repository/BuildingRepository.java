@@ -15,16 +15,12 @@ import java.util.UUID;
 public interface BuildingRepository extends JpaRepository<Building, UUID> {
 
     /**
-     * Look up an existing row for an import line, so re-running an import updates rather than
-     * duplicates. Matched case-insensitively on name plus area, because the same tower name can
-     * legitimately appear in two districts.
+     * Existing row for a name, so importing the same file twice updates nothing rather than
+     * duplicating it. Case-insensitive: "Burj Vista" and "BURJ VISTA" are the same building.
      */
-    @Query("SELECT b FROM Building b WHERE LOWER(b.name) = :name "
-        + "AND (LOWER(COALESCE(b.area, '')) = COALESCE(:area, ''))")
-    Optional<Building> findByNameAndArea(@Param("name") String name, @Param("area") String area);
+    @Query("SELECT b FROM Building b WHERE LOWER(b.name) = :name")
+    Optional<Building> findByNameIgnoringCase(@Param("name") String name);
 
-    @Query("SELECT b FROM Building b WHERE :query = '' "
-        + "OR LOWER(b.name) LIKE CONCAT('%', :query, '%') "
-        + "OR LOWER(COALESCE(b.area, '')) LIKE CONCAT('%', :query, '%')")
+    @Query("SELECT b FROM Building b WHERE :query = '' OR LOWER(b.name) LIKE CONCAT('%', :query, '%')")
     Page<Building> search(@Param("query") String query, Pageable pageable);
 }
