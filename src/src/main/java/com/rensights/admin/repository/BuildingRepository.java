@@ -21,6 +21,14 @@ public interface BuildingRepository extends JpaRepository<Building, UUID> {
     @Query("SELECT b FROM Building b WHERE LOWER(b.name) = :name")
     Optional<Building> findByNameIgnoringCase(@Param("name") String name);
 
-    @Query("SELECT b FROM Building b WHERE :query = '' OR LOWER(b.name) LIKE CONCAT('%', :query, '%')")
+    /**
+     * The catalogue, filtered and ordered A-Z.
+     *
+     * <p>Sorted here on LOWER(name) instead of leaving it to the Pageable: Postgres' default
+     * collation puts uppercase first, so an all-caps entry would jump the alphabet.
+     */
+    @Query("SELECT b FROM Building b "
+        + "WHERE :query = '' OR LOWER(b.name) LIKE CONCAT('%', :query, '%') "
+        + "ORDER BY LOWER(b.name) ASC")
     Page<Building> search(@Param("query") String query, Pageable pageable);
 }

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,15 +39,17 @@ public class BuildingController {
                                   @RequestParam(defaultValue = "") String search) {
         Page<Building> buildings = buildingRepository.search(
             search.trim().toLowerCase(Locale.ROOT),
-            PageRequest.of(page, size, Sort.by("name").ascending()));
+            // Ordering lives in the query (case-insensitive); no Sort here.
+            PageRequest.of(page, size));
         return ResponseEntity.ok(buildings);
     }
 
     /**
      * Import a CSV.
      *
-     * @param replaceExisting when true the current catalogue is wiped first; otherwise rows are
-     *                        merged, so re-importing a corrected file updates in place
+     * @param replaceExisting when true the current catalogue is wiped first; otherwise names
+     *                        already present are skipped, so re-importing the same file adds
+     *                        nothing
      */
     @PostMapping("/import")
     public ResponseEntity<?> importCsv(@RequestParam("file") MultipartFile file,

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,7 +39,8 @@ public class AreaController {
                                   @RequestParam(defaultValue = "") String search) {
         Page<Area> areas = areaRepository.search(
             search.trim().toLowerCase(Locale.ROOT),
-            PageRequest.of(page, size, Sort.by("name").ascending()));
+            // Ordering lives in the query (case-insensitive); no Sort here.
+            PageRequest.of(page, size));
         return ResponseEntity.ok(areas);
     }
 

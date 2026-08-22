@@ -18,6 +18,14 @@ public interface AreaRepository extends JpaRepository<Area, UUID> {
     @Query("SELECT a FROM Area a WHERE LOWER(a.name) = :name")
     Optional<Area> findByNameIgnoringCase(@Param("name") String name);
 
-    @Query("SELECT a FROM Area a WHERE :query = '' OR LOWER(a.name) LIKE CONCAT('%', :query, '%')")
+    /**
+     * The catalogue, filtered and ordered A-Z.
+     *
+     * <p>Sorted here on LOWER(name) instead of leaving it to the Pageable: Postgres' default
+     * collation puts uppercase first, so an all-caps entry would jump the alphabet.
+     */
+    @Query("SELECT a FROM Area a "
+        + "WHERE :query = '' OR LOWER(a.name) LIKE CONCAT('%', :query, '%') "
+        + "ORDER BY LOWER(a.name) ASC")
     Page<Area> search(@Param("query") String query, Pageable pageable);
 }
