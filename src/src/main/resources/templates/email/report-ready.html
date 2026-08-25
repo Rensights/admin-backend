@@ -67,7 +67,10 @@
       .sm-w-full  { width:100% !important; }
       .sm-px-24   { padding-left:24px !important; padding-right:24px !important; }
       .sm-h1      { font-size:23px !important; line-height:31px !important; }
-      .sm-btn     { display:block !important; width:100% !important; }
+      /* display:block alone fills the container with the padding INSIDE it.
+         Adding width:100% would add the 34px side padding on top of that,
+         overflowing the viewport by 68px and forcing horizontal scroll. */
+      .sm-btn     { display:block !important; text-align:center !important; padding-left:16px !important; padding-right:16px !important; }
       .sm-prop    { font-size:18px !important; }
     }
 
