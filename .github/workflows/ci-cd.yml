@@ -1,0 +1,229 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  DEV_NAMESPACE: dev
+
+jobs:
+  # Step 1: Test
+  test:
+    name: 1️⃣ Run Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build admin backend
+        working-directory: src
+        run: mvn clean package -DskipTests -B
+
+      - name: Run tests
+        working-directory: src
+        run: mvn test -B
+
+  # Step 2: Build Docker Image
+  build:
+    name: 2️⃣ Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && needs.test.result == 'success'
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ github.run_number }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+            network=host
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CONTAINER_TOKEN }}
+
+      - name: Set image repository (lowercase)
+        id: image-repo
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend
+          tags: |
+            type=raw,value=${{ github.run_number }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64
+          cache-from: |
+            type=gha
+            type=registry,ref=ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=ghcr.io/${{ steps.image-repo.outputs.repo_owner }}/admin-backend:buildcache,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+  # Step 3: Deploy to Dev
+  deploy-dev:
+    name: 3️⃣ Deploy to Dev
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && needs.build.result == 'success'
+    timeout-minutes: 20
+    environment: dev
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Set image repository (lowercase)
+        id: image-repo
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_owner=${REPO_OWNER}" >> $GITHUB_OUTPUT
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.DEV_KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
+          sed -i 's|server: https://127.0.0.1:6443|server: https://72.62.40.154:6443|g' /tmp/kubeconfig
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl cluster-info
+
+      - name: Ensure reports PVC exists (dev)
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl apply -f - <<'EOF'
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: reports-storage
+            namespace: dev
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 5Gi
+            storageClassName: local-path
+          EOF
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CONTAINER_TOKEN }}
+
+      - name: Configure image pull secrets for GHCR
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.CONTAINER_TOKEN }} \
+            --namespace ${DEV_NAMESPACE} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy admin-backend to dev
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          IMAGE_TAG="${{ needs.build.outputs.image_tag }}"
+          
+          # Check for stuck Helm releases
+          if helm list -n ${DEV_NAMESPACE} -q | grep -q "^admin-backend$"; then
+            STATUS=$(helm status admin-backend -n ${DEV_NAMESPACE} -o json 2>/dev/null | jq -r '.info.status' 2>/dev/null || echo "unknown")
+            if [[ "$STATUS" =~ ^(pending-install|pending-upgrade|pending-rollback|failed)$ ]]; then
+              echo "⚠️  Cleaning up stuck release (status: $STATUS)..."
+              helm rollback admin-backend -n ${DEV_NAMESPACE} --force 2>&1 || true
+              sleep 3
+              helm delete admin-backend -n ${DEV_NAMESPACE} 2>&1 || true
+              sleep 3
+            fi
+          fi
+          
+          # Remove OTel Operator Instrumentation CRs so the operator stops auto-injecting the Java agent
+          kubectl delete instrumentation --all -n ${DEV_NAMESPACE} --ignore-not-found 2>/dev/null || true
+          kubectl annotate namespace ${DEV_NAMESPACE} instrumentation.opentelemetry.io/inject-java- 2>/dev/null || true
+
+          echo "🚀 Deploying to DEV with tag: ${IMAGE_TAG}"
+          helm upgrade --install admin-backend ./charts \
+            --namespace ${DEV_NAMESPACE} \
+            --create-namespace \
+            -f env-values/dev/global.yaml \
+            -f env-values/dev/admin-backend.yaml \
+            --set reports.storage.path=/data/reports \
+            --set reports.storage.existingClaim=reports-storage \
+            --set image.tag=${IMAGE_TAG} \
+            --set image.repository=${REGISTRY}/${{ steps.image-repo.outputs.repo_owner }}/admin-backend \
+            --set imagePullSecrets[0].name=ghcr-secret \
+            --rollback-on-failure \
+            --wait \
+            --timeout=15m
+
+      - name: Verify deployment
+        run: |
+          export KUBECONFIG=/tmp/kubeconfig
+          echo "✅ Dev Deployment Status:"
+          kubectl get pods -n ${DEV_NAMESPACE} -l app.kubernetes.io/name=admin-backend
+          kubectl get svc -n ${DEV_NAMESPACE} -l app.kubernetes.io/name=admin-backend
+

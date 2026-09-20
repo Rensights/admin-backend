@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: rensights-admin-backend
+  
+  # Primary admin database configuration
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/admin_db_dev}
+    username: ${DATABASE_USER:admin}
+    password: ${DATABASE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  
+  # JPA Configuration - disabled auto-configuration since we use custom datasources
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    # SECURITY FIX: Disable SQL logging in production (prevents sensitive data exposure)
+    show-sql: false
+    open-in-view: false
+  
+  # SECURITY: Request size limits to prevent DoS attacks
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: ${SERVER_PORT:8081}
+  # SECURITY: Request size limits to prevent DoS attacks
+  max-http-header-size: 8KB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+jwt:
+  secret: ${JWT_SECRET:admin-secret-key-change-in-production-minimum-32-characters-long}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+cors:
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3001,http://localhost:3002}
+
+app:
+  main-backend-url: ${APP_MAIN_BACKEND_URL:http://localhost:8080}
+  datasource:
+    public:
+      url: ${PUBLIC_DATABASE_URL:jdbc:postgresql://localhost:5432/public_db_dev}
+      username: ${PUBLIC_DATABASE_USER:postgres}
+      password: ${PUBLIC_DATABASE_PASSWORD:password}
+      driver-class-name: org.postgresql.Driver
+  rate-limit:
+    enabled: ${APP_RATE_LIMIT_ENABLED:false}
+
+analysis:
+  api:
+    url: ${ANALYSIS_API_URL:http://10.42.0.1:8000}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:}
+  publishable-key: ${STRIPE_PUBLISHABLE_KEY:}
+
+logging:
+  level:
+    root: INFO
+    com.rensights.admin: DEBUG
+    # SECURITY FIX: Disable SQL logging to prevent sensitive data exposure
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.springframework.jdbc.core: OFF
+    org.springframework.security: WARN
